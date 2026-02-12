@@ -1,0 +1,108 @@
+\documentclass[twocolumn,10pt]{article}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%% LAYOUT & GEOMETRY %%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Replicates the tight margins of a scientific paper
+\usepackage[margin=0.7in, columnsep=0.25in]{geometry}
+\usepackage[english]{babel}
+\usepackage{microtype}      % Micro-typography for cleaner text
+\usepackage{parskip}        % Handles paragraph spacing cleanly
+
+% Set paragraph indentation and spacing to match your preference
+\setlength{\parindent}{15pt}
+\setlength{\parskip}{0pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%% MATH, FONTS & TABLES %%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}        % The standard font you were using
+\usepackage{mathtools,amssymb,bm,graphicx}
+\usepackage{booktabs,array,dcolumn,siunitx}
+\usepackage{tabularx,makecell,adjustbox}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% SECTIONS & CAPTIONS %%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{titlesec}
+\usepackage[labelfont=bf,labelsep=period,font=small]{caption}
+
+% Replicates the tight section spacing
+\titlespacing*{\section}{0pt}{10pt}{4pt}
+\titlespacing*{\subsection}{0pt}{6pt}{3pt}
+\titlespacing*{\subsubsection}{0pt}{6pt}{3pt}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+
+% Bold figure captions (e.g., "Figure 1. Description")
+\captionsetup{figurename=Figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% LISTINGS %%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codebg}{RGB}{245,245,244}
+\definecolor{codekey}{RGB}{0,0,180}
+\definecolor{codestr}{RGB}{163,21,21}
+\definecolor{codecom}{RGB}{0,128,0}
+
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    backgroundcolor=\color{codebg},
+    frame=single,
+    rulecolor=\color{gray!40},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codekey}\bfseries,
+    stringstyle=\color{codestr},
+    commentstyle=\color{codecom}\itshape,
+    numbers=left,
+    numbersep=6pt,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    showstringspaces=false,
+    xleftmargin=10pt,
+    xrightmargin=5pt
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%% BIBLIOGRAPHY %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Enables \parencite and \textcite
+\usepackage[backend=biber,style=authoryear,maxcitenames=2,maxbibnames=99]{biblatex}
+\addbibresource{bib.bib} % <-- change to your .bib filename
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%% HYPERLINKS & REFS %%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[colorlinks=true,allcolors=blue]{hyperref}
+\usepackage{cleveref}
+\crefname{lstlisting}{Listing}{Listings}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\input{01 FRONTMATTER}
+\input{10 INTRO}
+\input{11 METHOD}
+\input{12 RESULT}
+\input{13 CONCLUSION}
+\clearpage
+\input{98 BIB}
+\clearpage
+\onecolumn
+\input{99 APPENDIX}
+
+\end{document}

@@ -1,0 +1,136 @@
+\documentclass[amssymb,twocolumn,aps]{revtex4}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage{mathtools,amssymb,bm,graphicx}
+\usepackage{booktabs,array,dcolumn,siunitx}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{enumitem}
+\usepackage{nameref}
+\usepackage{microtype}
+\usepackage{hyperref}     
+\usepackage{cleveref}      
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{setspace}
+\usepackage{adjustbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%% FIGURE CAPTIONS %%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\def\fnum@figure{\textbf{Figure~\thefigure}}
+\makeatother
+% \usepackage{subcaption}
+% \usepackage{caption}
+% \captionsetup{%
+%   justification   = centerfirst, % Adjusted to center single-line captions and justify multi-line ones
+%   singlelinecheck = false,
+%   labelfont       = bf,
+%   textfont        = small,
+%   margin          = 6pt,
+%   format          = plain,
+%   skip            = 4pt
+% }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%% DISPLAY SPACING %%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% tighten equation / align / align* spacing for revtex4
+\makeatletter
+\g@addto@macro\normalsize{%
+  \setlength{\abovedisplayskip}{6pt}%
+  \setlength{\belowdisplayskip}{6pt}%
+  \setlength{\abovedisplayshortskip}{4pt}%
+  \setlength{\belowdisplayshortskip}{4pt}%
+}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% REDUCE SECTION SPACING %%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\preto{\section}{\vspace{-10pt}}
+\preto{\subsection}{\vspace{-6pt}}
+\preto{\subsubsection}{\vspace{-6pt}}
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{15pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% LISTINGS STYLE %%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\definecolor{codebg}{RGB}{245,245,244}
+\definecolor{codeframe}{RGB}{200,200,200}
+\definecolor{codekeyword}{RGB}{0,0,180}
+\definecolor{codestring}{RGB}{163,21,21}
+\definecolor{codecomment}{RGB}{0,128,0}
+\definecolor{codeidentifier}{RGB}{75,0,130}
+
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    backgroundcolor=\color{codebg},
+    frame=single,
+    rulecolor=\color{codeframe},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codekeyword}\bfseries,
+    stringstyle=\color{codestring},
+    commentstyle=\color{codecomment}\itshape,
+    identifierstyle=\color{codeidentifier},
+    showstringspaces=false,
+    breaklines=true,
+    captionpos=b,
+    tabsize=4,
+    numbers=left,
+    numbersep=6pt,
+    numberstyle=\tiny\color{gray},
+    framexleftmargin=6pt,
+    framextopmargin=4pt,
+    framexbottommargin=4pt,
+    xleftmargin=10pt,
+    xrightmargin=5pt
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% GENERAL SETTINGS %%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\refname}{\textbf{References}}
+\crefname{lstlisting}{Listing}{Listings}
+\Crefname{lstlisting}{Listing}{Listings}
+\usepackage{microtype}
+\microtypecontext{spacing=nonfrench}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\input{01 TITLE}
+\onecolumngrid
+\input{02 ABSTRACT}
+\vspace{2em}
+\twocolumngrid
+\input{10 INTRO}
+\input{11 METHOD}
+\input{12 RESULT}
+\input{13 CONCLUSION}
+\clearpage
+\onecolumngrid
+\input{99 APPENDIX}
+\end{document}
