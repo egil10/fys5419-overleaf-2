@@ -2,22 +2,40 @@
 
 \begin{table*}[h]
     \centering
-    \caption{Influential Figures and Their Seminal Contributions}
+    \caption{Influential Figures and Their Seminal Contributions to Quantum Computing}
     \label{tab:quantum_figures}
     \begin{tabular}{@{}lll@{}}
         \toprule
-        \textbf{Figure} & \textbf{Field} & \textbf{Most Famous Work / Contribution} \\ 
+        \textbf{Figure} & \textbf{Field} & \textbf{Most Famous Work / Contribution} \\
         \midrule
-        Max Planck & Quantum Mechanics & Discovery of energy quanta ($E = h\nu$) \\
-        Niels Bohr & Quantum Mechanics & The Bohr Model of the atom and Complementarity \\
-        Werner Heisenberg & Quantum Mechanics & The Uncertainty Principle and Matrix Mechanics \\
-        Erwin Schrödinger & Quantum Mechanics & The Schrödinger Equation and Wave Mechanics \\
-        Richard Feynman & QM / Computing & Path Integral Formulation and Quantum Simulators \\
-        John Bell & Quantum Foundations & Bell's Theorem (Violating Local Realism) \\
-        Seth Lloyd & Quantum ML & Quantum Principal Component Analysis (QPCA) \\
-        Peter Shor & Quantum Algorithms & Shor's Factoring Algorithm (Exponential Speedup) \\
-        Maria Schuld & Quantum ML & Quantum Kernels and Variational Quantum Circuits \\
-        Aram Harrow & Quantum ML & The HHL Algorithm for Linear Systems of Equations \\
+        Max Planck       & Quantum Mechanics   & Discovery of energy quanta ($E = h\nu$) \\
+        Niels Bohr       & Quantum Mechanics   & Bohr model of the atom and complementarity \\
+        Werner Heisenberg & Quantum Mechanics  & Uncertainty principle and matrix mechanics \\
+        Erwin Schrödinger & Quantum Mechanics  & Schrödinger equation and wave mechanics \\
+        Richard Feynman  & QM / Computing      & Path-integral formulation and quantum simulators \\
+        John Bell        & Quantum Foundations & Bell's theorem (violation of local realism) \\
+        Peter Shor       & Quantum Algorithms  & Shor's factoring algorithm (exponential speedup) \\
+        Lov Grover       & Quantum Algorithms  & Grover search (quadratic speedup for unstructured search) \\
+        Maria Schuld     & Quantum ML          & Quantum kernels and variational quantum circuits \\
+        Edward Farhi     & QAOA                & Quantum Approximate Optimization Algorithm \\
+        \bottomrule
+    \end{tabular}
+\end{table*}
+
+\begin{table*}[h]
+    \centering
+    \caption{QAOA Circuit Components}
+    \label{tab:qaoa_components}
+    \begin{tabular}{@{}llp{8cm}@{}}
+        \toprule
+        \textbf{Component} & \textbf{Notation} & \textbf{Description} \\
+        \midrule
+        Initial state       & $|+\rangle^{\otimes n}$        & Uniform superposition prepared by Hadamard gates on all $n$ qubits \\
+        Cost unitary        & $U_C(\gamma)$                  & Phase rotations proportional to the QUBO objective; encodes problem structure \\
+        Mixer unitary       & $U_B(\beta)$                   & $R_X(2\beta)$ rotations on each qubit; drives exploration of solution space \\
+        Ansatz state        & $|\psi(\boldsymbol{\gamma},\boldsymbol{\beta})\rangle$ & Alternating product of $p$ cost and mixer layers \\
+        Cost function       & $F_p(\boldsymbol{\gamma},\boldsymbol{\beta})$          & Expectation value of the cost operator $C$; minimized classically \\
+        Approximation ratio & $r = F_p / F_{\mathrm{opt}}$   & Quality metric relative to exact brute-force optimum \\
         \bottomrule
     \end{tabular}
 \end{table*}

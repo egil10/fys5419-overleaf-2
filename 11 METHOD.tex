@@ -1,31 +1,97 @@
 \section{Methods}\label{section:methods}
 
-This is the methods section, lorem ipsum.
+\subsection{Portfolio Optimization and Combinatorial Constraints}
 
-For NBIM, might be relevant with: Constrained Portfolio Optimization using Variational Quantum Eigensolvers (VQE) or QAOA. 
-
-The Method:Formulate the "Minimum Volatility" problem. Instead of maximizing $Return - Risk$, you simply minimize $w^T \Sigma w$ (where $w$ is weights, $\Sigma$ is the covariance matrix).The Twist: Add a constraint that makes it hard for classical computers, such as "Cardinality Constraints" (e.g., "Select exactly $K$ assets out of $N$ that give the lowest total volatility").The Quantum Part: Map this to a QUBO (Quadratic Unconstrained Binary Optimization) problem and solve it using VQE.
-
-
-
-The Dataset Construction:Segment A: The Global Financial Crisis (Sept 2008 – Mar 2009) → 150 days of pure panic.Segment B: The Euro Debt Crisis (Selected months in 2011) → 50 days of high volatility.Segment C: The Covid Crash (Feb 2020 – April 2020) → 50 days of extreme speed.Segment D: The Inflation Shock (2022) → 100 days of slow grind.Total Data: \~300–400 data points (Daily Returns).Why this works:Perfect Size: 400 points is perfect for a Quantum Circuit Born Machine (QCBM). It’s enough to define a probability distribution but small enough to train quickly on a simulator.Signal-to-Noise: You have removed the 90\% of history where nothing happens. Your model will learn a "Fat Tailed" distribution (high probability of extreme events), which is the Holy Grail of risk management.2. The Granularity Issue (Daily vs. Sub-daily)Stick to Daily Data.Reason 1: You cannot get free, reliable 1-minute data from 2008. It doesn't exist in public APIs.Reason 2: Sub-daily data is "noisy." A 1-minute crash is often just a glitch. A daily crash (-5\% close-to-close) is a macroeconomic event.The "Pro" Move: If you want to show off, use "Log Returns" rather than raw prices.
-
-$R_t = \ln(\frac{P_t}{P_{t-1}})$
-
-This normalizes the price difference (so the S\&P 500 at 900 points in 2008 is mathematically comparable to S\&P 500 at 5000 points in 2026).
-
-
----
-
-
-
-NBIM’s report admits that most of history is irrelevant for stress testing.The "Water": 95\% of market history is boring. Prices go up 0.1\% or down 0.1\%. This data contains almost zero information about risk.The "Poison": The crashes (2008, 2020) are where the physics of the market change.Your Strategy: By stitching together only the crashes (approx. 400–500 days), you are creating a dataset that is 100\% signal and 0\% noise. You are training the quantum computer purely on the "physics of disaster."In your report: You frame this as "Regime-Specific Training." You aren't modeling "The Stock Market"; you are modeling "The Crisis Regime." This is a sophisticated econometric technique, not a shortcut.2. How to make the project "Bigger" (The Multi-Asset Twist)If you are worried that just predicting "The S\&P 500" is too simple, you can instantly make the project "cracked" by adding dimensions.NBIM’s report (Source 266, Chart 9) shows losses across Equities, Fixed Income, and Real Assets.Instead of feeding your quantum circuit just one number (Stock Return), feed it a Vector of 3 numbers for each day:Equity Return (S\&P 500)Bond Return (US 10Y Treasury)Oil Price Return (Brent Crude - highly relevant for Norway)Now the math gets hard:Input: 400 days $\times$ 3 assets = 1,200 data points.The Challenge: The Quantum Circuit now has to learn not just the probability of a crash, but the Correlation Structure during a crash.Normal times: Stocks up, Bonds down (Negative correlation).Crash times: Stocks down, Oil down, Bonds ?? (Correlations often break or flip).The Win: If your QCBM can successfully generate synthetic data where Stocks and Oil crash together (which hurts NBIM the most), you have effectively modeled the "Fragmented World" scenario mentioned in their report.+13. The "Big Data" is in the Output, not the InputThe value of a Generative Model (like ChatGPT or your QCBM) isn't the size of the training set; it's the infinite amount of unique data it can produce.Input: ~500 days of historical crashes.Output: You will generate 10,000+ new crash days for your simulation.The "Flex": In your 10-page report, you don't show a table of the 500 input days. You show a 3D Density Plot of the 10,000 generated days, comparing it to the historical distribution to prove your quantum model "learned" the shape of the risk.4. Summary: The "Cracked" Semester Project PlanHere is the final, confident outline for the "Black Swan" project:Title: Generative Quantum Learning for Multi-Asset Stress Testing of the GPFGData Curation (The "Museum of Disasters"):Source daily returns for Equities (SPY), Bonds (TLT), and Energy (XLE).Filter for high-volatility regimes: 2008 (Financial Crisis), 2020 (Covid), 2022 (Inflation/War).Total Data: ~500 days of "Crisis Vectors."The Quantum Model (QCBM):Use a Variational Quantum Circuit (VQE/QCBM).Ansatz: Use RealAmplitudes or TwoLocal circuit from Qiskit.Training: Minimize the distance (KL Divergence) between the quantum distribution and your "Crisis Data."The Stress Test (The "Application"):Generate 1,000 synthetic "Future 2026" timelines.Calculate the Expected Shortfall (ES) for a portfolio holding these 3 assets.Compare it to NBIM's reported ES  to see if your quantum model predicts larger potential losses (i.e., is it more conservative/safe?).+1Conclusion:"NBIM's current stress tests rely on historical replay. This project demonstrates that Quantum Generative AI can synthesize novel correlation breakdowns, providing a more rigorous test for 'Black Swan' events."
+The portfolio optimization problem seeks to allocate capital across $n$ assets such that
+risk is minimized subject to a return target. In the Markowitz mean–variance framework
+\parencite{markowitz1952}, the continuous relaxation is
+\[
+  \min_{w \in \mathbb{R}^n} \; w^T \Sigma w - \mu^T w,
+\]
+where $w$ is the weight vector, $\Sigma \in \mathbb{R}^{n \times n}$ is the asset
+covariance matrix, and $\mu \in \mathbb{R}^n$ is the vector of expected returns.
+Classical solutions scale polynomially in $n$, but adding a \textit{cardinality
+constraint}—restricting the portfolio to exactly $K$ out of $N$ assets—renders the
+problem NP-hard \parencite{hastie}. This combinatorial structure motivates a quantum
+approach.
 
 \subsection{Quadratic Unconstrained Binary Optimization (QUBO)}
 
-\[
-\min_{x\in\{0,1\}^n} \left( qx^T\Sigma x-\mu^Tx+\lambda(1^Tx-B)^2 \right)
-\]
+To apply QAOA, the portfolio selection problem is reformulated as a Quadratic
+Unconstrained Binary Optimization (QUBO). Introducing binary decision variables
+$x_i \in \{0,1\}$ indicating whether asset $i$ is included, the objective becomes
+\begin{equation}\label{eq:qubo}
+  \min_{x \in \{0,1\}^n}
+    \left(
+      q\,x^T\Sigma x
+      - \mu^T x
+      + \lambda\,(\mathbf{1}^T x - B)^2
+    \right),
+\end{equation}
+where $q > 0$ is a risk-tolerance parameter, $B$ is the target number of assets
+(the budget constraint), and $\lambda \gg 1$ is a penalty coefficient that
+forces the optimizer to respect the cardinality condition. The quadratic penalty
+term in \cref{eq:qubo} vanishes when exactly $B$ assets are selected, reducing
+the problem to the pure risk–return trade-off.
 
-where $q$ is risk tolerance, $B$ is budget/number of assets to pick, and $\lambda$ is a massive penalty factor to ensure the algorithm respects the budget.
+Daily log-returns are used throughout to ensure stationarity and comparability
+across price levels:
+\begin{equation}\label{eq:logret}
+  r_t = \ln\!\left(\frac{P_t}{P_{t-1}}\right).
+\end{equation}
 
+\subsection{QAOA Circuit Architecture}
+
+The QAOA ansatz \parencite{zhou2018qaoa} alternates between a \textit{cost unitary}
+$U_C(\gamma)$ that encodes the QUBO objective and a \textit{mixer unitary}
+$U_B(\beta)$ that explores the binary solution space. For $p$ alternating layers,
+the parameterized state is
+\begin{equation}\label{eq:qaoa_state}
+  |\psi(\boldsymbol{\gamma},\boldsymbol{\beta})\rangle
+  = U_B(\beta_p)\,U_C(\gamma_p)\cdots U_B(\beta_1)\,U_C(\gamma_1)\,|+\rangle^{\otimes n}.
+\end{equation}
+The initial state $|+\rangle^{\otimes n}$ is prepared by applying a Hadamard gate
+to each of the $n$ qubits. The cost unitary applies $ZZ$-interaction phase rotations
+proportional to the QUBO energy, while the standard $X$-mixer applies $R_X(2\beta)$
+rotations to each qubit. The variational parameters
+$(\boldsymbol{\gamma},\boldsymbol{\beta}) \in \mathbb{R}^{2p}$ are optimized
+classically to minimize the expected cost
+\begin{equation}\label{eq:cost}
+  F_p(\boldsymbol{\gamma},\boldsymbol{\beta})
+  = \langle\psi(\boldsymbol{\gamma},\boldsymbol{\beta})|C|\psi(\boldsymbol{\gamma},\boldsymbol{\beta})\rangle,
+\end{equation}
+where $C$ is the diagonal cost operator corresponding to \cref{eq:qubo}.
+Increasing $p$ allows the circuit to explore more of the solution landscape,
+with the exact solution recovered in the limit $p \to \infty$
+\parencite{giovagnoli_qaoa_intro}.
+
+\subsection{Classical--Quantum Hybrid Optimization Loop}
+
+Optimization proceeds via a classical outer loop that iteratively updates
+$(\boldsymbol{\gamma},\boldsymbol{\beta})$ based on the expectation value returned
+by quantum circuit evaluations. The gradient-free COBYLA optimizer is used for
+low-$p$ runs; L-BFGS-B with parameter-shift gradients is used for deeper circuits.
+Circuit execution is performed using Qiskit's statevector simulator for noiseless
+benchmarking and the \texttt{qasm\_simulator} for shot-noise experiments
+\parencite{ibm_qaoa_tutorial}. The approximation ratio
+\begin{equation}\label{eq:approx_ratio}
+  r = \frac{F_p(\boldsymbol{\gamma}^*,\boldsymbol{\beta}^*)}{F_{\mathrm{opt}}}
+\end{equation}
+measures solution quality relative to the exact brute-force optimum $F_{\mathrm{opt}}$,
+which is tractable for small asset universes ($n \lesssim 20$).
+
+\subsection{Dataset and Regime Selection}
+
+Assets are drawn from three classes representing distinct risk factors: equities
+(S\&P 500 ETF, SPY), fixed income (US 10-year Treasury ETF, TLT), and energy
+(energy sector ETF, XLE). The covariance matrix $\Sigma$ and return vector $\mu$
+are estimated from daily log-returns during three historical crisis windows:
+\begin{itemize}
+  \item \textbf{Global Financial Crisis} — September 2008 to March 2009 ($\approx 150$ trading days);
+  \item \textbf{COVID-19 crash} — February to April 2020 ($\approx 50$ trading days);
+  \item \textbf{2022 inflation shock} — January to December 2022 ($\approx 250$ trading days).
+\end{itemize}
+Focusing on crisis regimes removes the low-information ``quiet'' periods that
+dominate full-history estimation and ensures that $\Sigma$ reflects elevated
+volatility and correlation breakdowns characteristic of stress conditions—the
+most demanding test for a portfolio optimizer.
