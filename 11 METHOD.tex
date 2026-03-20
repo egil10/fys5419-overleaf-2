@@ -13,7 +13,7 @@ covariance matrix, and $\mu \in \mathbb{R}^n$ is the vector of expected returns.
 Classical solutions scale polynomially in $n$, but adding a \textit{cardinality
 constraint}—restricting the portfolio to exactly $K$ out of $N$ assets—renders the
 problem NP-hard \parencite{hastie}. This combinatorial structure motivates a quantum
-approach.
+approach \parencite{mancilla2026constrained,thomassin2025slack}.
 
 \subsection{Quadratic Unconstrained Binary Optimization (QUBO)}
 
@@ -73,7 +73,7 @@ by quantum circuit evaluations. The gradient-free COBYLA optimizer is used for
 low-$p$ runs; L-BFGS-B with parameter-shift gradients is used for deeper circuits.
 Circuit execution is performed using Qiskit's statevector simulator for noiseless
 benchmarking and the \texttt{qasm\_simulator} for shot-noise experiments
-\parencite{ibm_qaoa_tutorial}. The approximation ratio
+\parencite{ibm_qaoa_tutorial,shen2025noisy}. The approximation ratio
 \begin{equation}\label{eq:approx_ratio}
   r = \frac{F_p(\boldsymbol{\gamma}^*,\boldsymbol{\beta}^*)}{F_{\mathrm{opt}}}
 \end{equation}

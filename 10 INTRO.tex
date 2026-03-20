@@ -16,3 +16,9 @@ Together, these works illustrate how hybrid optimization loops between classical
 More broadly, quantum computation and quantum information theory provide the conceptual framework linking these developments, including complexity-theoretic motivation and algorithmic primitives such as amplitude amplification and phase estimation \parencite{nielsen_chuang}.
 
 The QAOA workflow can also be implemented using modern quantum SDKs such as Qiskit, which provide end-to-end tutorials covering circuit construction, parameter optimization, and execution on simulators or hardware \parencite{ibm_qaoa_tutorial}.
+
+Recent work has applied these variational quantum methods specifically to portfolio optimization.
+Constraint-preserving QAOA formulations using XY-mixers enforce the cardinality budget directly in the circuit ansatz \parencite{mancilla2026constrained}, while slack-variable and ancilla-qubit encodings embed mixed-binary inequality constraints into the problem Hamiltonian \parencite{thomassin2025slack}.
+Scaling to larger asset universes has been pursued via Pauli correlation encoding, assigning multiple portfolio variables per qubit \parencite{soloviev2025pauli}, and via quantum circuit cutting, enabling execution of circuits too large for current hardware \parencite{soloviev2025cutting}.
+Quantum annealing provides a complementary hardware paradigm for the same optimization task \parencite{morapakula2025annealing}.
+Extensive benchmarks against classical solvers indicate that near-term quantum advantage in portfolio optimization remains limited, with QAOA performing well in noiseless simulation but degrading under realistic device noise \parencite{stopfer2025benchmark,shen2025noisy}.
