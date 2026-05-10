@@ -1,97 +1,86 @@
 \section{Methods}\label{section:methods}
 
-\subsection{Portfolio Optimization and Combinatorial Constraints}
 
-The portfolio optimization problem seeks to allocate capital across $n$ assets such that
-risk is minimized subject to a return target. In the Markowitz mean–variance framework
-\parencite{markowitz1952}, the continuous relaxation is
-\[
-  \min_{w \in \mathbb{R}^n} \; w^T \Sigma w - \mu^T w,
-\]
-where $w$ is the weight vector, $\Sigma \in \mathbb{R}^{n \times n}$ is the asset
-covariance matrix, and $\mu \in \mathbb{R}^n$ is the vector of expected returns.
-Classical solutions scale polynomially in $n$, but adding a \textit{cardinality
-constraint}—restricting the portfolio to exactly $K$ out of $N$ assets—renders the
-problem NP-hard \parencite{hastie}. This combinatorial structure motivates a quantum
-approach \parencite{mancilla2026constrained,thomassin2025slack}.
+\subsection{Mean-Variance Portfolio Optimisation}
 
-\subsection{Quadratic Unconstrained Binary Optimization (QUBO)}
 
-To apply QAOA, the portfolio selection problem is reformulated as a Quadratic
-Unconstrained Binary Optimization (QUBO). Introducing binary decision variables
-$x_i \in \{0,1\}$ indicating whether asset $i$ is included, the objective becomes
-\begin{equation}\label{eq:qubo}
-  \min_{x \in \{0,1\}^n}
-    \left(
-      q\,x^T\Sigma x
-      - \mu^T x
-      + \lambda\,(\mathbf{1}^T x - B)^2
-    \right),
-\end{equation}
-where $q > 0$ is a risk-tolerance parameter, $B$ is the target number of assets
-(the budget constraint), and $\lambda \gg 1$ is a penalty coefficient that
-forces the optimizer to respect the cardinality condition. The quadratic penalty
-term in \cref{eq:qubo} vanishes when exactly $B$ assets are selected, reducing
-the problem to the pure risk–return trade-off.
-
-Daily log-returns are used throughout to ensure stationarity and comparability
-across price levels:
-\begin{equation}\label{eq:logret}
-  r_t = \ln\!\left(\frac{P_t}{P_{t-1}}\right).
+\begin{equation}
+    \text{Financial Data} \rightarrow (\mu,\Sigma) \rightarrow \text{QUBO} \rightarrow \text{Ising Hamiltonian} \rightarrow \text{Pauli operators} \rightarrow \text{QAOA}
 \end{equation}
 
-\subsection{QAOA Circuit Architecture}
-
-The QAOA ansatz \parencite{zhou2018qaoa} alternates between a \textit{cost unitary}
-$U_C(\gamma)$ that encodes the QUBO objective and a \textit{mixer unitary}
-$U_B(\beta)$ that explores the binary solution space. For $p$ alternating layers,
-the parameterized state is
-\begin{equation}\label{eq:qaoa_state}
-  |\psi(\boldsymbol{\gamma},\boldsymbol{\beta})\rangle
-  = U_B(\beta_p)\,U_C(\gamma_p)\cdots U_B(\beta_1)\,U_C(\gamma_1)\,|+\rangle^{\otimes n}.
+\begin{equation}
+    \min_x \left( -\mu^\top x + \lambda x^\top \Sigma x \right)
 \end{equation}
-The initial state $|+\rangle^{\otimes n}$ is prepared by applying a Hadamard gate
-to each of the $n$ qubits. The cost unitary applies $ZZ$-interaction phase rotations
-proportional to the QUBO energy, while the standard $X$-mixer applies $R_X(2\beta)$
-rotations to each qubit. The variational parameters
-$(\boldsymbol{\gamma},\boldsymbol{\beta}) \in \mathbb{R}^{2p}$ are optimized
-classically to minimize the expected cost
-\begin{equation}\label{eq:cost}
-  F_p(\boldsymbol{\gamma},\boldsymbol{\beta})
-  = \langle\psi(\boldsymbol{\gamma},\boldsymbol{\beta})|C|\psi(\boldsymbol{\gamma},\boldsymbol{\beta})\rangle,
+
+$-\mu^\top x$ maximises expected return and $\lambda x^\top \Sigma x$ penalises portfolio variance (risk).
+
+\begin{equation}
+    \sum_{i=1}^{n} x_i = K
 \end{equation}
-where $C$ is the diagonal cost operator corresponding to \cref{eq:qubo}.
-Increasing $p$ allows the circuit to explore more of the solution landscape,
-with the exact solution recovered in the limit $p \to \infty$
-\parencite{giovagnoli_qaoa_intro}.
 
-\subsection{Classical--Quantum Hybrid Optimization Loop}
-
-Optimization proceeds via a classical outer loop that iteratively updates
-$(\boldsymbol{\gamma},\boldsymbol{\beta})$ based on the expectation value returned
-by quantum circuit evaluations. The gradient-free COBYLA optimizer is used for
-low-$p$ runs; L-BFGS-B with parameter-shift gradients is used for deeper circuits.
-Circuit execution is performed using Qiskit's statevector simulator for noiseless
-benchmarking and the \texttt{qasm\_simulator} for shot-noise experiments
-\parencite{ibm_qaoa_tutorial,shen2025noisy}. The approximation ratio
-\begin{equation}\label{eq:approx_ratio}
-  r = \frac{F_p(\boldsymbol{\gamma}^*,\boldsymbol{\beta}^*)}{F_{\mathrm{opt}}}
+\begin{equation}
+    C(x) = -\mu^\top x + \lambda x^\top \Sigma x + A \left( \sum_{i=1}^{n} x_i - K \right)^2
 \end{equation}
-measures solution quality relative to the exact brute-force optimum $F_{\mathrm{opt}}$,
-which is tractable for small asset universes ($n \lesssim 20$).
 
-\subsection{Dataset and Regime Selection}
+where $A>0$ is a penalty coefficient chosen large enough that the minimum of $C(x)$ always satisfies the budget constraint.
 
-Assets are drawn from three classes representing distinct risk factors: equities
-(S\&P 500 ETF, SPY), fixed income (US 10-year Treasury ETF, TLT), and energy
-(energy sector ETF, XLE). The covariance matrix $\Sigma$ and return vector $\mu$
-are estimated from daily log-returns during three historical crisis windows:
-\begin{itemize}
-  \item \textbf{Global Financial Crisis} — September 2008 to March 2009 ($\approx 150$ trading days);
-  \item \textbf{COVID-19 crash} — February to April 2020 ($\approx 50$ trading days);
-  \item \textbf{2022 inflation shock} — January to December 2022 ($\approx 250$ trading days).
-\end{itemize}
-Focusing on crisis regimes removes the low-information ``quiet'' periods that
-dominate full-history estimation and ensures that $\Sigma$ reflects elevated
-volatility and correlation breakdowns characteristic of stress conditions—the
-most demanding test for a portfolio optimizer.
+\begin{equation}
+    r_i(t) = \frac{P_i(t+1)-P_i(t)}{P_i(t)} \approx \ln\frac{P_i(t+1)}{P_i(t)}
+\end{equation}
+
+\begin{equation}
+    \mu_i = \langle r_i \rangle_t \quad \Sigma_{ij} = \langle r_ir_j \rangle - \langle r_i \rangle \langle r_j \rangle
+\end{equation}
+
+
+\subsection{Quadratic Unconstrained Binary Optimisation (QUBO)}
+QUBO formulation
+
+
+\begin{equation}
+    \min_{x\in\{0,1\}^n} C(x) = \sum_i Q_{ii} x_i + \sum_{i<j} Q_{ij} x_i x_j
+\end{equation}
+
+where for binary variables $x_i^2=x_i$
+
+\begin{equation}
+    C(x) = \sum_i \left[ -\mu_i + \lambda\Sigma_{ii} + A(1-2K) \right] x_i + \sum_{i<j}\left[ 2\lambda\Sigma_{ij}+2A\right]x_ix_j + AK^2
+\end{equation}
+
+\begin{equation}
+    C(x) = \sum_i \underbrace{\bigl[-\mu_i + \lambda\Sigma_{ii} + A(1-2K)\bigr]}_{Q_{ii}}\, x_i + \sum_{i<j} \underbrace{\bigl[2\lambda\Sigma_{ij} + 2A\bigr]}_{Q_{ij}}\, x_i x_j + \underbrace{AK^2}_{\text{const}},
+\end{equation}
+
+\begin{equation}
+    \boxed{
+    Q_{ii} = -\mu_i + \lambda\Sigma_{ii} + A(1-2K) 
+    \quad
+    Q_{ij} = 2\lambda\Sigma_{ij} + 2A
+    \quad
+    (i>j)
+    }
+\end{equation}
+
+\subsection{Ising Hamiltonian Mapping}
+
+Mapping $x_i \in \{0,1\}$ to spin variables $z_i\in\{-1,+1\}$ via 
+\begin{equation}
+    x_i = \frac{1-z_i}{2}
+\end{equation}
+
+Substituting into $C(x)$ and collecting terms by degree giving and Ising Hamiltonian. 
+\begin{equation}
+    H(z) = \sum_i h_iz_i - \frac{1}{4} \sum_{j \neq i} Q_{ij} 
+    \quad
+    J_{ij} = \frac{Q_{ij}}{4}
+    \quad
+    (i<j)
+\end{equation}
+
+and the total additive constant is 
+\begin{equation}
+    c = \text{offset} + \frac{1}{2} \sum_i Q_{ii} + \frac{1}{4} \sum_{i<j} Q_{ij}
+\end{equation}
+
+Such that $H(z)+c=C(x)\quad\forall x$
+
