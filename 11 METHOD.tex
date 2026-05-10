@@ -84,3 +84,194 @@ and the total additive constant is
 
 Such that $H(z)+c=C(x)\quad\forall x$
 
+\subsection{Quantum Pauli Operators and Cost Hamiltonian}
+
+$z_i\in\{-1,+1\}$
+
+\begin{equation}
+    z_i \longrightarrow \hat{Z}_i = I^{\otimes(i)} 
+    \otimes
+    Z
+    \otimes 
+    I^{\otimes(n-i-1)}
+\end{equation}
+
+\begin{equation}
+    Z =
+    \begin{pmatrix}
+        1 & 0 \\
+        0 & -1
+    \end{pmatrix}
+\end{equation}
+
+has eigenvalues $\pm 1$ 
+
+The costing Hamiltonian is then the $2^n\times2^n$ matrix
+\begin{equation}
+    \boxed{
+    H_c = \sum_i h_i \hat{Z}_i + \sum_{i<j} J_{ij} \hat{Z}_i\hat{Z}_j
+    }
+\end{equation}
+
+Every computational basis state $|z\rangle$ is an eigenstate of $H_c$ with eigenvalue $H(z) = \Sigma_i h_iz_i +  \Sigma_{i<j}J_{ij}z_iz_j$
+
+The mixing Hamiltonian drives quantum tunneling between bistring states
+\begin{equation}
+    H_m=\sum_{i=j}^{n}\hat{X}_i 
+    \quad 
+    X=\begin{pmatrix}
+        0&1\\1&0
+    \end{pmatrix}
+\end{equation}
+
+\subsection{QAOA Algorithm}
+
+Single-layer $p=1$ ansatz
+\begin{equation}
+    |\psi(\gamma,\beta)\rangle =
+    e^{-i \beta H_m}
+    e^{-i \gamma H_c}
+    |+\rangle^{\otimes n}
+\end{equation}
+
+Where $e^{-i \gamma H_c}$ is the phase separation uniteray, it phases each basis state by $e^{-i\gamma H(z)}$ encoding cost information into amplitudes.
+
+$e^{-i\beta H_m}$ is the mixing unitary, it spreads amplitued between states, allowing transitions betwee candidate solutions. 
+
+\begin{equation}
+    \underbrace{H^{\otimes n}}_{\text{superposition}} 
+    \longrightarrow
+    \underbrace{e^{i\gamma H_c}}_{\text{phase separation}} 
+    \longrightarrow
+    \underbrace{e^{-i\beta H_m}}_{\text{mixing}}
+    \longrightarrow
+    \underbrace{\text{measure}}_{z-\text{basis}}
+\end{equation}
+
+Multi-layer $p>1$ ansatz, for depth $p$, alternate $p$ cost, and $p$ mixer layers
+\begin{equation}
+    |\psi(\gamma,\beta)\rangle =
+    \prod_{k=1}^{p}
+    \left(
+    e^{-i\beta_k H_m}
+    e^{-i\gamma_k H_C}
+    \right)
+    |+\rangle^{\otimes n}
+\end{equation}
+
+With $2p$ variational parameters $(\gamma_1, \dots, \gamma_p, \beta_1, \dots, \beta_p)$
+
+The classical optimiser minimises the energy expectation value 
+\begin{equation}
+    E(\gamma, \beta) = 
+    \langle \psi(\gamma,\beta) | H_C | \psi(\gamma,\beta)\rangle
+\end{equation}
+
+Since $H_C$ is diagonal with eigenvalues $H(z)$ this equals
+\begin{equation}
+    E = \sum_{z \in \{ -1, +1 \}^n} H(z) |\langle z | \psi \rangle | ^2
+\end{equation}
+
+\subsection{Code}
+
+\begin{itemize}
+    \item Set parameters: $\lambda, A, K$
+    \item Build the QUBO matrix: $Q$
+    \item Convert to Ising coefficients: $(h, J, c)$
+    \item Build the quantum operators $H_C$ and $H_m$
+    \item Run brute-force classical search (except for validation)
+    \item Run QAOA for $p=1,2,3$ and compare
+\end{itemize}
+
+\subsection{Statistical Physics Connection}
+
+The ising Hamiltonian
+\begin{equation}
+    H(z) = \sum_i h_iz_i + \sum_{i<j} J_{ij} z_i z_j
+\end{equation}
+defines a classical partition function at inverse temperature $\beta_{th}$
+
+\begin{equation}
+    z = \sum_{\{z\}} e^{-\beta_{th}H(z)}
+\end{equation}
+
+and the associated free energy
+\begin{equation}
+     F = -\frac{1}{\beta_{th}}\ln Z
+\end{equation}
+
+QAOA as variational free-energy minimisation, can be understood as a variational approximation of the ground state of $H_c$ 
+\begin{equation}
+    E(\gamma, \beta) = \langle \psi | H_C | \psi \rangle \geq E_0
+\end{equation}
+
+\subsection{Quantum Neural Network for Portfolio Optimisation}
+
+For asset $i$ with feature vector $\phi_i\in \mathbb{R}^{F}$ and trainable weight matrices $W^Y,W^Z \in \mathbb{R}^{L\times F}$ the circuit is
+\begin{equation}
+    | \psi_i \rangle = \prod_{t=1}^{L} 
+    R_Z \left((W_l^Z)^\top \phi_i\right)R_Y\left((W_l^Y)^\top\phi_i\right)|0\rangle
+\end{equation}
+
+where each layer encodes the data afresh via the rotations
+\begin{equation}
+    R_Y(\theta) = 
+    \begin{pmatrix}
+        \cos\frac{\theta}{2} & -\sin\frac{\theta}{2} \\
+        \sin\frac{\theta}{2} & \cos\frac{\theta}{2}
+    \end{pmatrix} 
+    \quad
+    R_Z(\theta) = 
+    \begin{pmatrix}
+        e^{-i\frac{\theta}{2}} & 0 \\
+        0 & e^{i\frac{\theta}{2}}
+    \end{pmatrix}
+\end{equation}
+
+The feature vector is augmented with a bias term $\phi_i=(\mu_i^{\text{sc}}, \sigma_i^{\text{sc}}, 1)$ so the weight matrix also plays the role of trainable offsets. The circuit output is the $Z$-expectation:
+\begin{equation}
+    s_i 
+    = \langle \psi_i | Z | \psi_i \rangle
+    = |\langle 0 | \psi_i \rangle | ^2 
+    - |\langle 1 | \psi_i \rangle | ^2
+    \in [-1, +1]
+\end{equation}
+
+Differentiable portfolio selection, to connect the scores to a differentiable portfolio cost, we use a sigmoid-based soft ranking. Find a threshold $t$ such that
+\begin{equation}
+    p_i = \sigma(\alpha(s_i-t)) \quad \sum_i p_i = K
+\end{equation}
+where $\sigma(x) = (1+e^{-x})^{-1}$ and $\alpha$ is a sharpness parameter. The threshold is found by bisection. The continous selection probabilities $p_i\in(0,1)$ then enter the mean-variance cost:
+\begin{equation}
+    \mathcal{L}(W^Y,W^Z) = 
+    \bm{-\mu^\top}\mathbf{p} + \lambda \mathbf{p}^\top\Sigma\mathbf{p} + 
+    \left(
+    \sum_i p_i - K
+    \right)^2
+\end{equation}
+
+Parameter shift-rule 
+\begin{equation}
+    \frac{\partial s_i}{\partial W_{lf}^Y}
+    = 
+    \frac{s_i(W_{lf}^Y + \frac{\pi}{2}) - s_i(W_{lf}^Y - \frac{\pi}{2})}{2}
+\end{equation}
+
+The ADAM optimiser 
+\begin{equation}
+    m_t = \beta_1 m_{t-1} + (1-\beta_1) \nabla\mathcal{L}
+\end{equation}
+\begin{equation}
+    v_t = \beta_2v_{t-1} + (1-\beta_2)(\nabla\mathcal{L})^2
+\end{equation}
+\begin{equation}
+    W \leftarrow W - \eta \frac{\hat{m}_t}{\sqrt{\hat{v}_t}+\varepsilon}
+\end{equation}
+With bias-corrected moments
+\begin{equation}
+    \hat{m}_t = \frac{m_t}{(1-\beta_1^t)}
+\end{equation}
+\begin{equation}
+    \hat{v}_t = \frac{v_t}{(1-\beta_2^t)}
+\end{equation}
+
