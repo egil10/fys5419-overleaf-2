@@ -1,42 +1,44 @@
-\section{Appendix}\label{section:appendix}
+\section{Appendix}
+\label{section:appendix}
 
-% =====================================================================
-%   APPENDIX
-%   Per EvaluationForm.md:
-%     - Additional calculations used to validate the codes.
-%     - Selected calculations, briefly commented.
-%     - Code listings if you feel this is necessary.
-%   What lives here vs in the main body:
-%     - Keep the appendix for material that supports reproducibility
-%       but would clutter the main argument.
-% =====================================================================
-
-\begin{table*}[h]
+\begin{figure}[H]
     \centering
-    \caption{QAOA circuit components used throughout the report.}
-    \label{tab:qaoa_components}
-    \begin{tabular}{@{}llp{8cm}@{}}
-        \toprule
-        \textbf{Component} & \textbf{Notation} & \textbf{Description} \\
-        \midrule
-        Initial state       & $|+\rangle^{\otimes n}$        & Uniform superposition prepared by Hadamard gates on all $n$ qubits (transverse-field mixer) or the Dicke state $|D^n_K\rangle$ (XY-mixer). \\
-        Cost unitary        & $U_C(\gamma)$                  & Phase rotations proportional to the QUBO objective; encodes problem structure into amplitudes. \\
-        Mixer unitary       & $U_B(\beta)$                   & $R_X(2\beta)$ rotations on each qubit (transverse-field) or pairwise $XX+YY$ rotations on a ring (XY-mixer). \\
-        Ansatz state        & $|\psi(\boldsymbol{\gamma},\boldsymbol{\beta})\rangle$ & Alternating product of $p$ cost and mixer layers. \\
-        Cost function       & $E_p(\boldsymbol{\gamma},\boldsymbol{\beta})$          & Expectation value of $H_C$, minimised classically by COBYLA. \\
-        Approximation ratio & $r = (E - C_{\max})/(C_{\min} - C_{\max})$   & Quality metric in $[0, 1]$ relative to brute-force optimum. \\
-        \bottomrule
-    \end{tabular}
-\end{table*}
+    \includegraphics[width=0.7\linewidth]{plots/all_prices.pdf}
+    \caption{Normalised prices for all assets.}
+    \label{fig:app_all_prices}
+\end{figure}
 
-% --- Optional appendices to add as work progresses --------------------
-% TODO A.1  Derivation of the Ising coefficients $h_i$, $J_{ij}$
-%           and the additive constant $c$ (the full algebra).
-% TODO A.2  Dicke-state preparation circuit used for the XY-mixer
-%           initialisation, with gate count.
-% TODO A.3  Selected runs reproducing the FYS5419 course notebook
-%           at $p=1$ as a sanity check.
-% TODO A.4  Full code listing of \texttt{run\_qaoa()} and the
-%           Hamiltonian construction routines (use the
-%           \texttt{pythonappendix} listings style defined in
-%           FRONTMATTER).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{plots/all_returns.pdf}
+    \caption{Log-returns for all assets.}
+    \label{fig:app_all_returns}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{plots/all_rolling_vol.pdf}
+    \caption{Rolling annualised volatility for all assets.}
+    \label{fig:app_all_rolling_vol}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{plots/all_histogram.pdf}
+    \caption{Return distribution for all assets.}
+    \label{fig:app_all_histogram}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{plots/all_risk_return.pdf}
+    \caption{Risk-return scatter plot for all assets.}
+    \label{fig:app_all_risk_return}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{plots/all_correlation.pdf}
+    \caption{Return correlation matrix for all assets.}
+    \label{fig:app_all_correlation}
+\end{figure}
