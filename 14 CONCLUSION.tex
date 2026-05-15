@@ -1,0 +1,61 @@
+\section{Conclusions and Perspectives}\label{section:conclusion}
+
+% =====================================================================
+%   CONCLUSIONS (target: ~1--1.5 columns; rubric: 10 pts)
+%   Required ingredients (per EvaluationForm.md):
+%     - State main findings and interpretations.
+%     - Discuss pros and cons of the method.
+%     - Possible directions / future improvements.
+%
+%   Anti-pattern to avoid: just re-stating the abstract in past tense.
+%   Each bullet below should be a *learned* insight, not a recap.
+% =====================================================================
+
+
+\subsection{What we found}
+
+% TODO: 3--5 numbered findings, each one sentence, e.g.:
+%   1. On both synthetic and S\&P data, QAOA reaches an approximation
+%      ratio $r \geq$ \emph{TBD} at $p =$ \emph{TBD}, recovering the
+%      brute-force optimum with top-1 probability $\geq$ \emph{TBD}.
+%   2. The XY-mixer outperforms / matches the penalty mixer at low $p$
+%      but the gap closes at $p \geq$ \emph{TBD}.
+%   3. Crisis-window covariance matrices degrade $r$ by a factor of
+%      \emph{TBD}, primarily due to landscape flattening, not optimiser
+%      failure.
+%   4. The penalty parameter $A$ has a narrow operating window.
+
+
+\subsection{Method-level discussion}
+
+% TODO: critical assessment.
+%   Pros:
+%     - Statevector simulation at $n=4$ gives a clean, noise-free
+%       picture of QAOA dynamics — useful for pedagogy.
+%     - The pipeline is modular: $(\mu, \Sigma) \to Q \to (h, J, c)
+%       \to H_C$ is dataset-agnostic and can be re-run on any return
+%       series.
+%   Cons:
+%     - At $n=4$, the problem is classically trivial. We cannot claim
+%       a quantum speedup, only methodological clarity.
+%     - The penalty mixer is sensitive to $A$ in a way that is hard
+%       to set a priori without enumerating $C(x)$ — which is what
+%       we are trying to avoid.
+%     - COBYLA + random restarts is robust but pessimistic for
+%       hardware: every restart is a fresh circuit execution.
+
+
+\subsection{Future directions}
+
+% TODO: realistic next steps. Some candidates:
+%   - Scale to $n = 8$ or $n = 16$ assets (still statevector-tractable)
+%     and test whether crisis-window degradation worsens with $n$.
+%   - Replace COBYLA with a parameter-shift / gradient-based optimiser
+%     and compare convergence speed.
+%   - Add a relative-cardinality constraint via slack variables
+%     \autocite{thomassin2025slack} so the budget $K$ can be itself
+%     a variable.
+%   - Run a single seed on real IBM hardware to characterise the
+%     noise penalty.
+%   - Explore problem-tailored initialisation
+%     \autocite{zhou2018qaoa,mancilla2026constrained} as warm starts.

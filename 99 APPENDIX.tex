@@ -1,41 +1,42 @@
 \section{Appendix}\label{section:appendix}
 
-\begin{table*}[h]
-    \centering
-    \caption{Influential Figures and Their Seminal Contributions to Quantum Computing}
-    \label{tab:quantum_figures}
-    \begin{tabular}{@{}lll@{}}
-        \toprule
-        \textbf{Figure} & \textbf{Field} & \textbf{Most Famous Work / Contribution} \\
-        \midrule
-        Max Planck       & Quantum Mechanics   & Discovery of energy quanta ($E = h\nu$) \\
-        Niels Bohr       & Quantum Mechanics   & Bohr model of the atom and complementarity \\
-        Werner Heisenberg & Quantum Mechanics  & Uncertainty principle and matrix mechanics \\
-        Erwin Schrödinger & Quantum Mechanics  & Schrödinger equation and wave mechanics \\
-        Richard Feynman  & QM / Computing      & Path-integral formulation and quantum simulators \\
-        John Bell        & Quantum Foundations & Bell's theorem (violation of local realism) \\
-        Peter Shor       & Quantum Algorithms  & Shor's factoring algorithm (exponential speedup) \\
-        Lov Grover       & Quantum Algorithms  & Grover search (quadratic speedup for unstructured search) \\
-        Maria Schuld     & Quantum ML          & Quantum kernels and variational quantum circuits \\
-        Edward Farhi     & QAOA                & Quantum Approximate Optimization Algorithm \\
-        \bottomrule
-    \end{tabular}
-\end{table*}
+% =====================================================================
+%   APPENDIX
+%   Per EvaluationForm.md:
+%     - Additional calculations used to validate the codes.
+%     - Selected calculations, briefly commented.
+%     - Code listings if you feel this is necessary.
+%   What lives here vs in the main body:
+%     - Keep the appendix for material that supports reproducibility
+%       but would clutter the main argument.
+% =====================================================================
 
 \begin{table*}[h]
     \centering
-    \caption{QAOA Circuit Components}
+    \caption{QAOA circuit components used throughout the report.}
     \label{tab:qaoa_components}
     \begin{tabular}{@{}llp{8cm}@{}}
         \toprule
         \textbf{Component} & \textbf{Notation} & \textbf{Description} \\
         \midrule
-        Initial state       & $|+\rangle^{\otimes n}$        & Uniform superposition prepared by Hadamard gates on all $n$ qubits \\
-        Cost unitary        & $U_C(\gamma)$                  & Phase rotations proportional to the QUBO objective; encodes problem structure \\
-        Mixer unitary       & $U_B(\beta)$                   & $R_X(2\beta)$ rotations on each qubit; drives exploration of solution space \\
-        Ansatz state        & $|\psi(\boldsymbol{\gamma},\boldsymbol{\beta})\rangle$ & Alternating product of $p$ cost and mixer layers \\
-        Cost function       & $F_p(\boldsymbol{\gamma},\boldsymbol{\beta})$          & Expectation value of the cost operator $C$; minimized classically \\
-        Approximation ratio & $r = F_p / F_{\mathrm{opt}}$   & Quality metric relative to exact brute-force optimum \\
+        Initial state       & $|+\rangle^{\otimes n}$        & Uniform superposition prepared by Hadamard gates on all $n$ qubits (transverse-field mixer) or the Dicke state $|D^n_K\rangle$ (XY-mixer). \\
+        Cost unitary        & $U_C(\gamma)$                  & Phase rotations proportional to the QUBO objective; encodes problem structure into amplitudes. \\
+        Mixer unitary       & $U_B(\beta)$                   & $R_X(2\beta)$ rotations on each qubit (transverse-field) or pairwise $XX+YY$ rotations on a ring (XY-mixer). \\
+        Ansatz state        & $|\psi(\boldsymbol{\gamma},\boldsymbol{\beta})\rangle$ & Alternating product of $p$ cost and mixer layers. \\
+        Cost function       & $E_p(\boldsymbol{\gamma},\boldsymbol{\beta})$          & Expectation value of $H_C$, minimised classically by COBYLA. \\
+        Approximation ratio & $r = (E - C_{\max})/(C_{\min} - C_{\max})$   & Quality metric in $[0, 1]$ relative to brute-force optimum. \\
         \bottomrule
     \end{tabular}
 \end{table*}
+
+% --- Optional appendices to add as work progresses --------------------
+% TODO A.1  Derivation of the Ising coefficients $h_i$, $J_{ij}$
+%           and the additive constant $c$ (the full algebra).
+% TODO A.2  Dicke-state preparation circuit used for the XY-mixer
+%           initialisation, with gate count.
+% TODO A.3  Selected runs reproducing the FYS5419 course notebook
+%           at $p=1$ as a sanity check.
+% TODO A.4  Full code listing of \texttt{run\_qaoa()} and the
+%           Hamiltonian construction routines (use the
+%           \texttt{pythonappendix} listings style defined in
+%           FRONTMATTER).

@@ -1,50 +1,61 @@
 \section{Methods}\label{section:methods}
 
+% =====================================================================
+%   METHODS / FORMALISM (target: ~3--4 columns; rubric: 20 pts)
+%   Required ingredients (per EvaluationForm.md):
+%     - Discussion of the methods used and their basis / suitability.
+%   Strategy:
+%     - Derive the full pipeline from financial data to QAOA circuit.
+%     - State every transformation explicitly so the reader can reproduce.
+%     - Discuss why each step is a sensible choice and what it costs.
+% =====================================================================
 
-\subsection{Mean-Variance Portfolio Optimisation}
-
-The pipeline maps a financial dataset to a quantum circuit through a sequence of well-defined steps:
+The QAOA pipeline maps a financial dataset to a quantum circuit through a sequence of well-defined steps:
 \begin{equation}
-    \text{Financial Data} \rightarrow (\mu,\Sigma) \rightarrow \text{QUBO} \rightarrow \text{Ising} \rightarrow \text{Pauli operators} \rightarrow \text{QAOA}
+    \text{Financial data} \rightarrow (\mu,\Sigma) \rightarrow \text{QUBO} \rightarrow \text{Ising} \rightarrow \text{Pauli operators} \rightarrow \text{QAOA}.
 \end{equation}
+Subsections \ref{subsec:meanvar}--\ref{subsec:qaoa} develop each arrow in turn. Subsection \ref{subsec:xymixer} introduces a constraint-preserving mixer that we compare against the penalty encoding, and Subsection \ref{subsec:metrics} fixes the metrics used in Section~\ref{section:result}.
 
-The Markowitz mean--variance objective for a binary selection vector $x\in\{0,1\}^n$ reads
+
+\subsection{Mean--Variance Portfolio Optimisation}\label{subsec:meanvar}
+
+For a binary selection vector $x \in \{0,1\}^n$ over $n$ candidate assets, the Markowitz objective \autocite{markowitz1952} is
 \begin{equation}
     \min_x \left( -\mu^\top x + \lambda\, x^\top \Sigma x \right),
 \end{equation}
-where $-\mu^\top x$ maximises expected return and $\lambda\, x^\top \Sigma x$ penalises portfolio variance (risk).
+where $-\mu^\top x$ maximises expected return and $\lambda\, x^\top \Sigma x$ penalises portfolio variance. The risk-aversion parameter $\lambda \geq 0$ tunes the trade-off.
 
-A fixed-budget constraint requires exactly $K$ assets:
+A fixed-budget constraint requires exactly $K$ assets,
 \begin{equation}
-    \sum_{i=1}^{n} x_i = K.
+    \sum_{i=1}^{n} x_i = K,
 \end{equation}
-
-We enforce the budget with a quadratic penalty, giving the soft-constrained cost
-\begin{equation}
+which we enforce with a quadratic penalty, giving the soft-constrained cost
+\begin{equation}\label{eq:Cx}
     C(x) = -\mu^\top x + \lambda\, x^\top \Sigma x + A \left( \sum_{i=1}^{n} x_i - K \right)^2,
 \end{equation}
-where $A>0$ is chosen large enough that the minimum of $C(x)$ satisfies the budget constraint.
+where $A > 0$ is chosen large enough that the global minimum of $C(x)$ satisfies the budget constraint. Section \ref{subsec:Asensitivity-results} studies the sensitivity of this calibration.
 
 Returns and their first two moments are estimated from price series:
 \begin{equation}
     r_i(t) = \frac{P_i(t+1)-P_i(t)}{P_i(t)} \approx \ln\frac{P_i(t+1)}{P_i(t)},
 \end{equation}
 \begin{equation}
-    \mu_i = \langle r_i \rangle_t,\qquad \Sigma_{ij} = \langle r_i r_j \rangle - \langle r_i \rangle \langle r_j \rangle.
+    \mu_i = \langle r_i \rangle_t,
+    \qquad
+    \Sigma_{ij} = \langle r_i r_j \rangle - \langle r_i \rangle \langle r_j \rangle.
 \end{equation}
 
 
-\subsection{Quadratic Unconstrained Binary Optimisation (QUBO)}
+\subsection{Quadratic Unconstrained Binary Optimisation (QUBO)}\label{subsec:qubo}
 
 A QUBO is a quadratic cost over binary variables,
 \begin{equation}
     \min_{x\in\{0,1\}^n} C(x) = \sum_i Q_{ii}\, x_i + \sum_{i<j} Q_{ij}\, x_i x_j,
 \end{equation}
-where the linear terms are absorbed into the diagonal of $Q$ because $x_i^2 = x_i$ for binary variables. Expanding the penalised mean--variance cost yields
+where the linear terms are absorbed into the diagonal of $Q$ because $x_i^2 = x_i$ for binary variables. Expanding the penalised mean--variance cost \eqref{eq:Cx} yields
 \begin{equation}
     C(x) = \sum_i \underbrace{\bigl[-\mu_i + \lambda\Sigma_{ii} + A(1-2K)\bigr]}_{Q_{ii}}\, x_i + \sum_{i<j} \underbrace{\bigl[2\lambda\Sigma_{ij} + 2A\bigr]}_{Q_{ij}}\, x_i x_j + \underbrace{AK^2}_{\text{const}},
 \end{equation}
-
 \begin{equation}
     \boxed{
     Q_{ii} = -\mu_i + \lambda\Sigma_{ii} + A(1-2K),
@@ -53,7 +64,8 @@ where the linear terms are absorbed into the diagonal of $Q$ because $x_i^2 = x_
     }
 \end{equation}
 
-\subsection{Ising Hamiltonian Mapping}
+
+\subsection{Ising Hamiltonian Mapping}\label{subsec:ising}
 
 Mapping binary variables to spins via
 \begin{equation}
@@ -69,13 +81,14 @@ with coefficients
     \qquad
     J_{ij} = \tfrac{1}{4} Q_{ij} \quad (i<j),
 \end{equation}
-and an additive constant
+and additive constant
 \begin{equation}
     c = AK^2 + \tfrac{1}{2}\sum_i Q_{ii} + \tfrac{1}{4}\sum_{i<j} Q_{ij},
 \end{equation}
 chosen so that $H(z) + c = C(x)$ for every binary $x$ and its spin image $z$.
 
-\subsection{Quantum Pauli Operators and Cost Hamiltonian}
+
+\subsection{Quantum Pauli Operators and Cost Hamiltonian}\label{subsec:pauli}
 
 Promoting each classical spin $z_i$ to the single-qubit Pauli-$Z$ operator on site $i$,
 \begin{equation}
@@ -84,11 +97,7 @@ Promoting each classical spin $z_i$ to the single-qubit Pauli-$Z$ operator on si
 \end{equation}
 with
 \begin{equation}
-    Z =
-    \begin{pmatrix}
-        1 & 0 \\
-        0 & -1
-    \end{pmatrix},
+    Z = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix},
 \end{equation}
 gives the cost Hamiltonian as the $2^n\times 2^n$ diagonal matrix
 \begin{equation}
@@ -98,23 +107,24 @@ gives the cost Hamiltonian as the $2^n\times 2^n$ diagonal matrix
 \end{equation}
 Every computational basis state $|z\rangle$ is an eigenstate of $H_C$ with eigenvalue $H(z)$.
 
-The mixing Hamiltonian drives quantum tunnelling between bitstring states,
-\begin{equation}
-    H_M = \sum_{i=1}^{n} \hat{X}_i,
+The standard \emph{transverse-field} mixing Hamiltonian drives tunnelling between bitstring states,
+\begin{equation}\label{eq:HM-transverse}
+    H_M^{(X)} = \sum_{i=1}^{n} \hat{X}_i,
     \qquad
     X = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}.
 \end{equation}
 
-\subsection{QAOA Algorithm}
 
-The single-layer ($p=1$) ansatz is
+\subsection{QAOA Algorithm}\label{subsec:qaoa}
+
+The single-layer ($p = 1$) ansatz is
 \begin{equation}
     |\psi(\gamma,\beta)\rangle =
     e^{-i \beta H_M}\,
     e^{-i \gamma H_C}\,
     |+\rangle^{\otimes n},
 \end{equation}
-where $e^{-i\gamma H_C}$ is the \emph{phase-separation} unitary --- it phases each basis state by $e^{-i\gamma H(z)}$, encoding cost information into the amplitudes --- and $e^{-i\beta H_M}$ is the \emph{mixing} unitary, which spreads amplitude between bitstrings and enables transitions between candidate solutions.
+where $e^{-i\gamma H_C}$ is the \emph{phase-separation} unitary --- it phases each basis state by $e^{-i\gamma H(z)}$, encoding cost information into the amplitudes --- and $e^{-i\beta H_M}$ is the \emph{mixing} unitary, which redistributes amplitude between bitstrings to enable transitions between candidate solutions.
 
 \begin{equation}
     \underbrace{H^{\otimes n}}_{\text{superposition}}
@@ -126,8 +136,8 @@ where $e^{-i\gamma H_C}$ is the \emph{phase-separation} unitary --- it phases ea
     \underbrace{\text{measure}}_{Z\text{-basis}}
 \end{equation}
 
-For depth $p>1$, we alternate $p$ cost and $p$ mixer layers,
-\begin{equation}
+For depth $p > 1$, $p$ cost and $p$ mixer layers are alternated,
+\begin{equation}\label{eq:multilayer}
     |\psi(\boldsymbol\gamma,\boldsymbol\beta)\rangle =
     \prod_{k=1}^{p}
     \left(
@@ -144,28 +154,36 @@ A classical optimiser minimises the energy expectation value
     \langle \psi(\boldsymbol\gamma,\boldsymbol\beta) |\, H_C\, | \psi(\boldsymbol\gamma,\boldsymbol\beta)\rangle.
 \end{equation}
 Since $H_C$ is diagonal in the computational basis with eigenvalues $H(z)$, this reduces to
-\begin{equation}
-    E = \sum_{z\in\{-1,+1\}^n} H(z)\, |\langle z | \psi \rangle|^2.
+\begin{equation}\label{eq:E-as-prob}
+    E(\boldsymbol\gamma, \boldsymbol\beta) = \sum_{z\in\{-1,+1\}^n} H(z)\, |\langle z | \psi \rangle|^2,
 \end{equation}
+so the QAOA cost is a probability-weighted sum of Ising energies.
 
-\subsection{Implementation Outline}
 
-\begin{itemize}
-    \item Set parameters $\lambda$, $A$, $K$.
-    \item Build the QUBO matrix $Q$.
-    \item Convert to Ising coefficients $(h, J, c)$.
-    \item Construct the quantum operators $H_C$ and $H_M$.
-    \item Run a brute-force classical search for validation.
-    \item Run QAOA for $p=1,2,3$ and compare against the exact optimum.
-\end{itemize}
+\subsection{XY-Mixer: Constraint-Preserving Encoding}\label{subsec:xymixer}
 
-\subsection{Statistical Physics Connection}
-
-The Ising Hamiltonian
-\begin{equation}
-    H(z) = \sum_i h_i z_i + \sum_{i<j} J_{ij} z_i z_j
+% --- Motivation -------------------------------------------------------
+The penalty term $A(\sum_i x_i - K)^2$ in \eqref{eq:Cx} enforces the budget only in the limit $A \to \infty$; for finite $A$, infeasible bitstrings with $\sum_i x_i \neq K$ remain in the search space and may carry non-negligible amplitude after a finite-depth circuit. An alternative is to discard the penalty and instead choose a mixer that preserves Hamming weight by construction \autocite{mancilla2026constrained}. The \emph{XY-ring mixer} is
+\begin{equation}\label{eq:HM-XY}
+    H_M^{(XY)} = \tfrac{1}{2} \sum_{i=1}^{n} \bigl( \hat{X}_i \hat{X}_{i+1} + \hat{Y}_i \hat{Y}_{i+1} \bigr),
 \end{equation}
-defines a classical partition function at inverse temperature $\beta_{\text{th}}$,
+with periodic boundary conditions ($i + 1$ taken mod $n$) and
+\begin{equation}
+    Y = \begin{pmatrix} 0 & -i \\ i & 0 \end{pmatrix}.
+\end{equation}
+The operator $\hat{X}_i \hat{X}_{i+1} + \hat{Y}_i \hat{Y}_{i+1}$ swaps the basis states $|01\rangle$ and $|10\rangle$ on neighbouring qubits while leaving $|00\rangle$ and $|11\rangle$ invariant, so it commutes with the Hamming-weight operator
+\begin{equation}
+    \hat{N} = \sum_i \tfrac{1}{2}(I - \hat{Z}_i).
+\end{equation}
+When the initial state is a feasible Dicke state $|D^n_K\rangle$ --- the equal superposition over all bitstrings with $\sum_i x_i = K$ --- the entire QAOA trajectory stays in the feasible subspace and the penalty parameter $A$ becomes unnecessary.
+
+% --- Trade-offs to discuss in the Results section --------------------
+We compare the two encodings on the same data in Section~\ref{subsec:xymixer-results}: the penalty mixer is simpler to implement but inherits a hyperparameter; the XY-mixer is hyperparameter-free but requires Dicke-state preparation and has a slightly larger gate count per layer.
+
+
+\subsection{Statistical Physics Connection}\label{subsec:statphys}
+
+The Ising form of $H_C$ defines a classical partition function at inverse temperature $\beta_{\text{th}}$,
 \begin{equation}
     Z = \sum_{\{z\}} e^{-\beta_{\text{th}} H(z)},
 \end{equation}
@@ -173,78 +191,37 @@ with associated free energy
 \begin{equation}
     F = -\frac{1}{\beta_{\text{th}}} \ln Z.
 \end{equation}
-QAOA can be understood as a variational approximation to the ground state of $H_C$,
+QAOA can be read as a variational approximation to the ground state of $H_C$,
 \begin{equation}
     E(\boldsymbol\gamma, \boldsymbol\beta) = \langle \psi | H_C | \psi \rangle \geq E_0,
 \end{equation}
-and as $p\to\infty$ the ansatz can, in principle, reach the exact ground state.
+and as $p \to \infty$ the ansatz can in principle reach the exact ground state. Finite-$p$ QAOA is thus directly analogous to a finite-temperature thermal state of the same Ising Hamiltonian, a connection we explore numerically in Section~\ref{subsec:thermal-results}.
 
-\subsection{Quantum Neural Network for Portfolio Optimisation}
 
-As a complementary approach we implement a data-reuploading single-qubit QNN \autocite{perezsalinas2020data} that assigns each asset a learned score. For asset $i$ with augmented feature vector $\phi_i\in\mathbb{R}^{F}$ and trainable weight matrices $W^Y, W^Z \in \mathbb{R}^{L\times F}$, the circuit is
-\begin{equation}
-    |\psi_i\rangle = \prod_{\ell=1}^{L}
-    R_Z\!\left((W_\ell^Z)^\top \phi_i\right)
-    R_Y\!\left((W_\ell^Y)^\top \phi_i\right)
-    |0\rangle,
-\end{equation}
-where each layer re-encodes the data through the rotations
-\begin{equation}
-    R_Y(\theta) =
-    \begin{pmatrix}
-        \cos\frac{\theta}{2} & -\sin\frac{\theta}{2} \\
-        \sin\frac{\theta}{2} &  \cos\frac{\theta}{2}
-    \end{pmatrix},
-    \qquad
-    R_Z(\theta) =
-    \begin{pmatrix}
-        e^{-i\theta/2} & 0 \\
-        0 & e^{i\theta/2}
-    \end{pmatrix}.
-\end{equation}
+\subsection{Metrics and Validation}\label{subsec:metrics}
 
-The feature vector is augmented with a bias term, $\phi_i = (\mu_i^{\text{sc}}, \sigma_i^{\text{sc}}, 1)$, so the weight matrix also plays the role of trainable offsets. The circuit output is the $Z$-expectation,
-\begin{equation}
-    s_i
-    = \langle \psi_i | Z | \psi_i \rangle
-    = |\langle 0 | \psi_i \rangle|^2 - |\langle 1 | \psi_i \rangle|^2
-    \in [-1, +1].
-\end{equation}
+To compare runs across datasets and circuit depths we use:
 
-To connect the scores to a differentiable portfolio cost we use a sigmoid-based soft ranking: find a threshold $t$ such that
-\begin{equation}
-    p_i = \sigma\!\bigl(\alpha (s_i - t)\bigr),
-    \qquad
-    \sum_i p_i = K,
+\paragraph{Approximation ratio.}
+Following the QAOA literature \autocite{farhi2014qaoa,zhou2018qaoa}, we define
+\begin{equation}\label{eq:approxratio}
+    r(p) = \frac{E(\boldsymbol\gamma^\star, \boldsymbol\beta^\star)\big|_{p} - C_{\max}}{C_{\min} - C_{\max}} \in [0, 1],
 \end{equation}
-where $\sigma(x) = (1+e^{-x})^{-1}$ and $\alpha$ is a sharpness parameter. The threshold is found by bisection. The continuous selection probabilities $p_i\in(0,1)$ then enter the mean--variance cost,
-\begin{equation}
-    \mathcal{L}(W^Y, W^Z) =
-    -\mu^\top \mathbf{p} + \lambda\, \mathbf{p}^\top \Sigma \mathbf{p} +
-    \left( \sum_i p_i - K \right)^2.
-\end{equation}
+where $C_{\min} = \min_x C(x)$ and $C_{\max} = \max_x C(x)$ are obtained by exhaustive enumeration at $n = 4$. A value $r = 1$ corresponds to recovering the optimum in expectation.
 
-Gradients with respect to the circuit parameters are obtained via the parameter-shift rule,
+\paragraph{Top-1 success probability.}
+The probability that a single shot returns the true optimum,
 \begin{equation}
-    \frac{\partial s_i}{\partial W_{\ell f}^Y}
-    =
-    \frac{s_i\!\left(W_{\ell f}^Y + \tfrac{\pi}{2}\right) - s_i\!\left(W_{\ell f}^Y - \tfrac{\pi}{2}\right)}{2},
+    p_{\text{top-1}}(p) = |\langle z^\star | \psi(\boldsymbol\gamma^\star, \boldsymbol\beta^\star) \rangle|^2,
 \end{equation}
-which is exact for the expectation of a Pauli observable in a Pauli-rotation circuit.
+with $z^\star$ the brute-force optimum.
 
-Weights are updated with the ADAM optimiser,
+\paragraph{Feasibility ratio.}
+The probability that a measurement yields a budget-feasible bitstring,
 \begin{equation}
-    m_t = \beta_1\, m_{t-1} + (1-\beta_1)\, \nabla\mathcal{L},
+    p_{\text{feas}}(p) = \sum_{z : \sum_i x_i = K} |\langle z | \psi \rangle|^2,
 \end{equation}
-\begin{equation}
-    v_t = \beta_2\, v_{t-1} + (1-\beta_2)\,(\nabla\mathcal{L})^2,
-\end{equation}
-\begin{equation}
-    W \leftarrow W - \eta\, \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \varepsilon},
-\end{equation}
-with bias-corrected moments
-\begin{equation}
-    \hat{m}_t = \frac{m_t}{1-\beta_1^t},
-    \qquad
-    \hat{v}_t = \frac{v_t}{1-\beta_2^t}.
-\end{equation}
+which equals $1$ identically under the XY-mixer and is a non-trivial diagnostic under the penalty mixer.
+
+\paragraph{Validation strategy.}
+At $n = 4$ the brute-force optimum is computable in $2^4 = 16$ evaluations, so every QAOA run is anchored against the exact answer. Our QAOA implementation is additionally cross-checked against the construction in the FYS5419 course material at $p = 1$.

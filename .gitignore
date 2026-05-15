@@ -1,6 +1,9 @@
 # Course / background material — local only
 .teachings/
 
+# Working code, printouts, raw data — fed into the report locally
+.coding/
+
 # LaTeX build artefacts
 *.aux
 *.bbl

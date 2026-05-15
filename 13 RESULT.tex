@@ -1,0 +1,242 @@
+\section{Results and Discussion}\label{section:result}
+
+% =====================================================================
+%   RESULTS (target: ~4--5 columns; rubric: 20 pts)
+%   Required ingredients (per EvaluationForm.md):
+%     - Present results, critical discussion in context.
+%     - Reader should be able to reproduce; explain all input variables.
+%     - Figures and tables must be self-contained from caption alone.
+%
+%   Structure modelled on the FYS5419 example reports:
+%     - Each subsection asks ONE question and answers it with ONE
+%       headline figure (or table) plus a short discussion paragraph.
+%     - Sweep results follow the ``Effect of X'' template from the
+%       2025 QML example project.
+%
+%   Figure budget (rough): 6--8 figures, 2--3 tables.
+%   Every figure caption must state: dataset, depth $p$, mixer choice,
+%   penalty $A$, and number of restarts. Be explicit; do not leave it
+%   to the reader to infer.
+% =====================================================================
+
+
+\subsection{Synthetic benchmark: end-to-end sanity check}\label{subsec:synthetic-results}
+
+% --- Question -----
+%   Does the pipeline reproduce the brute-force optimum on a controlled
+%   4-asset dataset where the answer is known?
+%
+% --- Headline content -----
+% \begin{table}[h]
+%   \centering
+%   \caption{QAOA on the synthetic dataset ($n=4$, $K=2$, $\lambda=1$,
+%            $A=$ \emph{TBD}, transverse-field mixer). $r$ is the
+%            approximation ratio defined in \eqref{eq:approxratio}.}
+%   \label{tab:synthetic}
+%   \begin{tabular}{@{}lrrrr@{}}
+%     \toprule
+%     $p$ & $E^\star$ & Top-1 bitstring & $r$ & $p_{\text{top-1}}$ \\
+%     \midrule
+%     1 & --- & --- & --- & --- \\
+%     2 & --- & --- & --- & --- \\
+%     3 & --- & --- & --- & --- \\
+%     4 & --- & --- & --- & --- \\
+%     Brute force & $C_{\min}=$\emph{TBD} & --- & 1.00 & 1.00 \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
+%
+% --- Discussion paragraph (TODO) ---
+% Confirm correctness, note at which $p$ the approximation ratio
+% saturates, note whether the top-1 bitstring already matches at $p=1$.
+
+
+\subsection{S\&P~500 calm window: depth scaling}\label{subsec:sp-depth-results}
+
+% --- Question -----
+%   How does the approximation ratio behave on real data as $p$ grows?
+%
+% --- Headline figure -----
+% \begin{figure}[h]
+%   \centering
+%   % \includegraphics[width=\linewidth]{figures/approx_ratio_vs_p_sp.pdf}
+%   \rule{\linewidth}{4em}\textsf{PLACEHOLDER: $r(p)$ on S\&P 500 calm window}
+%   \caption{Approximation ratio $r(p)$ on the S\&P 500 calm window
+%            (2017--2019), $n=4$, $K=2$, transverse-field mixer.
+%            Each point is the median over 15 random restarts; error
+%            bars show interquartile range.}
+%   \label{fig:approx-ratio-sp}
+% \end{figure}
+%
+% --- Discussion paragraph (TODO) ---
+% At what $p$ does $r$ exceed (say) 0.95? Compare to the Zhou et al.
+% \autocite{zhou2018qaoa} prediction that $r$ improves monotonically
+% with $p$ for typical problem instances.
+
+
+\subsection{Energy landscape at $p=1$}\label{subsec:landscape-results}
+
+% --- Question -----
+%   What does the variational landscape look like? Are there obvious
+%   local minima, symmetries, or barren regions?
+%
+% --- Headline figure -----
+% \begin{figure}[h]
+%   \centering
+%   % \includegraphics[width=\linewidth]{figures/landscape_p1.pdf}
+%   \rule{\linewidth}{4em}\textsf{PLACEHOLDER: $E(\gamma, \beta)$ heatmap}
+%   \caption{Energy landscape $E(\gamma, \beta)$ for $p=1$ on the
+%            S\&P 500 calm window. $\gamma \in [0, \pi]$,
+%            $\beta \in [0, \pi/2]$. The star marks the global minimum
+%            found by COBYLA over 15 restarts.}
+%   \label{fig:landscape}
+% \end{figure}
+%
+% --- Discussion (TODO) ---
+% Comment on the periodicity (cost terms in $H_C$ have non-integer
+% coefficients, so periods are not simply $\pi$), on the depth and
+% width of the global minimum basin, and on the implication for
+% multi-start optimisation.
+
+
+\subsection{Penalty calibration $A$}\label{subsec:Asensitivity-results}
+
+% --- Question -----
+%   How sensitive is the QAOA result to the penalty parameter $A$ that
+%   enforces the cardinality constraint? Is there a sweet spot?
+%
+% --- Headline figure -----
+% \begin{figure}[h]
+%   \centering
+%   % \includegraphics[width=\linewidth]{figures/A_sensitivity.pdf}
+%   \rule{\linewidth}{4em}\textsf{PLACEHOLDER: 2-panel plot}
+%   \caption{(Top) Approximation ratio $r(p=2)$ vs penalty $A$ on the
+%            S\&P 500 calm window. (Bottom) Feasibility ratio
+%            $p_{\text{feas}}$ vs $A$. The vertical dashed line is the
+%            default $A$ used elsewhere in this report.}
+%   \label{fig:A-sensitivity}
+% \end{figure}
+%
+% --- Discussion (TODO) ---
+% Too-small $A$: infeasible states dominate; $r$ misleading. Too-large
+% $A$: constraint dominates, return/risk signal is washed out and the
+% landscape becomes degenerate. Identify the operating regime.
+
+
+\subsection{Restart variance}\label{subsec:restart-results}
+
+% --- Question -----
+%   Is QAOA's energy reproducible across random initialisations of
+%   $(\boldsymbol\gamma, \boldsymbol\beta)$?
+%
+% --- Headline figure -----
+% \begin{figure}[h]
+%   \centering
+%   % \includegraphics[width=\linewidth]{figures/restart_histogram.pdf}
+%   \rule{\linewidth}{4em}\textsf{PLACEHOLDER: histogram per $p$}
+%   \caption{Distribution of converged energies across 50 random
+%            COBYLA restarts, for $p = 1, 2, 3, 4$. Vertical lines
+%            indicate the brute-force optimum.}
+%   \label{fig:restart-hist}
+% \end{figure}
+%
+% --- Discussion (TODO) ---
+% Does the spread grow with $p$ (barren-plateau-like behaviour) or
+% shrink? Implication for hardware deployment, where restarts are
+% expensive.
+
+
+\subsection{Penalty mixer vs XY-mixer}\label{subsec:xymixer-results}
+
+% --- Question -----
+%   Does the constraint-preserving XY-mixer outperform the standard
+%   transverse-field mixer + penalty on the same problem?
+%
+% --- Headline figure / table -----
+% \begin{figure}[h]
+%   \centering
+%   % \includegraphics[width=\linewidth]{figures/mixer_comparison.pdf}
+%   \rule{\linewidth}{4em}\textsf{PLACEHOLDER: paired bar chart}
+%   \caption{Approximation ratio $r(p)$ for the transverse-field mixer
+%            with optimal $A$ (blue) and the XY-ring mixer with Dicke
+%            initial state (orange), on the S\&P 500 calm window.
+%            Bars show median over 15 restarts; whiskers show
+%            interquartile range.}
+%   \label{fig:mixer-comparison}
+% \end{figure}
+%
+% --- Discussion (TODO) ---
+% Does XY win at $p=1$ (it should — the search space is smaller)?
+% Does the gap close at higher $p$? Trade-off: XY needs Dicke-state
+% prep, slightly higher gate count per layer, but no hyperparameter.
+
+
+\subsection{Crisis-window stress test}\label{subsec:crisis-results}
+
+% --- Question -----
+%   How does QAOA behave on covariance matrices estimated during
+%   periods when classical Markowitz is known to break down?
+%
+% --- Headline figure / table -----
+% \begin{table}[h]
+%   \centering
+%   \caption{QAOA on crisis-window covariance matrices, $p=3$,
+%            transverse-field mixer with default $A$, 15 restarts.
+%            $\kappa(\Sigma)$ is the condition number;
+%            $\bar{\rho}$ is the mean pairwise correlation.}
+%   \label{tab:crisis}
+%   \begin{tabular}{@{}lrrrrr@{}}
+%     \toprule
+%     Window & $\bar{\rho}$ & $\kappa(\Sigma)$ & $z^\star_{\text{BF}}$ & $r$ & $p_{\text{top-1}}$ \\
+%     \midrule
+%     Calm 2017--19  & --- & --- & --- & --- & --- \\
+%     GFC 2008--09   & --- & --- & --- & --- & --- \\
+%     COVID 2020     & --- & --- & --- & --- & --- \\
+%     Rates 2022     & --- & --- & --- & --- & --- \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
+%
+% --- Discussion (TODO) ---
+%   - Which asset is selected in each window? Does the optimum shift?
+%   - Does the approximation ratio degrade more in crisis than in calm?
+%   - Is the degradation due to optimiser difficulty or to the landscape
+%     itself (compare to Section~\ref{subsec:landscape-results})?
+
+
+\subsection{Connection to thermal states}\label{subsec:thermal-results}
+
+% --- Question (optional, time permitting) -----
+%   How does the QAOA distribution at depth $p$ compare to a thermal
+%   Gibbs state of $H_C$ at some effective inverse temperature
+%   $\beta_{\text{th}}$?
+%
+% --- Content (TODO) -----
+%   - Compute $E_{\text{thermal}}(\beta_{\text{th}})$ over a grid.
+%   - Overlay QAOA energies $E(p)$ at the same datasets.
+%   - Extract an effective $\beta_{\text{th}}$ per $p$.
+% This is the bridge to the statistical-physics framing of
+% Section~\ref{subsec:statphys}; if time is short, this subsection
+% can be cut without breaking the rest of the report.
+
+
+\subsection{Summary}\label{subsec:results-summary}
+
+% --- TODO: one short paragraph plus a single summary table -----
+% \begin{table}[h]
+%   \centering
+%   \caption{Headline numbers across all experiments. Best result per
+%            dataset is bolded.}
+%   \label{tab:summary}
+%   \begin{tabular}{@{}lrrrr@{}}
+%     \toprule
+%     Dataset & $p^\star$ & Mixer & $r$ & $p_{\text{top-1}}$ \\
+%     \midrule
+%     Synthetic       & --- & --- & --- & --- \\
+%     S\&P calm       & --- & --- & --- & --- \\
+%     GFC 2008        & --- & --- & --- & --- \\
+%     COVID 2020      & --- & --- & --- & --- \\
+%     Rates 2022      & --- & --- & --- & --- \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}

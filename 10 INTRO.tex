@@ -1,13 +1,42 @@
 \section{Introduction}\label{section:Introduction}
 
-% TODO: motivation — combinatorial hardness of cardinality-constrained portfolio
-% selection, the appeal of variational quantum algorithms on near-term devices,
-% and the FYS5419 framing of QAOA as a ground-state search problem.
+% =====================================================================
+%   INTRODUCTION (target: ~1.0--1.5 columns; rubric: 10 pts)
+%   Required ingredients (per EvaluationForm.md):
+%     1. Status of the problem and the major objectives.
+%     2. Motivation — why this problem, why now.
+%     3. End with a short paragraph summarising the structure of the report.
+% =====================================================================
 
-% TODO: relation to prior work — Farhi et al.\ \autocite{farhi2014qaoa} on QAOA,
-% Markowitz \autocite{markowitz1952} on mean--variance, and recent quantum
-% portfolio benchmarks \autocite{stopfer2025benchmark,shen2025noisy}.
+% --- 1.1  Motivation -------------------------------------------------
+% TODO: Markowitz (1952) mean--variance is one of the foundational
+% problems in finance. With a cardinality constraint ``pick exactly $K$
+% out of $n$ assets'', it becomes a binary quadratic program — NP-hard
+% in general — and classical solvers scale poorly with $n$.
+% \autocite{markowitz1952}
 
-% TODO: contribution and outline — what this report does (QAOA + QNN on the
-% same datasets, comparison against brute-force), and how the sections are
-% organised.
+% --- 1.2  Why QAOA ---------------------------------------------------
+% TODO: Variational quantum algorithms such as QAOA \autocite{farhi2014qaoa}
+% reformulate combinatorial optimisation as a ground-state search of an
+% Ising Hamiltonian and are a natural fit for near-term hardware.
+% Brief mention of recent work on quantum portfolio optimisation
+% \autocite{stopfer2025benchmark,mancilla2026constrained,shen2025noisy}.
+
+% --- 1.3  What this report does -------------------------------------
+% TODO: We
+%   (i)   re-derive the QUBO -> Ising -> Pauli pipeline end-to-end;
+%   (ii)  implement QAOA from scratch (no high-level VQA libraries)
+%         and validate every run against brute force;
+%   (iii) study the approximation ratio as a function of circuit depth
+%         $p=1,\dots,4$ and map the $E(\gamma,\beta)$ landscape at $p=1$;
+%   (iv)  compare a penalty-based encoding of the cardinality constraint
+%         to a Hamming-weight-preserving XY-mixer;
+%   (v)   stress-test the algorithm on crisis-window covariance matrices
+%         (2008 / 2020 / 2022).
+
+% --- 1.4  Outline ----------------------------------------------------
+% TODO: ``Section~\ref{section:methods} develops the formalism from
+% the Markowitz objective to the QAOA circuit. Section~\ref{section:impl}
+% describes the implementation and datasets. Section~\ref{section:result}
+% reports the numerical experiments, and Section~\ref{section:conclusion}
+% summarises the findings and discusses limitations.''

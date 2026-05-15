@@ -1,0 +1,102 @@
+\section{Implementation and Datasets}\label{section:impl}
+
+% =====================================================================
+%   IMPLEMENTATION (target: ~1.5--2 columns; rubric: shares the
+%   20-pt ``Code / Implementation / Testing'' category with the
+%   actual codebase).
+%
+%   Required ingredients (per EvaluationForm.md):
+%     - Say something about the structure of the algorithm.
+%     - Present selected parts of the code.
+%     - Plug in calculations that validate the code against benchmarks.
+%   Strategy:
+%     - Short module-by-module overview, no full code dumps here
+%       (those belong in the appendix).
+%     - Be explicit about datasets and time windows so the experiments
+%       in Section~\ref{section:result} are reproducible.
+% =====================================================================
+
+
+\subsection{Code structure}\label{subsec:codestructure}
+
+% TODO: brief paragraph describing the modular layout, e.g.:
+%   - data/        download + cache S&P 500 prices via yfinance
+%   - qubo.py      build Q from (mu, Sigma, lambda, A, K)
+%   - ising.py     QUBO -> (h, J, c)
+%   - hamiltonian  build H_C, H_M^{(X)}, H_M^{(XY)}
+%   - qaoa.py      circuit unitaries, energy expectation, run_qaoa()
+%   - bruteforce   exhaustive 2^n classical optimum
+%   - metrics.py   approximation ratio, top-1 probability, feasibility
+%   - experiments  Jupyter notebooks that produce every figure
+%   Mention statevector simulation (no shot noise) at $n=4$, and that
+%   the optimiser is scipy.optimize.minimize (COBYLA), with random
+%   $(\gamma_0, \beta_0)$ restarts.
+
+% TODO: short code listing of run_qaoa() to anchor the discussion:
+% \begin{lstlisting}[caption={Core QAOA loop (statevector).}, label={lst:qaoa}]
+% def run_qaoa(HC, HM, psi0, p, n_restarts=15):
+%     ...
+%     return best
+% \end{lstlisting}
+
+
+\subsection{Datasets}\label{subsec:datasets}
+
+% --- 3.2.1  Synthetic 4-asset benchmark ------------------------------
+% TODO: describe the synthetic dataset — small, hand-tuned $(\mu, \Sigma)$
+% chosen so that the optimum is non-trivial but predictable. Used to
+% verify the full pipeline end-to-end before touching real data.
+
+% --- 3.2.2  Real S&P 500 data ----------------------------------------
+% TODO: 4 tickers (e.g., AAPL, MSFT, AMZN, GOOG), daily adjusted close,
+% log returns. Default ``calm'' window: 2017-01-01 -- 2019-12-31.
+% Source: yfinance.
+
+% --- 3.2.3  Crisis windows ------------------------------------------
+% TODO: three additional windows used for stress-testing:
+%   - 2008 GFC:   2008-09-01 -- 2009-03-31 (~6 months)
+%   - 2020 COVID: 2020-02-15 -- 2020-08-15 (~6 months)
+%   - 2022 rates: 2022-01-01 -- 2022-12-31 (~12 months)
+% Discuss what happens to $\Sigma$: correlation rises, spectrum flattens,
+% condition number explodes.
+
+% --- Placeholder table -----------------------------------------------
+% \begin{table}[h]
+%   \centering
+%   \caption{Datasets and time windows used in Section~\ref{section:result}.
+%            ``$\kappa(\Sigma)$'' is the condition number of the sample
+%            covariance.}
+%   \label{tab:datasets}
+%   \begin{tabular}{@{}llrr@{}}
+%     \toprule
+%     Window & Period & $\bar{\rho}$ & $\kappa(\Sigma)$ \\
+%     \midrule
+%     Synthetic   & ---              & --- & --- \\
+%     Calm        & 2017--2019       & --- & --- \\
+%     GFC         & Sep 2008--Mar 2009 & --- & --- \\
+%     Pandemic    & Feb--Aug 2020    & --- & --- \\
+%     Rate-spike  & 2022             & --- & --- \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
+
+
+\subsection{Hyperparameters and conventions}\label{subsec:hyperparams}
+
+% TODO: fix once and for all the defaults used in Section~\ref{section:result}:
+%   $n = 4$ assets, $K = 2$, $\lambda = 1.0$, $A$ chosen per Section~\ref{subsec:Asensitivity-results},
+%   $p \in \{1,2,3,4\}$, COBYLA with 15 random restarts and
+%   $\gamma \in [0, \pi]$, $\beta \in [0, \pi/2]$ initialisation.
+% Anything that varies in a sweep should be flagged explicitly in the
+% caption of the corresponding figure.
+
+
+\subsection{Validation}\label{subsec:validation}
+
+% TODO: one short paragraph documenting the validation chain:
+%   (i)   $H_C$ diagonal entries match $H(z) + c$ for all $2^n$ bitstrings.
+%   (ii)  $[H_M^{(XY)}, \hat{N}] = 0$ verified numerically (norm $< 10^{-12}$).
+%   (iii) On the synthetic dataset, $\min_x C(x)$ from brute force equals
+%         the minimum eigenvalue of $H_C + cI$ to machine precision.
+%   (iv)  QAOA at $p=1$ reproduces the energies in the FYS5419 course
+%         notebook for the same $(\mu, \Sigma)$.
