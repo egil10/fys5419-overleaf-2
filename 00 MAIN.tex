@@ -1,100 +1,200 @@
-\documentclass[twocolumn,10pt]{article}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[10pt,twocolumn]{article}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%% LAYOUT & GEOMETRY %%%%%%%%%%
+%%%%%%%%%%%% LAYOUT & TEXT %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Replicates the tight margins of a scientific paper
-\usepackage[margin=0.7in, columnsep=0.25in]{geometry}
+\usepackage[margin=0.7in,columnsep=0.25in]{geometry}
 \usepackage[english]{babel}
-\usepackage{microtype}      % Micro-typography for cleaner text
-\usepackage{parskip}        % Handles paragraph spacing cleanly
+\usepackage{microtype}
+\usepackage{ragged2e}
 
-% Set paragraph indentation and spacing to match your preference
-\setlength{\parindent}{15pt}
-\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\setlength{\emergencystretch}{2em}
+\tolerance=600
+\hyphenpenalty=300
+\hbadness=10000
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%% MATH, FONTS & TABLES %%%%%%%%
+%%%%%%%%%%%% FONTS & INPUT %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern}        % The standard font you were using
-\usepackage{mathtools,amssymb,bm,graphicx}
+\usepackage{lmodern}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% MATH %%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{mathtools,amssymb,bm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% FIGURES & FLOATS %%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{float}
+
+\setlength{\textfloatsep}{6pt plus 1pt minus 1pt}
+\setlength{\floatsep}{5pt plus 1pt minus 1pt}
+\setlength{\intextsep}{5pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{0pt}
+\setlength{\dbltextfloatsep}{6pt plus 1pt minus 1pt}
+\setlength{\dblfloatsep}{5pt plus 1pt minus 1pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% TABLES %%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \usepackage{booktabs,array,dcolumn,siunitx}
 \usepackage{tabularx,makecell,adjustbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% ALGORITHMS %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegray}{gray}{0.96}
+
+\lstdefinestyle{python}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codegray},
+  frame=single,
+  rulecolor=\color{black!25},
+  numbers=left,
+  numberstyle=\tiny\color{black!60},
+  numbersep=8pt,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true,
+  xleftmargin=1.8em,
+  framexleftmargin=1.2em
+}
+
+\lstdefinestyle{pythonappendix}{
+  style=python,
+  basicstyle=\ttfamily\scriptsize,
+  numberstyle=\tiny\color{black!60},
+  numbersep=5pt,
+  xleftmargin=1.4em,
+  framexleftmargin=0.9em,
+  aboveskip=4pt,
+  belowskip=4pt,
+  captionpos=b,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=fullflexible,
+  keepspaces=true
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%% SECTIONS & CAPTIONS %%%%%%%%%%
+%%%%%%%%%%%% ALGORITHMS %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{etoolbox}
+
+% Globally make algorithm bodies smaller
+\AtBeginEnvironment{algorithmic}{\footnotesize}
+
+% Optional: cleaner names
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}
+\algrenewcommand\algorithmicensure{\textbf{Output:}}
+
+\lstset{style=python}
+\renewcommand{\lstlistingname}{Listing}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% HEADINGS & CAPTIONS %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{titlesec}
 \usepackage[labelfont=bf,labelsep=period,font=small]{caption}
 
-% Replicates the tight section spacing
-\titlespacing*{\section}{0pt}{10pt}{4pt}
-\titlespacing*{\subsection}{0pt}{6pt}{3pt}
-\titlespacing*{\subsubsection}{0pt}{6pt}{3pt}
-\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\section}
+  {\large\bfseries}
+  {\thesection}{0.8em}{}
 
-% Bold figure captions (e.g., "Figure 1. Description")
+\titleformat{\subsection}
+  {\normalsize\bfseries\itshape}
+  {\thesubsection}{0.8em}{}
+
+\titleformat{\subsubsection}
+  {\normalsize\itshape}
+  {\thesubsubsection}{0.8em}{}
+
+\titlespacing*{\section}{0pt}{10pt}{4pt}
+\titlespacing*{\subsection}{0pt}{7pt}{3pt}
+\titlespacing*{\subsubsection}{0pt}{6pt}{2pt}
+
 \captionsetup{figurename=Figure}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%% LISTINGS %%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Appendix figure compression
+\captionsetup[subfigure]{
+  font=scriptsize,
+  labelfont=bf,
+  skip=2pt
+}
 
-\usepackage{listings}
-\usepackage{xcolor}
-
-\definecolor{codebg}{RGB}{245,245,244}
-\definecolor{codekey}{RGB}{0,0,180}
-\definecolor{codestr}{RGB}{163,21,21}
-\definecolor{codecom}{RGB}{0,128,0}
-
-\lstdefinestyle{pythonstyle}{
-    language=Python,
-    backgroundcolor=\color{codebg},
-    frame=single,
-    rulecolor=\color{gray!40},
-    basicstyle=\ttfamily\small,
-    keywordstyle=\color{codekey}\bfseries,
-    stringstyle=\color{codestr},
-    commentstyle=\color{codecom}\itshape,
-    numbers=left,
-    numbersep=6pt,
-    numberstyle=\tiny\color{gray},
-    breaklines=true,
-    showstringspaces=false,
-    xleftmargin=10pt,
-    xrightmargin=5pt
+\newcommand{\appfig}[3]{%
+  \begin{subfigure}[t]{#1}
+    \centering
+    \includegraphics[width=\linewidth]{#2}
+    \caption{#3}
+  \end{subfigure}%
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%% BIBLIOGRAPHY %%%%%%%%%%%%
+%%%%%%%%%%%% REFERENCES %%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Enables \parencite and \textcite
-\usepackage[backend=biber,style=authoryear,maxcitenames=2,maxbibnames=99]{biblatex}
-\addbibresource{bib.bib} % <-- change to your .bib filename
+\usepackage[
+backend=biber,
+style=authoryear,
+maxcitenames=2,
+maxbibnames=99
+]{biblatex}
+\addbibresource{bib.bib}
+\renewcommand*{\bibfont}{\small}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%% HYPERLINKS & REFS %%%%%%%%%%%
+%%%%%%%%%%%% LINKS & REFS %%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage[colorlinks=true,allcolors=blue]{hyperref}
 \usepackage{cleveref}
+
 \crefname{lstlisting}{Listing}{Listings}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
+\twocolumn[
+\begin{@twocolumnfalse}
 \input{01 FRONTMATTER}
+\input{05 ABSTRACT}
+\vspace{0.5cm}
+\end{@twocolumnfalse}
+]
 \input{10 INTRO}
 \input{11 METHOD}
 \input{12 RESULT}
