@@ -1,7 +1,4 @@
 \begin{abstract}
 \noindent
-This is an abstract.
+We study the Quantum Approximate Optimization Algorithm (QAOA) applied to the cardinality-constrained mean--variance portfolio selection problem. The Markowitz objective with a fixed-budget constraint is reformulated as a QUBO and mapped to an Ising cost Hamiltonian, after which a variational circuit alternating cost and mixer unitaries is optimised for depths $p=1,2,3$. We complement QAOA with a data-reuploading quantum neural network (QNN) that produces a differentiable per-asset score and selects portfolios through a sigmoid-based soft ranking trained with parameter-shift gradients. Both approaches are evaluated on a synthetic four-asset benchmark and on real S\&P~500 return data, and compared against the exact brute-force optimum. We discuss the relative roles of the two methods: QAOA as a variational ground-state search of the cost Hamiltonian, and the QNN as a learned scoring function over asset features, and highlight the trade-offs in constraint handling, gradient estimation, and behaviour under unstable covariance regimes such as crisis windows.
 \end{abstract}
-
-
-

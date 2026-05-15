@@ -22,7 +22,7 @@ Covariance matrices estimated during the 2008 crash, 2020 pandemic shock, and 20
 
 ## Layout
 
-`00 MAIN.tex` — document root · `01 FRONTMATTER.tex` — abstract · `10 INTRO.tex` — introduction · `11 METHOD.tex` — QUBO formulation, QAOA circuit, optimization loop, dataset · `12 RESULT.tex` — results · `13 CONCLUSION.tex` — conclusion · `bib.bib` — references
+`00 MAIN.tex` — document root · `01 FRONTMATTER.tex` — abstract · `10 INTRO.tex` — introduction · `11 METHOD.tex` — QUBO formulation, QAOA circuit, optimization loop, dataset · `12 RESULT.tex` — results · `13 CONCLUSION.tex` — conclusion · `references.bib` — references
 
 <br>
 

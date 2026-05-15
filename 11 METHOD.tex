@@ -3,275 +3,248 @@
 
 \subsection{Mean-Variance Portfolio Optimisation}
 
-
+The pipeline maps a financial dataset to a quantum circuit through a sequence of well-defined steps:
 \begin{equation}
-    \text{Financial Data} \rightarrow (\mu,\Sigma) \rightarrow \text{QUBO} \rightarrow \text{Ising Hamiltonian} \rightarrow \text{Pauli operators} \rightarrow \text{QAOA}
+    \text{Financial Data} \rightarrow (\mu,\Sigma) \rightarrow \text{QUBO} \rightarrow \text{Ising} \rightarrow \text{Pauli operators} \rightarrow \text{QAOA}
 \end{equation}
 
+The Markowitz mean--variance objective for a binary selection vector $x\in\{0,1\}^n$ reads
 \begin{equation}
-    \min_x \left( -\mu^\top x + \lambda x^\top \Sigma x \right)
+    \min_x \left( -\mu^\top x + \lambda\, x^\top \Sigma x \right),
+\end{equation}
+where $-\mu^\top x$ maximises expected return and $\lambda\, x^\top \Sigma x$ penalises portfolio variance (risk).
+
+A fixed-budget constraint requires exactly $K$ assets:
+\begin{equation}
+    \sum_{i=1}^{n} x_i = K.
 \end{equation}
 
-$-\mu^\top x$ maximises expected return and $\lambda x^\top \Sigma x$ penalises portfolio variance (risk).
-
+We enforce the budget with a quadratic penalty, giving the soft-constrained cost
 \begin{equation}
-    \sum_{i=1}^{n} x_i = K
+    C(x) = -\mu^\top x + \lambda\, x^\top \Sigma x + A \left( \sum_{i=1}^{n} x_i - K \right)^2,
 \end{equation}
+where $A>0$ is chosen large enough that the minimum of $C(x)$ satisfies the budget constraint.
 
+Returns and their first two moments are estimated from price series:
 \begin{equation}
-    C(x) = -\mu^\top x + \lambda x^\top \Sigma x + A \left( \sum_{i=1}^{n} x_i - K \right)^2
+    r_i(t) = \frac{P_i(t+1)-P_i(t)}{P_i(t)} \approx \ln\frac{P_i(t+1)}{P_i(t)},
 \end{equation}
-
-where $A>0$ is a penalty coefficient chosen large enough that the minimum of $C(x)$ always satisfies the budget constraint.
-
 \begin{equation}
-    r_i(t) = \frac{P_i(t+1)-P_i(t)}{P_i(t)} \approx \ln\frac{P_i(t+1)}{P_i(t)}
-\end{equation}
-
-\begin{equation}
-    \mu_i = \langle r_i \rangle_t \quad \Sigma_{ij} = \langle r_ir_j \rangle - \langle r_i \rangle \langle r_j \rangle
+    \mu_i = \langle r_i \rangle_t,\qquad \Sigma_{ij} = \langle r_i r_j \rangle - \langle r_i \rangle \langle r_j \rangle.
 \end{equation}
 
 
 \subsection{Quadratic Unconstrained Binary Optimisation (QUBO)}
-QUBO formulation
 
-
+A QUBO is a quadratic cost over binary variables,
 \begin{equation}
-    \min_{x\in\{0,1\}^n} C(x) = \sum_i Q_{ii} x_i + \sum_{i<j} Q_{ij} x_i x_j
+    \min_{x\in\{0,1\}^n} C(x) = \sum_i Q_{ii}\, x_i + \sum_{i<j} Q_{ij}\, x_i x_j,
 \end{equation}
-
-where for binary variables $x_i^2=x_i$
-
-\begin{equation}
-    C(x) = \sum_i \left[ -\mu_i + \lambda\Sigma_{ii} + A(1-2K) \right] x_i + \sum_{i<j}\left[ 2\lambda\Sigma_{ij}+2A\right]x_ix_j + AK^2
-\end{equation}
-
+where the linear terms are absorbed into the diagonal of $Q$ because $x_i^2 = x_i$ for binary variables. Expanding the penalised mean--variance cost yields
 \begin{equation}
     C(x) = \sum_i \underbrace{\bigl[-\mu_i + \lambda\Sigma_{ii} + A(1-2K)\bigr]}_{Q_{ii}}\, x_i + \sum_{i<j} \underbrace{\bigl[2\lambda\Sigma_{ij} + 2A\bigr]}_{Q_{ij}}\, x_i x_j + \underbrace{AK^2}_{\text{const}},
 \end{equation}
 
 \begin{equation}
     \boxed{
-    Q_{ii} = -\mu_i + \lambda\Sigma_{ii} + A(1-2K) 
-    \quad
-    Q_{ij} = 2\lambda\Sigma_{ij} + 2A
-    \quad
-    (i>j)
+    Q_{ii} = -\mu_i + \lambda\Sigma_{ii} + A(1-2K),
+    \qquad
+    Q_{ij} = 2\lambda\Sigma_{ij} + 2A \quad (i<j).
     }
 \end{equation}
 
 \subsection{Ising Hamiltonian Mapping}
 
-Mapping $x_i \in \{0,1\}$ to spin variables $z_i\in\{-1,+1\}$ via 
+Mapping binary variables to spins via
 \begin{equation}
-    x_i = \frac{1-z_i}{2}
+    x_i = \frac{1-z_i}{2},\qquad z_i\in\{-1,+1\},
 \end{equation}
-
-Substituting into $C(x)$ and collecting terms by degree giving and Ising Hamiltonian. 
+and substituting into $C(x)$ produces an Ising Hamiltonian
 \begin{equation}
-    H(z) = \sum_i h_iz_i - \frac{1}{4} \sum_{j \neq i} Q_{ij} 
-    \quad
-    J_{ij} = \frac{Q_{ij}}{4}
-    \quad
-    (i<j)
+    H(z) = \sum_i h_i\, z_i + \sum_{i<j} J_{ij}\, z_i z_j,
 \end{equation}
-
-and the total additive constant is 
+with coefficients
 \begin{equation}
-    c = \text{offset} + \frac{1}{2} \sum_i Q_{ii} + \frac{1}{4} \sum_{i<j} Q_{ij}
+    h_i = -\tfrac{1}{2} Q_{ii} - \tfrac{1}{4} \sum_{j\neq i} Q_{ij},
+    \qquad
+    J_{ij} = \tfrac{1}{4} Q_{ij} \quad (i<j),
 \end{equation}
-
-Such that $H(z)+c=C(x)\quad\forall x$
+and an additive constant
+\begin{equation}
+    c = AK^2 + \tfrac{1}{2}\sum_i Q_{ii} + \tfrac{1}{4}\sum_{i<j} Q_{ij},
+\end{equation}
+chosen so that $H(z) + c = C(x)$ for every binary $x$ and its spin image $z$.
 
 \subsection{Quantum Pauli Operators and Cost Hamiltonian}
 
-$z_i\in\{-1,+1\}$
-
+Promoting each classical spin $z_i$ to the single-qubit Pauli-$Z$ operator on site $i$,
 \begin{equation}
-    z_i \longrightarrow \hat{Z}_i = I^{\otimes(i)} 
-    \otimes
-    Z
-    \otimes 
-    I^{\otimes(n-i-1)}
+    z_i \longrightarrow \hat{Z}_i = I^{\otimes i}
+    \otimes Z \otimes I^{\otimes (n-i-1)},
 \end{equation}
-
+with
 \begin{equation}
     Z =
     \begin{pmatrix}
         1 & 0 \\
         0 & -1
-    \end{pmatrix}
+    \end{pmatrix},
 \end{equation}
-
-has eigenvalues $\pm 1$ 
-
-The costing Hamiltonian is then the $2^n\times2^n$ matrix
+gives the cost Hamiltonian as the $2^n\times 2^n$ diagonal matrix
 \begin{equation}
     \boxed{
-    H_c = \sum_i h_i \hat{Z}_i + \sum_{i<j} J_{ij} \hat{Z}_i\hat{Z}_j
+    H_C = \sum_i h_i\, \hat{Z}_i + \sum_{i<j} J_{ij}\, \hat{Z}_i \hat{Z}_j.
     }
 \end{equation}
+Every computational basis state $|z\rangle$ is an eigenstate of $H_C$ with eigenvalue $H(z)$.
 
-Every computational basis state $|z\rangle$ is an eigenstate of $H_c$ with eigenvalue $H(z) = \Sigma_i h_iz_i +  \Sigma_{i<j}J_{ij}z_iz_j$
-
-The mixing Hamiltonian drives quantum tunneling between bistring states
+The mixing Hamiltonian drives quantum tunnelling between bitstring states,
 \begin{equation}
-    H_m=\sum_{i=j}^{n}\hat{X}_i 
-    \quad 
-    X=\begin{pmatrix}
-        0&1\\1&0
-    \end{pmatrix}
+    H_M = \sum_{i=1}^{n} \hat{X}_i,
+    \qquad
+    X = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}.
 \end{equation}
 
 \subsection{QAOA Algorithm}
 
-Single-layer $p=1$ ansatz
+The single-layer ($p=1$) ansatz is
 \begin{equation}
     |\psi(\gamma,\beta)\rangle =
-    e^{-i \beta H_m}
-    e^{-i \gamma H_c}
-    |+\rangle^{\otimes n}
+    e^{-i \beta H_M}\,
+    e^{-i \gamma H_C}\,
+    |+\rangle^{\otimes n},
 \end{equation}
-
-Where $e^{-i \gamma H_c}$ is the phase separation uniteray, it phases each basis state by $e^{-i\gamma H(z)}$ encoding cost information into amplitudes.
-
-$e^{-i\beta H_m}$ is the mixing unitary, it spreads amplitued between states, allowing transitions betwee candidate solutions. 
+where $e^{-i\gamma H_C}$ is the \emph{phase-separation} unitary --- it phases each basis state by $e^{-i\gamma H(z)}$, encoding cost information into the amplitudes --- and $e^{-i\beta H_M}$ is the \emph{mixing} unitary, which spreads amplitude between bitstrings and enables transitions between candidate solutions.
 
 \begin{equation}
-    \underbrace{H^{\otimes n}}_{\text{superposition}} 
+    \underbrace{H^{\otimes n}}_{\text{superposition}}
     \longrightarrow
-    \underbrace{e^{i\gamma H_c}}_{\text{phase separation}} 
+    \underbrace{e^{-i\gamma H_C}}_{\text{phase separation}}
     \longrightarrow
-    \underbrace{e^{-i\beta H_m}}_{\text{mixing}}
+    \underbrace{e^{-i\beta H_M}}_{\text{mixing}}
     \longrightarrow
-    \underbrace{\text{measure}}_{z-\text{basis}}
+    \underbrace{\text{measure}}_{Z\text{-basis}}
 \end{equation}
 
-Multi-layer $p>1$ ansatz, for depth $p$, alternate $p$ cost, and $p$ mixer layers
+For depth $p>1$, we alternate $p$ cost and $p$ mixer layers,
 \begin{equation}
-    |\psi(\gamma,\beta)\rangle =
+    |\psi(\boldsymbol\gamma,\boldsymbol\beta)\rangle =
     \prod_{k=1}^{p}
     \left(
-    e^{-i\beta_k H_m}
-    e^{-i\gamma_k H_C}
+        e^{-i\beta_k H_M}\,
+        e^{-i\gamma_k H_C}
     \right)
-    |+\rangle^{\otimes n}
+    |+\rangle^{\otimes n},
 \end{equation}
+with $2p$ variational parameters $(\gamma_1,\dots,\gamma_p,\beta_1,\dots,\beta_p)$.
 
-With $2p$ variational parameters $(\gamma_1, \dots, \gamma_p, \beta_1, \dots, \beta_p)$
-
-The classical optimiser minimises the energy expectation value 
+A classical optimiser minimises the energy expectation value
 \begin{equation}
-    E(\gamma, \beta) = 
-    \langle \psi(\gamma,\beta) | H_C | \psi(\gamma,\beta)\rangle
+    E(\boldsymbol\gamma, \boldsymbol\beta) =
+    \langle \psi(\boldsymbol\gamma,\boldsymbol\beta) |\, H_C\, | \psi(\boldsymbol\gamma,\boldsymbol\beta)\rangle.
 \end{equation}
-
-Since $H_C$ is diagonal with eigenvalues $H(z)$ this equals
+Since $H_C$ is diagonal in the computational basis with eigenvalues $H(z)$, this reduces to
 \begin{equation}
-    E = \sum_{z \in \{ -1, +1 \}^n} H(z) |\langle z | \psi \rangle | ^2
+    E = \sum_{z\in\{-1,+1\}^n} H(z)\, |\langle z | \psi \rangle|^2.
 \end{equation}
 
-\subsection{Code}
+\subsection{Implementation Outline}
 
 \begin{itemize}
-    \item Set parameters: $\lambda, A, K$
-    \item Build the QUBO matrix: $Q$
-    \item Convert to Ising coefficients: $(h, J, c)$
-    \item Build the quantum operators $H_C$ and $H_m$
-    \item Run brute-force classical search (except for validation)
-    \item Run QAOA for $p=1,2,3$ and compare
+    \item Set parameters $\lambda$, $A$, $K$.
+    \item Build the QUBO matrix $Q$.
+    \item Convert to Ising coefficients $(h, J, c)$.
+    \item Construct the quantum operators $H_C$ and $H_M$.
+    \item Run a brute-force classical search for validation.
+    \item Run QAOA for $p=1,2,3$ and compare against the exact optimum.
 \end{itemize}
 
 \subsection{Statistical Physics Connection}
 
-The ising Hamiltonian
+The Ising Hamiltonian
 \begin{equation}
-    H(z) = \sum_i h_iz_i + \sum_{i<j} J_{ij} z_i z_j
+    H(z) = \sum_i h_i z_i + \sum_{i<j} J_{ij} z_i z_j
 \end{equation}
-defines a classical partition function at inverse temperature $\beta_{th}$
-
+defines a classical partition function at inverse temperature $\beta_{\text{th}}$,
 \begin{equation}
-    z = \sum_{\{z\}} e^{-\beta_{th}H(z)}
+    Z = \sum_{\{z\}} e^{-\beta_{\text{th}} H(z)},
 \end{equation}
-
-and the associated free energy
+with associated free energy
 \begin{equation}
-     F = -\frac{1}{\beta_{th}}\ln Z
+    F = -\frac{1}{\beta_{\text{th}}} \ln Z.
 \end{equation}
-
-QAOA as variational free-energy minimisation, can be understood as a variational approximation of the ground state of $H_c$ 
+QAOA can be understood as a variational approximation to the ground state of $H_C$,
 \begin{equation}
-    E(\gamma, \beta) = \langle \psi | H_C | \psi \rangle \geq E_0
+    E(\boldsymbol\gamma, \boldsymbol\beta) = \langle \psi | H_C | \psi \rangle \geq E_0,
 \end{equation}
+and as $p\to\infty$ the ansatz can, in principle, reach the exact ground state.
 
 \subsection{Quantum Neural Network for Portfolio Optimisation}
 
-For asset $i$ with feature vector $\phi_i\in \mathbb{R}^{F}$ and trainable weight matrices $W^Y,W^Z \in \mathbb{R}^{L\times F}$ the circuit is
+As a complementary approach we implement a data-reuploading single-qubit QNN \autocite{perezsalinas2020data} that assigns each asset a learned score. For asset $i$ with augmented feature vector $\phi_i\in\mathbb{R}^{F}$ and trainable weight matrices $W^Y, W^Z \in \mathbb{R}^{L\times F}$, the circuit is
 \begin{equation}
-    | \psi_i \rangle = \prod_{t=1}^{L} 
-    R_Z \left((W_l^Z)^\top \phi_i\right)R_Y\left((W_l^Y)^\top\phi_i\right)|0\rangle
+    |\psi_i\rangle = \prod_{\ell=1}^{L}
+    R_Z\!\left((W_\ell^Z)^\top \phi_i\right)
+    R_Y\!\left((W_\ell^Y)^\top \phi_i\right)
+    |0\rangle,
 \end{equation}
-
-where each layer encodes the data afresh via the rotations
+where each layer re-encodes the data through the rotations
 \begin{equation}
-    R_Y(\theta) = 
+    R_Y(\theta) =
     \begin{pmatrix}
         \cos\frac{\theta}{2} & -\sin\frac{\theta}{2} \\
-        \sin\frac{\theta}{2} & \cos\frac{\theta}{2}
-    \end{pmatrix} 
-    \quad
-    R_Z(\theta) = 
+        \sin\frac{\theta}{2} &  \cos\frac{\theta}{2}
+    \end{pmatrix},
+    \qquad
+    R_Z(\theta) =
     \begin{pmatrix}
-        e^{-i\frac{\theta}{2}} & 0 \\
-        0 & e^{i\frac{\theta}{2}}
-    \end{pmatrix}
+        e^{-i\theta/2} & 0 \\
+        0 & e^{i\theta/2}
+    \end{pmatrix}.
 \end{equation}
 
-The feature vector is augmented with a bias term $\phi_i=(\mu_i^{\text{sc}}, \sigma_i^{\text{sc}}, 1)$ so the weight matrix also plays the role of trainable offsets. The circuit output is the $Z$-expectation:
+The feature vector is augmented with a bias term, $\phi_i = (\mu_i^{\text{sc}}, \sigma_i^{\text{sc}}, 1)$, so the weight matrix also plays the role of trainable offsets. The circuit output is the $Z$-expectation,
 \begin{equation}
-    s_i 
+    s_i
     = \langle \psi_i | Z | \psi_i \rangle
-    = |\langle 0 | \psi_i \rangle | ^2 
-    - |\langle 1 | \psi_i \rangle | ^2
-    \in [-1, +1]
+    = |\langle 0 | \psi_i \rangle|^2 - |\langle 1 | \psi_i \rangle|^2
+    \in [-1, +1].
 \end{equation}
 
-Differentiable portfolio selection, to connect the scores to a differentiable portfolio cost, we use a sigmoid-based soft ranking. Find a threshold $t$ such that
+To connect the scores to a differentiable portfolio cost we use a sigmoid-based soft ranking: find a threshold $t$ such that
 \begin{equation}
-    p_i = \sigma(\alpha(s_i-t)) \quad \sum_i p_i = K
+    p_i = \sigma\!\bigl(\alpha (s_i - t)\bigr),
+    \qquad
+    \sum_i p_i = K,
 \end{equation}
-where $\sigma(x) = (1+e^{-x})^{-1}$ and $\alpha$ is a sharpness parameter. The threshold is found by bisection. The continous selection probabilities $p_i\in(0,1)$ then enter the mean-variance cost:
+where $\sigma(x) = (1+e^{-x})^{-1}$ and $\alpha$ is a sharpness parameter. The threshold is found by bisection. The continuous selection probabilities $p_i\in(0,1)$ then enter the mean--variance cost,
 \begin{equation}
-    \mathcal{L}(W^Y,W^Z) = 
-    \bm{-\mu^\top}\mathbf{p} + \lambda \mathbf{p}^\top\Sigma\mathbf{p} + 
-    \left(
-    \sum_i p_i - K
-    \right)^2
-\end{equation}
-
-Parameter shift-rule 
-\begin{equation}
-    \frac{\partial s_i}{\partial W_{lf}^Y}
-    = 
-    \frac{s_i(W_{lf}^Y + \frac{\pi}{2}) - s_i(W_{lf}^Y - \frac{\pi}{2})}{2}
+    \mathcal{L}(W^Y, W^Z) =
+    -\mu^\top \mathbf{p} + \lambda\, \mathbf{p}^\top \Sigma \mathbf{p} +
+    \left( \sum_i p_i - K \right)^2.
 \end{equation}
 
-The ADAM optimiser 
+Gradients with respect to the circuit parameters are obtained via the parameter-shift rule,
 \begin{equation}
-    m_t = \beta_1 m_{t-1} + (1-\beta_1) \nabla\mathcal{L}
+    \frac{\partial s_i}{\partial W_{\ell f}^Y}
+    =
+    \frac{s_i\!\left(W_{\ell f}^Y + \tfrac{\pi}{2}\right) - s_i\!\left(W_{\ell f}^Y - \tfrac{\pi}{2}\right)}{2},
 \end{equation}
-\begin{equation}
-    v_t = \beta_2v_{t-1} + (1-\beta_2)(\nabla\mathcal{L})^2
-\end{equation}
-\begin{equation}
-    W \leftarrow W - \eta \frac{\hat{m}_t}{\sqrt{\hat{v}_t}+\varepsilon}
-\end{equation}
-With bias-corrected moments
-\begin{equation}
-    \hat{m}_t = \frac{m_t}{(1-\beta_1^t)}
-\end{equation}
-\begin{equation}
-    \hat{v}_t = \frac{v_t}{(1-\beta_2^t)}
-\end{equation}
+which is exact for the expectation of a Pauli observable in a Pauli-rotation circuit.
 
+Weights are updated with the ADAM optimiser,
+\begin{equation}
+    m_t = \beta_1\, m_{t-1} + (1-\beta_1)\, \nabla\mathcal{L},
+\end{equation}
+\begin{equation}
+    v_t = \beta_2\, v_{t-1} + (1-\beta_2)\,(\nabla\mathcal{L})^2,
+\end{equation}
+\begin{equation}
+    W \leftarrow W - \eta\, \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \varepsilon},
+\end{equation}
+with bias-corrected moments
+\begin{equation}
+    \hat{m}_t = \frac{m_t}{1-\beta_1^t},
+    \qquad
+    \hat{v}_t = \frac{v_t}{1-\beta_2^t}.
+\end{equation}
