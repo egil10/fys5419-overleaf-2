@@ -29,8 +29,15 @@
 %   - metrics.py   approximation ratio, top-1 probability, feasibility
 %   - experiments  Jupyter notebooks that produce every figure
 %   Mention statevector simulation (no shot noise) at $n=4$, and that
-%   the optimiser is scipy.optimize.minimize (COBYLA), with random
-%   $(\gamma_0, \beta_0)$ restarts.
+%   the implementation closes the hybrid quantum--classical loop
+%   described in Section~\ref{subsec:qaoa}: the simulator returns
+%   $E(\boldsymbol\gamma,\boldsymbol\beta)$ for a given parameter
+%   point, and \texttt{scipy.optimize.minimize} (COBYLA, gradient-free)
+%   updates the parameters, with $n_\text{restarts}$ random
+%   $(\boldsymbol\gamma_0, \boldsymbol\beta_0)$ to mitigate convergence
+%   to local minima of the variational landscape. Statevector
+%   simulation removes shot noise so any non-monotonicity in $p$
+%   reflects the optimiser, not sampling variance.
 
 % TODO: short code listing of run_qaoa() to anchor the discussion:
 % \begin{lstlisting}[caption={Core QAOA loop (statevector).}, label={lst:qaoa}]

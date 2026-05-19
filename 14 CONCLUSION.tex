@@ -35,27 +35,65 @@
 %     - The pipeline is modular: $(\mu, \Sigma) \to Q \to (h, J, c)
 %       \to H_C$ is dataset-agnostic and can be re-run on any return
 %       series.
+%     - The variational principle (Section~\ref{subsec:qaoa}) gives a
+%       built-in correctness anchor: the energy is monotone non-increasing
+%       in $p$ in expectation, and brute force at $n=4$ provides a
+%       hard upper bound on what good angles can achieve.
 %   Cons:
-%     - At $n=4$, the problem is classically trivial. We cannot claim
-%       a quantum speedup, only methodological clarity.
+%     - At $n=4$ the problem is classically trivial — sixteen brute-force
+%       evaluations suffice and exact integer programming (Gurobi,
+%       CPLEX) solves the full mean--variance problem in milliseconds
+%       at hundreds of assets. We cannot claim a quantum speedup, only
+%       methodological clarity. This mirrors the broader empirical
+%       status of QAOA: no quantum advantage has been demonstrated on
+%       any useful combinatorial problem, and on MAX-CUT specifically
+%       Goemans--Williamson outperforms QAOA at depths reachable on
+%       current hardware.
 %     - The penalty mixer is sensitive to $A$ in a way that is hard
 %       to set a priori without enumerating $C(x)$ — which is what
 %       we are trying to avoid.
 %     - COBYLA + random restarts is robust but pessimistic for
-%       hardware: every restart is a fresh circuit execution.
+%       hardware: every restart is a fresh circuit execution. More
+%       fundamentally, deep variational circuits suffer from barren
+%       plateaus — the gradient of $E(\boldsymbol\gamma,\boldsymbol\beta)$
+%       vanishes exponentially in $n$ for random initialisations — so
+%       the classical optimisation step itself becomes the bottleneck
+%       as $n$ grows.
+%     - The circuit depth $p$ required to compete with classical
+%       heuristics on hard instances appears to grow with $n$, which
+%       erodes the NISQ-friendliness argument that motivated the
+%       algorithm in the first place.
+%
+% Honest framing — to lift from Section~\ref{section:Introduction}:
+% QAOA is interesting because it is a clean, near-term-runnable
+% framework that ties combinatorial optimisation, statistical physics
+% (spin glasses, frustrated systems) and quantum computing together
+% in a single algorithm. Its value at this stage is in the questions
+% it lets us ask — what does the $E(\gamma,\beta)$ landscape look
+% like, how does the approximation ratio scale with $p$, where does
+% adiabaticity break down — not in answers it gives over Gurobi on
+% a four-asset portfolio.
 
 
 \subsection{Future directions}
 
 % TODO: realistic next steps. Some candidates:
 %   - Scale to $n = 8$ or $n = 16$ assets (still statevector-tractable)
-%     and test whether crisis-window degradation worsens with $n$.
+%     and test whether crisis-window degradation worsens with $n$, and
+%     whether the gradient variance shows early signs of the barren
+%     plateau scaling.
 %   - Replace COBYLA with a parameter-shift / gradient-based optimiser
-%     and compare convergence speed.
+%     and compare convergence speed; quantify barren-plateau onset.
 %   - Add a relative-cardinality constraint via slack variables
 %     \autocite{thomassin2025slack} so the budget $K$ can be itself
 %     a variable.
 %   - Run a single seed on real IBM hardware to characterise the
 %     noise penalty.
 %   - Explore problem-tailored initialisation
-%     \autocite{zhou2018qaoa,mancilla2026constrained} as warm starts.
+%     \autocite{zhou2018qaoa,mancilla2026constrained} as warm starts,
+%     i.e.\ start from angles close to the adiabatic schedule rather
+%     than from random points.
+%   - Compare directly to a strong classical baseline (Gurobi MIP,
+%     simulated annealing on the same Ising Hamiltonian) on identical
+%     instances so the gap to classical is quantified rather than
+%     asserted.

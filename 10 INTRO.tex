@@ -11,16 +11,58 @@
 % --- 1.1  Motivation -------------------------------------------------
 % TODO: Markowitz (1952) mean--variance is one of the foundational
 % problems in finance. With a cardinality constraint ``pick exactly $K$
-% out of $n$ assets'', it becomes a binary quadratic program — NP-hard
-% in general — and classical solvers scale poorly with $n$.
+% out of $n$ assets'', the continuous quadratic programme becomes a
+% binary quadratic programme — formally a QUBO — which is NP-hard in
+% general. Brute-force enumeration scales as $2^n$: tractable for the
+% four-asset problems studied here ($2^4 = 16$ evaluations), infeasible
+% for the typical institutional universe of hundreds of assets. The
+% same QUBO form recurs across combinatorial optimisation (MAX-CUT,
+% travelling salesman, graph colouring, lattice protein folding), so
+% a general-purpose QUBO solver is by extension a general-purpose
+% combinatorial solver, which is the broader reason the algorithmic
+% question matters.
 % \autocite{markowitz1952}
 
 % --- 1.2  Why QAOA ---------------------------------------------------
 % TODO: Variational quantum algorithms such as QAOA \autocite{farhi2014qaoa}
 % reformulate combinatorial optimisation as a ground-state search of an
-% Ising Hamiltonian and are a natural fit for near-term hardware.
+% Ising Hamiltonian. Three honest motivations make QAOA a natural object
+% of study even before any quantum advantage has been demonstrated:
+%   (a) Theoretical tractability. QAOA admits provable approximation
+%       guarantees on structured problems. Farhi, Goldstone and
+%       Gutmann (2014) proved an approximation ratio $r \geq 0.6924$
+%       at $p = 1$ for MAX-CUT on 3-regular graphs — modest, but the
+%       point is that the algorithm is mathematically tame enough for
+%       such bounds to exist at all.
+%   (b) Structural novelty. QAOA explores the full $2^n$-dimensional
+%       Hilbert space in superposition; quantum interference lets
+%       amplitude flow non-locally across the cost landscape in ways
+%       that have no classical analogue. Whether this delivers an
+%       actual asymptotic speedup is open.
+%   (c) NISQ-compatibility. The QAOA circuit has $n$ qubits, depth
+%       $O(p)$ and only $2p$ variational parameters, so unlike Shor's
+%       algorithm or HHL it can in principle be executed on present-day
+%       hardware without fault tolerance.
 % Brief mention of recent work on quantum portfolio optimisation
-% \autocite{stopfer2025benchmark,mancilla2026constrained,shen2025noisy}.
+% \autocite{stopfer2025benchmark,mancilla2026constrained,shen2025noisy,
+%  morapakula2025annealing,thomassin2025slack,soloviev2025pauli}.
+%
+% Honest caveats — revisited in Section~\ref{section:conclusion}:
+%   - No quantum advantage has yet been demonstrated for QAOA on a
+%     useful problem; classical baselines (Goemans--Williamson for
+%     MAX-CUT, Gurobi/CPLEX for portfolio selection) outperform QAOA
+%     at the depths achievable on real devices today.
+%   - The classical optimisation step is plagued by ``barren plateaus'':
+%     the gradient of $E(\boldsymbol\gamma,\boldsymbol\beta)$ vanishes
+%     exponentially in $n$ for random initialisations of sufficiently
+%     deep circuits.
+%   - The depth $p$ required to compete with classical heuristics on
+%     hard instances appears to grow with system size, eroding the
+%     NISQ-friendliness in practice.
+% We therefore treat QAOA as a research vehicle that lets us pose
+% sharp questions about the cost-landscape geometry, the dependence
+% on depth, and the breakdown of adiabaticity — not as a tool we
+% expect to beat Gurobi on a four-asset problem.
 
 % --- 1.3  What this report does -------------------------------------
 % TODO: We
