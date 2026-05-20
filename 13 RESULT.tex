@@ -1,242 +1,125 @@
 \section{Results and Discussion}\label{section:result}
 
 % =====================================================================
-%   RESULTS (target: ~4--5 columns; rubric: 20 pts)
-%   Required ingredients (per EvaluationForm.md):
-%     - Present results, critical discussion in context.
-%     - Reader should be able to reproduce; explain all input variables.
-%     - Figures and tables must be self-contained from caption alone.
-%
-%   Structure modelled on the FYS5419 example reports:
-%     - Each subsection asks ONE question and answers it with ONE
-%       headline figure (or table) plus a short discussion paragraph.
-%     - Sweep results follow the ``Effect of X'' template from the
-%       2025 QML example project.
-%
-%   Figure budget (rough): 6--8 figures, 2--3 tables.
-%   Every figure caption must state: dataset, depth $p$, mixer choice,
-%   penalty $A$, and number of restarts. Be explicit; do not leave it
-%   to the reader to infer.
+%   Five experimental subsections + summary. Each subsection asks one
+%   question, answers it with one inline figure (also archived in the
+%   appendix), and closes with a short discussion paragraph.
+%   Sign convention for the scaled approximation ratio follows
+%   \cref{eq:approxratio}: r = (E_worst - E)/(E_worst - E_opt).
 % =====================================================================
 
-
-\subsection{Synthetic benchmark: end-to-end sanity check}\label{subsec:synthetic-results}
-
-% --- Question -----
-%   Does the pipeline reproduce the brute-force optimum on a controlled
-%   4-asset dataset where the answer is known?
-%
-% --- Headline content -----
-% \begin{table}[h]
-%   \centering
-%   \caption{QAOA on the synthetic dataset ($n=4$, $K=2$, $\lambda=1$,
-%            $A=$ \emph{TBD}, transverse-field mixer). $r$ is the
-%            approximation ratio defined in \eqref{eq:approxratio}.}
-%   \label{tab:synthetic}
-%   \begin{tabular}{@{}lrrrr@{}}
-%     \toprule
-%     $p$ & $E^\star$ & Top-1 bitstring & $r$ & $p_{\text{top-1}}$ \\
-%     \midrule
-%     1 & --- & --- & --- & --- \\
-%     2 & --- & --- & --- & --- \\
-%     3 & --- & --- & --- & --- \\
-%     4 & --- & --- & --- & --- \\
-%     Brute force & $C_{\min}=$\emph{TBD} & --- & 1.00 & 1.00 \\
-%     \bottomrule
-%   \end{tabular}
-% \end{table}
-%
-% --- Discussion paragraph (TODO) ---
-% Confirm correctness, note at which $p$ the approximation ratio
-% saturates, note whether the top-1 bitstring already matches at $p=1$.
+The five subsections below sweep one design knob at a time on the canonical $n=16$ universe defined in \cref{section:impl}, holding the other knobs fixed at the canonical values $p=3$, $K=4$, $\lambda=2.0$, $A=0.5$, ten COBYLA multi-starts and a statevector backend. Each subsection asks one operational question, answers it with a single inline figure, and quotes the relevant numbers in the running text. The scaled approximation ratio
+\begin{equation*}
+    r \;=\; \frac{E_{\text{worst}} - E}{E_{\text{worst}} - E_{\text{opt}}} \;\in\; [0,1]
+\end{equation*}
+of \cref{eq:approxratio} is reported alongside the unscaled relative gap $\mathrm{gap} = (E - E_{\text{opt}})/|E_{\text{opt}}|$ wherever the two metrics tell different stories --- which, as we will see, is most of the time.
 
 
-\subsection{S\&P~500 calm window: depth scaling}\label{subsec:sp-depth-results}
+\subsection{QAOA on the canonical instance}\label{subsec:single-run-results}
 
-% --- Question -----
-%   How does the approximation ratio behave on real data as $p$ grows?
-%
-% --- Headline figure -----
-% \begin{figure}[h]
-%   \centering
-%   % \includegraphics[width=\linewidth]{figures/approx_ratio_vs_p_sp.pdf}
-%   \rule{\linewidth}{4em}\textsf{PLACEHOLDER: $r(p)$ on S\&P 500 calm window}
-%   \caption{Approximation ratio $r(p)$ on the S\&P 500 calm window
-%            (2017--2019), $n=4$, $K=2$, transverse-field mixer.
-%            Each point is the median over 15 random restarts; error
-%            bars show interquartile range.}
-%   \label{fig:approx-ratio-sp}
-% \end{figure}
-%
-% --- Discussion paragraph (TODO) ---
-% At what $p$ does $r$ exceed (say) 0.95? Compare to the Zhou et al.
-% \autocite{zhou2018qaoa} prediction that $r$ improves monotonically
-% with $p$ for typical problem instances.
+How does a single QAOA run perform on the $n=16$ benchmark, and where on the cost spectrum does it actually land? \Cref{fig:single-run} shows the converged energy per restart and the measurement distribution of the best run.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{plots/qaoa/single_run_universe_p3.pdf}
+    \caption{Canonical instance ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, ten random COBYLA multi-starts, statevector backend). Left: final converged energy per restart, with the brute-force optimum $E_{\text{opt}} = -1.4\times 10^{-3}$ marked as a horizontal line; the spread illustrates the non-convex variational landscape and how often the optimiser settles well above the optimum. Right: probability mass on the top-40 of $\binom{16}{4} = 1820$ budget-feasible bitstrings, plotted against the uniform baseline $1/2^{16} \approx 1.5\times 10^{-5}$.}
+    \label{fig:single-run}
+\end{figure}
+
+The best of ten restarts converges to $E = 4.00$ on a cost spectrum bounded below by $E_{\text{opt}} = -1.40\times 10^{-3}$ and above by $E_{\text{worst}} = 72.2$. By the scaled metric this is $r = 0.945$, a number that looks reassuring on its own. The unscaled relative gap, however, is $\mathrm{gap} = 2847$: the variational state's mean energy is nearly three thousand times the optimum. The denominator of $r$ is dominated by the budget penalty $AK^2$, which inflates $E_{\text{worst}}$ from the small return/risk scale to order ten; this compresses the entire population of plausible bitstrings into a narrow band near the top of $[0,1]$, a point made earlier by \textcite{stopfer2025benchmark} on different portfolio benchmarks. The right panel quantifies the measurement story: the probability mass on the true optimum is $p_{\text{opt}} = 1.6\times 10^{-4}$, only about ten times the uniform baseline, and the total feasibility mass is $p_{\text{feas}} = 0.31$. The variational state is feasibility-biased but not optimum-concentrated. We will retain this single point of operation as the reference for the four sweeps that follow.
 
 
-\subsection{Energy landscape at $p=1$}\label{subsec:landscape-results}
+\subsection{Circuit depth $p$}\label{subsec:sp-depth-results}
 
-% --- Question -----
-%   What does the variational landscape look like? Are there obvious
-%   local minima, symmetries, or barren regions?
-%
-% --- Headline figure -----
-% \begin{figure}[h]
-%   \centering
-%   % \includegraphics[width=\linewidth]{figures/landscape_p1.pdf}
-%   \rule{\linewidth}{4em}\textsf{PLACEHOLDER: $E(\gamma, \beta)$ heatmap}
-%   \caption{Energy landscape $E(\gamma, \beta)$ for $p=1$ on the
-%            S\&P 500 calm window. $\gamma \in [0, \pi]$,
-%            $\beta \in [0, \pi/2]$. The star marks the global minimum
-%            found by COBYLA over 15 restarts.}
-%   \label{fig:landscape}
-% \end{figure}
-%
-% --- Discussion (TODO) ---
-% Comment on the periodicity (cost terms in $H_C$ have non-integer
-% coefficients, so periods are not simply $\pi$), on the depth and
-% width of the global minimum basin, and on the implication for
-% multi-start optimisation.
+Does deeper circuit ansatz monotonically improve the approximation ratio, as the original QAOA analysis of \textcite{farhi2014qaoa} would suggest in the noiseless limit? \Cref{fig:depth-sweep} sweeps $p \in \{1,\dots,5\}$ on the canonical instance, with everything else held fixed.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{plots/compare/depth_sweep.pdf}
+    \caption{Depth sweep on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, ten COBYLA multi-starts per $p$, statevector backend). Left: scaled approximation ratio $r$ versus circuit depth $p$, with the brute-force reference at $r=1$ shown as a dashed line. Right: top-1 success probability $p_{\text{opt}}$ and feasibility probability $p_{\text{feas}}$ versus $p$, with the uniform-sampling baseline $1/2^{16}$ for context.}
+    \label{fig:depth-sweep}
+\end{figure}
+
+The observed sequence is non-monotonic. The ratio rises gently from $r = 0.991$ at $p=1$ to $r = 0.993$ at $p=2$, then falls to $r = 0.945$ at $p=3$, falls further to $r = 0.925$ at $p=4$, and partially recovers to $r = 0.956$ at $p=5$. The unscaled relative gap tells a sharper version of the same story: $\mathrm{gap}$ moves from $461$ at $p=1$ to $374$ at $p=2$ before exploding to $2847$, $3854$, and $2257$ at $p=3,4,5$. The top-1 probability stays in a narrow band $p_{\text{opt}} \in [1.4\times 10^{-5}, 2.1\times 10^{-4}]$ throughout, and the feasibility mass also fluctuates $p_{\text{feas}} \in [0.04, 0.48]$ without a clear trend.
+
+The non-monotonicity is best read as an optimiser pathology rather than a property of the QAOA ansatz: the variational landscape lives in $2p$ angles and at $p\geq 3$ that is six or more dimensions, which ten random COBYLA seeds cannot tile reliably. \textcite{zhou2018qaoa} showed that warm-starts derived from optimal $p-1$ angles essentially restore monotonicity in $p$, and we expect the same effect here. The $p=5$ point also shows a striking collapse in feasibility mass to $p_{\text{feas}} = 0.04$, suggesting the best restart at that depth latched onto an infeasible local minimum that happens to have low penalised energy. We retain $p=3$ as the canonical setting since it is the shallowest depth at which all sweeps were run, but we caution that the apparent ``optimal'' depth is restart-budget dependent. The depth-vs-noise trade-off explored by \textcite{shen2025noisy} is moot here because the simulator is exact; on hardware, deeper circuits would also have to fight increasing two-qubit error per layer.
 
 
-\subsection{Penalty calibration $A$}\label{subsec:Asensitivity-results}
+\subsection{Budget-penalty calibration $A$}\label{subsec:Asensitivity-results}
 
-% --- Question -----
-%   How sensitive is the QAOA result to the penalty parameter $A$ that
-%   enforces the cardinality constraint? Is there a sweet spot?
-%
-% --- Headline figure -----
-% \begin{figure}[h]
-%   \centering
-%   % \includegraphics[width=\linewidth]{figures/A_sensitivity.pdf}
-%   \rule{\linewidth}{4em}\textsf{PLACEHOLDER: 2-panel plot}
-%   \caption{(Top) Approximation ratio $r(p=2)$ vs penalty $A$ on the
-%            S\&P 500 calm window. (Bottom) Feasibility ratio
-%            $p_{\text{feas}}$ vs $A$. The vertical dashed line is the
-%            default $A$ used elsewhere in this report.}
-%   \label{fig:A-sensitivity}
-% \end{figure}
-%
-% --- Discussion (TODO) ---
-% Too-small $A$: infeasible states dominate; $r$ misleading. Too-large
-% $A$: constraint dominates, return/risk signal is washed out and the
-% landscape becomes degenerate. Identify the operating regime.
+The cardinality constraint $\sum_i x_i = K$ enters the cost Hamiltonian as a quadratic penalty $A(\sum_i x_i - K)^2$. Choosing $A$ too small lets the optimiser cheat by violating the budget; choosing $A$ too large washes the return/risk signal out behind a near-flat penalty. \Cref{fig:penalty-sweep} sweeps $A$ over almost two decades at fixed $p=3$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{plots/compare/penalty_sweep.pdf}
+    \caption{Penalty sweep on the canonical instance ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, ten COBYLA multi-starts per $A$, statevector backend). Left: scaled approximation ratio $r$ versus $A \in \{0.5, 2, 8, 32\}$ on a log axis. Right: top-1 success probability $p_{\text{opt}}$ and feasibility probability $p_{\text{feas}}$ versus $A$. The strong non-monotonicity in $p_{\text{feas}}$ reflects restart variance at a fixed ten-seed budget rather than a genuine signal in $A$.}
+    \label{fig:penalty-sweep}
+\end{figure}
+
+The scaled ratio creeps upward across the sweep: $r = 0.945$, $0.970$, $0.972$, $0.984$ as $A$ moves through $0.5, 2, 8, 32$. This upward drift is mostly an artefact of the metric itself, because the denominator $(E_{\text{worst}}-E_{\text{opt}})$ scales linearly with $A$ via the worst basis state, while the numerator (the absolute gap) grows by a much smaller factor; in the unscaled gap the sequence reads $2847, 6169, 23230, 52647$, i.e.\ the variational state is moving further above the optimum in absolute terms, not closer to it. The feasibility mass $p_{\text{feas}}$ is non-monotone --- $0.31, 0.45, 0.05, 0.42$ --- with a striking collapse at $A=8$ that is almost certainly an unlucky COBYLA initialisation rather than a phase transition in the landscape: only ten starts at a single seed support each $A$.
+
+Taken together, the penalty sweep is too coarse to identify an optimal $A$ and too noisy to read its derivative; the $p_{\text{feas}}$ trace would need an order of magnitude more restarts to become a reliable diagnostic. The qualitative lesson nevertheless survives: the slack-variable encoding of \textcite{thomassin2025slack} or, more aggressively, a constraint-preserving XY-mixer in the spirit of \textcite{mancilla2026constrained} would avoid the question of $A$ entirely by restricting the search to the Hamming-weight-$K$ subspace; we did not run such an experiment here. For the remainder of this report we keep $A = 0.5$ on the grounds that it makes both metrics most interpretable and that the unscaled gap is smallest there.
 
 
-\subsection{Restart variance}\label{subsec:restart-results}
+\subsection{Risk-aversion $\lambda$}\label{subsec:risk-results}
 
-% --- Question -----
-%   Is QAOA's energy reproducible across random initialisations of
-%   $(\boldsymbol\gamma, \boldsymbol\beta)$?
-%
-% --- Headline figure -----
-% \begin{figure}[h]
-%   \centering
-%   % \includegraphics[width=\linewidth]{figures/restart_histogram.pdf}
-%   \rule{\linewidth}{4em}\textsf{PLACEHOLDER: histogram per $p$}
-%   \caption{Distribution of converged energies across 50 random
-%            COBYLA restarts, for $p = 1, 2, 3, 4$. Vertical lines
-%            indicate the brute-force optimum.}
-%   \label{fig:restart-hist}
-% \end{figure}
-%
-% --- Discussion (TODO) ---
-% Does the spread grow with $p$ (barren-plateau-like behaviour) or
-% shrink? Implication for hardware deployment, where restarts are
-% expensive.
+The mean-variance objective $-\boldsymbol\mu^\top \boldsymbol{x} + \lambda\, \boldsymbol{x}^\top \boldsymbol\Sigma \boldsymbol{x}$ contains a single user-facing tuning knob, the risk-aversion $\lambda$. \Cref{fig:risk-sweep} traces the canonical solvers across seven log-spaced values $\lambda \in [10^{-1}, 10^{2}]$ at fixed $p=3$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{plots/compare/risk.pdf}
+    \caption{Risk-aversion sweep on the canonical instance ($n=16$, $K=4$, $p=3$, $A=0.5$, ten COBYLA multi-starts per $\lambda$). Scaled approximation ratio versus $\lambda$, log-spaced over three decades. Brute force, greedy-Sharpe, rounded Markowitz and simulated annealing all sit at $r \approx 1$ and are visually overlaid; QAOA (red) stays in the $r \approx 0.93$--$0.97$ band across the full sweep.}
+    \label{fig:risk-sweep}
+\end{figure}
+
+The four classical baselines --- brute force, greedy-Sharpe, rounded continuous Markowitz, and simulated annealing --- all sit at $r = 1$ to within numerical precision across the full $\lambda$ range. QAOA at $p=3$ trails them by a stable $0.03$--$0.07$ in the scaled ratio. The headline numbers across the sweep are $r_{\text{qaoa}} = 0.950, 0.949, 0.949, 0.930, 0.943, 0.970, 0.954$ for $\lambda = 0.1, 0.316, 1, 3.16, 10, 31.6, 100$ respectively; the unscaled gap is uniformly large but tracks the absolute scale of the objective, which itself drifts with $\lambda$. The top-1 mass is unaffected, oscillating between $3\times 10^{-5}$ and $2\times 10^{-4}$ throughout.
+
+That QAOA is $\lambda$-insensitive at this resolution is informative: the algorithm's quality is bottlenecked by the depth/restart budget, not by the relative weight of return vs.\ variance in the objective. In contrast, the rounded Markowitz baseline does begin to slip away from $r=1$ at the extreme tails of the sweep, indicating that the continuous relaxation provides a less informative starting point when the objective is dominated by variance ($\lambda \to \infty$) or by return ($\lambda \to 0$). This rules out a simple ``$\lambda$ was just unlucky'' explanation of the QAOA gap and re-focuses attention on the ansatz itself.
 
 
-\subsection{Penalty mixer vs XY-mixer}\label{subsec:xymixer-results}
+\subsection{Problem size $n$ and classical baselines}\label{subsec:scaling-results}
 
-% --- Question -----
-%   Does the constraint-preserving XY-mixer outperform the standard
-%   transverse-field mixer + penalty on the same problem?
-%
-% --- Headline figure / table -----
-% \begin{figure}[h]
-%   \centering
-%   % \includegraphics[width=\linewidth]{figures/mixer_comparison.pdf}
-%   \rule{\linewidth}{4em}\textsf{PLACEHOLDER: paired bar chart}
-%   \caption{Approximation ratio $r(p)$ for the transverse-field mixer
-%            with optimal $A$ (blue) and the XY-ring mixer with Dicke
-%            initial state (orange), on the S\&P 500 calm window.
-%            Bars show median over 15 restarts; whiskers show
-%            interquartile range.}
-%   \label{fig:mixer-comparison}
-% \end{figure}
-%
-% --- Discussion (TODO) ---
-% Does XY win at $p=1$ (it should — the search space is smaller)?
-% Does the gap close at higher $p$? Trade-off: XY needs Dicke-state
-% prep, slightly higher gate count per layer, but no hyperparameter.
+How do the solvers compare as the problem size grows from $n=4$ to $n=16$, and is there any operating point where QAOA is competitive? \Cref{fig:scaling,fig:scaling-zoom} answer this question on five solvers and seven problem sizes.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{plots/compare/scaling.pdf}
+    \caption{Size scaling on random subsets of the canonical universe (target cardinality $K = 1, 2, 2, 2, 3, 4, 4$ for $n = 4, 6, 8, 10, 12, 14, 16$ respectively; $\lambda = 2.0$, $A = 0.5$, QAOA at $p=3$ with ten COBYLA multi-starts). Median over $M$ random subsets per problem size: $M=20$ for $n \in \{4,6,8,10\}$, $M=8$ for $n=12$, $M=4$ for $n=14$ and $M=1$ for $n=16$ --- the last point is a single instance and should be read as a sanity check rather than an estimate. Left: scaled approximation ratio per solver vs $n$. Right: median wall-clock runtime in seconds on a log axis; QAOA grows roughly as $2^n$ from circuit simulation cost while greedy-Sharpe, rounded Markowitz and brute force stay below tens of milliseconds.}
+    \label{fig:scaling}
+\end{figure}
 
-\subsection{Crisis-window stress test}\label{subsec:crisis-results}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{plots/compare/scaling_zoom.pdf}
+    \caption{Same sweep as \cref{fig:scaling}, zoomed to expose the QAOA-vs-classical gap. Left: scaled ratio restricted to $r \in [0.93, 1.00]$. Right: $1-r$ on a log axis; the classical solvers floor near floating-point zero, while QAOA stays in the $10^{-2}$--$10^{-1}$ band across all $n$.}
+    \label{fig:scaling-zoom}
+\end{figure}
 
-% --- Question -----
-%   How does QAOA behave on covariance matrices estimated during
-%   periods when classical Markowitz is known to break down?
-%
-% --- Headline figure / table -----
-% \begin{table}[h]
-%   \centering
-%   \caption{QAOA on crisis-window covariance matrices, $p=3$,
-%            transverse-field mixer with default $A$, 15 restarts.
-%            $\kappa(\Sigma)$ is the condition number;
-%            $\bar{\rho}$ is the mean pairwise correlation.}
-%   \label{tab:crisis}
-%   \begin{tabular}{@{}lrrrrr@{}}
-%     \toprule
-%     Window & $\bar{\rho}$ & $\kappa(\Sigma)$ & $z^\star_{\text{BF}}$ & $r$ & $p_{\text{top-1}}$ \\
-%     \midrule
-%     Calm 2017--19  & --- & --- & --- & --- & --- \\
-%     GFC 2008--09   & --- & --- & --- & --- & --- \\
-%     COVID 2020     & --- & --- & --- & --- & --- \\
-%     Rates 2022     & --- & --- & --- & --- & --- \\
-%     \bottomrule
-%   \end{tabular}
-% \end{table}
-%
-% --- Discussion (TODO) ---
-%   - Which asset is selected in each window? Does the optimum shift?
-%   - Does the approximation ratio degrade more in crisis than in calm?
-%   - Is the degradation due to optimiser difficulty or to the landscape
-%     itself (compare to Section~\ref{subsec:landscape-results})?
+The classical baselines are essentially indistinguishable from brute force on these instances: median $r = 1$ for greedy-Sharpe, rounded Markowitz and simulated annealing at every $n$ tested, with $\mathrm{gap}$ at floating-point zero. QAOA at $p=3$ trails them: median $r$ takes the values $0.987, 0.983, 0.993, 0.988, 0.982, 0.982, 0.945$ for $n = 4, 6, 8, 10, 12, 14, 16$. The trend is mild in the scaled metric but stark in the top-1 mass, which collapses geometrically: median $p_{\text{opt}} = 0.23, 0.061, 0.030, 0.010, 1.7\times 10^{-3}, 3.3\times 10^{-4}, 1.6\times 10^{-4}$ for $n = 4, 6, 8, 10, 12, 14, 16$. The successive ratios fluctuate between $2\times$ and $6\times$ per step of two in $n$, broadly tracking the growth of $\binom{n}{K}$; the implication is that the QAOA distribution at $p=3$ tends towards uniformity over the feasible subspace as $n$ grows, rather than concentrating on the optimum.
 
+Runtimes complete the picture. Median brute-force wall-clock grows from $0.15$ ms at $n=4$ to $30$ ms at $n=16$; the greedy and rounded Markowitz baselines stay below $0.2$ ms across the entire range; simulated annealing rises monotonically from $0.29$ s at $n=4$ to $5.3$ s at $n=16$ at its default iteration budget. QAOA grows from $6$ s at $n=4$ to $132$ s at $n=16$, dominated by statevector simulation cost which scales as $2^n$. At the largest size, brute force is $\sim 4400\times$ faster than QAOA and reaches machine-precision optimality, while QAOA reaches $r=0.945$ with $p_{\text{opt}}$ ten times the uniform baseline. There is no operating point on this benchmark where QAOA wins on either axis.
 
-\subsection{Connection to thermal states}\label{subsec:thermal-results}
-
-% --- Question (optional, time permitting) -----
-%   How does the QAOA distribution at depth $p$ compare to a thermal
-%   Gibbs state of $H_C$ at some effective inverse temperature
-%   $\beta_{\text{th}}$?
-%
-% --- Content (TODO) -----
-%   - Compute $E_{\text{thermal}}(\beta_{\text{th}})$ over a grid.
-%   - Overlay QAOA energies $E(p)$ at the same datasets.
-%   - Extract an effective $\beta_{\text{th}}$ per $p$.
-% This is the bridge to the statistical-physics framing of
-% Section~\ref{subsec:statphys}; if time is short, this subsection
-% can be cut without breaking the rest of the report.
+This result is in line with the constrained-knapsack benchmarks of \textcite{knapsack2024qaoa} and the noiseless-vs-noisy comparisons of \textcite{shen2025noisy}: on classically tractable instances classical heuristics dominate. The methodological value of running QAOA here is the characterisation of its mechanism --- depth dependence, restart variance, $p_{\text{opt}}$ scaling --- not a competitive runtime. Looking forward, the Pauli-decomposition strategy of \textcite{soloviev2025pauli} suggests how to scale beyond $n=16$ without paying the full $O(2^n)$ simulator cost, but reaching the regime where the variational bound of \textcite{tilly2022vqe} on the ground-state energy becomes non-trivially tight will require either constraint-preserving mixers, warm-starts, or both. Annealing comparisons \parencite{morapakula2025annealing} would also be informative on instances large enough to escape exact diagonalisation.
 
 
 \subsection{Summary}\label{subsec:results-summary}
 
-% --- TODO: one short paragraph plus a single summary table -----
-% \begin{table}[h]
-%   \centering
-%   \caption{Headline numbers across all experiments. Best result per
-%            dataset is bolded.}
-%   \label{tab:summary}
-%   \begin{tabular}{@{}lrrrr@{}}
-%     \toprule
-%     Dataset & $p^\star$ & Mixer & $r$ & $p_{\text{top-1}}$ \\
-%     \midrule
-%     Synthetic       & --- & --- & --- & --- \\
-%     S\&P calm       & --- & --- & --- & --- \\
-%     GFC 2008        & --- & --- & --- & --- \\
-%     COVID 2020      & --- & --- & --- & --- \\
-%     Rates 2022      & --- & --- & --- & --- \\
-%     \bottomrule
-%   \end{tabular}
-% \end{table}
+The five sweeps converge on a consistent picture. On the canonical $n=16$ instance at $p=3$ the QAOA pipeline reaches $r = 0.945$, but the absolute energy is $2847\times$ the optimum, the top-1 mass is only ten times the uniform baseline, and a brute-force enumeration solves the same instance to numerical precision in $30$ ms against QAOA's $132$ s. The depth and penalty sweeps show that the ansatz is more sensitive to optimiser luck than to its own hyper-parameters at the ten-restart budget used here; the risk sweep shows that $\lambda$ is not the bottleneck; the size sweep shows that the top-1 success probability decays as $1/\binom{n}{K}$, consistent with a near-uniform distribution over feasible bitstrings rather than a concentration on the optimum. The headline numbers are collected in \cref{tab:results-summary}.
+
+\begin{table}[H]
+    \centering
+    \caption{Headline numbers on the canonical $n=16$ instance at $p=3$, $K=4$, $\lambda=2.0$, $A=0.5$, ten COBYLA multi-starts. Brute-force wall-clock is the same canonical instance, single-thread Python on the same machine; QAOA wall-clock is total time across all restarts including statevector simulation.}
+    \label{tab:results-summary}
+    \begin{tabular}{@{}lr@{}}
+        \toprule
+        Metric & Value \\
+        \midrule
+        Scaled ratio $r$                       & $0.945$ \\
+        Relative gap $\mathrm{gap}$            & $2847$ \\
+        Top-1 mass $p_{\text{opt}}$            & $1.6\times 10^{-4}$ \\
+        Feasibility mass $p_{\text{feas}}$     & $0.31$ \\
+        QAOA wall-clock                        & $132$ s \\
+        Brute-force wall-clock                 & $0.03$ s \\
+        \bottomrule
+    \end{tabular}
+\end{table}

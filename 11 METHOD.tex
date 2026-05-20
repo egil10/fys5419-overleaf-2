@@ -1,29 +1,19 @@
 \section{Methods}\label{section:methods}
 
-% =====================================================================
-%   METHODS / FORMALISM (target: ~3--4 columns; rubric: 20 pts)
-%   Required ingredients (per EvaluationForm.md):
-%     - Discussion of the methods used and their basis / suitability.
-%   Strategy:
-%     - Derive the full pipeline from financial data to QAOA circuit.
-%     - State every transformation explicitly so the reader can reproduce.
-%     - Discuss why each step is a sensible choice and what it costs.
-% =====================================================================
-
-The QAOA pipeline maps a financial dataset to a quantum circuit through a sequence of well-defined steps:
+The QAOA pipeline maps a financial dataset to a quantum circuit through a sequence of well-defined steps,
 \begin{equation}
-    \text{Financial data} \rightarrow (\mu,\Sigma) \rightarrow \text{QUBO} \rightarrow \text{Ising} \rightarrow \text{Pauli operators} \rightarrow \text{QAOA}.
+    \text{Financial data} \rightarrow (\boldsymbol\mu,\boldsymbol\Sigma) \rightarrow \text{QUBO} \rightarrow \text{Ising} \rightarrow \text{Pauli operators} \rightarrow \text{QAOA}.
 \end{equation}
-Subsections \ref{subsec:meanvar}--\ref{subsec:qaoa} develop each arrow in turn. Subsection \ref{subsec:xymixer} introduces a constraint-preserving mixer that we compare against the penalty encoding, and Subsection \ref{subsec:metrics} fixes the metrics used in Section~\ref{section:result}.
+Subsections~\ref{subsec:meanvar}--\ref{subsec:qaoa} develop each arrow in turn. \Cref{subsec:xymixer} sketches a constraint-preserving mixer that we discuss as a theoretical alternative to the penalty encoding but do not benchmark in this report, and \cref{subsec:metrics} fixes the metrics used throughout \cref{section:result}.
 
 
-\subsection{Mean--Variance Portfolio Optimisation}\label{subsec:meanvar}
+\subsection{Mean--variance portfolio optimisation}\label{subsec:meanvar}
 
-For a binary selection vector $x \in \{0,1\}^n$ over $n$ candidate assets, the Markowitz objective \autocite{markowitz1952} is
+For a binary selection vector $\boldsymbol{x} \in \{0,1\}^n$ over $n$ candidate assets, the Markowitz objective \autocite{markowitz1952} is
 \begin{equation}
-    \min_x \left( -\mu^\top x + \lambda\, x^\top \Sigma x \right),
+    \min_{\boldsymbol{x}} \left( -\boldsymbol\mu^\top \boldsymbol{x} + \lambda\, \boldsymbol{x}^\top \boldsymbol\Sigma\, \boldsymbol{x} \right),
 \end{equation}
-where $-\mu^\top x$ maximises expected return and $\lambda\, x^\top \Sigma x$ penalises portfolio variance. The risk-aversion parameter $\lambda \geq 0$ tunes the trade-off.
+where $-\boldsymbol\mu^\top \boldsymbol{x}$ maximises expected return and $\lambda\, \boldsymbol{x}^\top \boldsymbol\Sigma\, \boldsymbol{x}$ penalises portfolio variance. The risk-aversion parameter $\lambda \geq 0$ tunes the trade-off.
 
 A fixed-budget constraint requires exactly $K$ assets,
 \begin{equation}
@@ -31,99 +21,103 @@ A fixed-budget constraint requires exactly $K$ assets,
 \end{equation}
 which we enforce with a quadratic penalty, giving the soft-constrained cost
 \begin{equation}\label{eq:Cx}
-    C(x) = -\mu^\top x + \lambda\, x^\top \Sigma x + A \left( \sum_{i=1}^{n} x_i - K \right)^2,
+    C(\boldsymbol{x}) = -\boldsymbol\mu^\top \boldsymbol{x} + \lambda\, \boldsymbol{x}^\top \boldsymbol\Sigma\, \boldsymbol{x} + A \left( \sum_{i=1}^{n} x_i - K \right)^2,
 \end{equation}
-where $A > 0$ is chosen large enough that the global minimum of $C(x)$ satisfies the budget constraint. Section \ref{subsec:Asensitivity-results} studies the sensitivity of this calibration.
+where $A > 0$ is chosen large enough that the global minimum of $C(\boldsymbol{x})$ satisfies the budget constraint. \Cref{subsec:Asensitivity-results} studies the sensitivity of this calibration empirically.
 
-Returns and their first two moments are estimated from price series:
-\begin{equation}
-    r_i(t) = \frac{P_i(t+1)-P_i(t)}{P_i(t)} \approx \ln\frac{P_i(t+1)}{P_i(t)},
+Returns and their first two moments are estimated from price series $P_i(t)$ via log returns,
+\begin{equation}\label{eq:logreturn}
+    r_i(t) \;=\; \ln\frac{P_i(t+1)}{P_i(t)},
 \end{equation}
 \begin{equation}
     \mu_i = \langle r_i \rangle_t,
     \qquad
-    \Sigma_{ij} = \langle r_i r_j \rangle - \langle r_i \rangle \langle r_j \rangle.
+    \Sigma_{ij} = \langle r_i r_j \rangle_t - \langle r_i \rangle_t \langle r_j \rangle_t,
 \end{equation}
+where $\langle\,\cdot\,\rangle_t$ denotes the time average across the in-sample window. Estimating $(\boldsymbol\mu, \boldsymbol\Sigma)$ from a single historical window is a well-known weakness of the Markowitz programme \autocite{hastie}; we accept it for the present QAOA study, since the algorithmic question is independent of the estimator choice.
 
 
-\subsection{Quadratic Unconstrained Binary Optimisation (QUBO)}\label{subsec:qubo}
+\subsection{Quadratic unconstrained binary optimisation (QUBO)}\label{subsec:qubo}
 
 A QUBO is a quadratic cost over binary variables,
 \begin{equation}
-    \min_{x\in\{0,1\}^n} C(x) = \sum_i Q_{ii}\, x_i + \sum_{i<j} Q_{ij}\, x_i x_j,
+    \min_{\boldsymbol{x}\in\{0,1\}^n} C(\boldsymbol{x}) = \sum_i Q_{ii}\, x_i + \sum_{i<j} Q_{ij}\, x_i x_j,
 \end{equation}
-where the linear terms are absorbed into the diagonal of $Q$ because $x_i^2 = x_i$ for binary variables. Expanding the penalised mean--variance cost \eqref{eq:Cx} yields
+where the linear terms are absorbed into the diagonal of $Q$ because $x_i^2 = x_i$ for binary variables. Expanding the penalised mean--variance cost~\eqref{eq:Cx} yields
 \begin{equation}
-    C(x) = \sum_i \underbrace{\bigl[-\mu_i + \lambda\Sigma_{ii} + A(1-2K)\bigr]}_{Q_{ii}}\, x_i + \sum_{i<j} \underbrace{\bigl[2\lambda\Sigma_{ij} + 2A\bigr]}_{Q_{ij}}\, x_i x_j + \underbrace{AK^2}_{\text{const}},
+\begin{aligned}
+    C(\boldsymbol{x}) &= \sum_i \underbrace{\bigl[-\mu_i + \lambda\Sigma_{ii} + A(1-2K)\bigr]}_{Q_{ii}}\, x_i \\
+    &\quad + \sum_{i<j} \underbrace{\bigl[2\lambda\Sigma_{ij} + 2A\bigr]}_{Q_{ij}}\, x_i x_j + \underbrace{AK^2}_{\text{const}},
+\end{aligned}
 \end{equation}
-\begin{equation}
+so
+\begin{equation}\label{eq:Qcoeffs}
     \boxed{
-    Q_{ii} = -\mu_i + \lambda\Sigma_{ii} + A(1-2K),
-    \qquad
-    Q_{ij} = 2\lambda\Sigma_{ij} + 2A \quad (i<j).
+    \begin{aligned}
+    Q_{ii} &= -\mu_i + \lambda\Sigma_{ii} + A(1-2K), \\
+    Q_{ij} &= 2\lambda\Sigma_{ij} + 2A \quad (i<j).
+    \end{aligned}
     }
 \end{equation}
 
 
-\subsection{Ising Hamiltonian Mapping}\label{subsec:ising}
+\subsection{Ising Hamiltonian mapping}\label{subsec:ising}
 
 Mapping binary variables to spins via
 \begin{equation}
-    x_i = \frac{1-z_i}{2},\qquad z_i\in\{-1,+1\},
+    x_i = \tfrac{1}{2}(1-z_i),\qquad z_i\in\{-1,+1\},
 \end{equation}
-and substituting into $C(x)$ produces an Ising Hamiltonian
-\begin{equation}
-    H(z) = \sum_i h_i\, z_i + \sum_{i<j} J_{ij}\, z_i z_j,
+and substituting into $C(\boldsymbol{x})$ produces an Ising form
+\begin{equation}\label{eq:Hz}
+    H(\boldsymbol{z}) = \sum_i h_i\, z_i + \sum_{i<j} J_{ij}\, z_i z_j,
 \end{equation}
 with coefficients
-\begin{equation}
+\begin{equation}\label{eq:hJ}
     h_i = -\tfrac{1}{2} Q_{ii} - \tfrac{1}{4} \sum_{j\neq i} Q_{ij},
     \qquad
     J_{ij} = \tfrac{1}{4} Q_{ij} \quad (i<j),
 \end{equation}
-and additive constant
-\begin{equation}
+and an additive constant
+\begin{equation}\label{eq:c}
     c = AK^2 + \tfrac{1}{2}\sum_i Q_{ii} + \tfrac{1}{4}\sum_{i<j} Q_{ij},
 \end{equation}
-chosen so that $H(z) + c = C(x)$ for every binary $x$ and its spin image $z$.
+chosen so that $H(\boldsymbol{z}) + c = C(\boldsymbol{x})$ for every binary $\boldsymbol{x}$ and its spin image $\boldsymbol{z}$. We keep the constant in the Hamiltonian throughout this report, so the eigenvalues of $H_C$ defined below equal the cost values $C(\boldsymbol{x})$ directly --- the same convention as the reference implementation.
 
 
-\subsection{Quantum Pauli Operators and Cost Hamiltonian}\label{subsec:pauli}
+\subsection{Pauli operators and the cost Hamiltonian}\label{subsec:pauli}
 
 Promoting each classical spin $z_i$ to the single-qubit Pauli-$Z$ operator on site $i$,
 \begin{equation}
     z_i \longrightarrow \hat{Z}_i = I^{\otimes i}
     \otimes Z \otimes I^{\otimes (n-i-1)},
-\end{equation}
-with
-\begin{equation}
+    \qquad
     Z = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix},
 \end{equation}
 gives the cost Hamiltonian as the $2^n\times 2^n$ diagonal matrix
-\begin{equation}
+\begin{equation}\label{eq:HC}
     \boxed{
-    H_C = \sum_i h_i\, \hat{Z}_i + \sum_{i<j} J_{ij}\, \hat{Z}_i \hat{Z}_j.
+    H_C = c\, I + \sum_i h_i\, \hat{Z}_i + \sum_{i<j} J_{ij}\, \hat{Z}_i \hat{Z}_j.
     }
 \end{equation}
-Every computational basis state $|z\rangle$ is an eigenstate of $H_C$ with eigenvalue $H(z)$.
+Every computational basis state $|\boldsymbol{z}\rangle$ is an eigenstate of $H_C$ with eigenvalue $C(\boldsymbol{x})$.
 
 The standard \emph{transverse-field} mixing Hamiltonian drives tunnelling between bitstring states,
 \begin{equation}\label{eq:HM-transverse}
-    H_M^{(X)} = \sum_{i=1}^{n} \hat{X}_i,
+    H_M = \sum_{i=1}^{n} \hat{X}_i,
     \qquad
     X = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}.
 \end{equation}
-Two properties make $H_M^{(X)}$ a natural choice. First, $\hat X_i$ flips the value of qubit $i$ in the computational basis, so $[H_M^{(X)}, H_C]\neq 0$ and the mixer generates the non-diagonal dynamics that QAOA needs to interfere between candidate bitstrings. Second, the (degenerate) ground state of $-H_M^{(X)}$ is the uniform superposition
+Two properties make $H_M$ a natural choice. First, $\hat X_i$ flips qubit $i$ in the computational basis, so $[H_M, H_C]\neq 0$ and the mixer generates the non-diagonal dynamics that QAOA needs in order to interfere between candidate bitstrings. Second, the (degenerate) ground state of $-H_M$ is the uniform superposition
 \begin{equation}\label{eq:plus-state}
-    |s\rangle \;=\; |+\rangle^{\otimes n} \;=\; \frac{1}{\sqrt{2^n}}\sum_{x\in\{0,1\}^n} |x\rangle,
+    |s\rangle \;=\; |+\rangle^{\otimes n} \;=\; \frac{1}{\sqrt{2^n}}\sum_{\boldsymbol{x}\in\{0,1\}^n} |\boldsymbol{x}\rangle,
 \end{equation}
 which is prepared by a single layer of Hadamard gates acting on $|0\rangle^{\otimes n}$ and serves as the initial state of the variational circuit defined below.
 
 
-\subsection{QAOA Algorithm}\label{subsec:qaoa}
+\subsection{QAOA ansatz}\label{subsec:qaoa}
 
 \paragraph{Adiabatic intuition.}
-QAOA \autocite{farhi2014qaoa} is most naturally motivated as a discretised, variational analogue of quantum adiabatic computation. The adiabatic theorem states that a system prepared in the ground state of an initial Hamiltonian and slowly evolved towards a final Hamiltonian remains in the instantaneous ground state throughout the evolution. Choosing the final Hamiltonian to be the diagonal cost operator $H_C$ of Section~\ref{subsec:pauli} and the initial Hamiltonian to be the transverse-field mixer $H_M^{(X)}$ — whose ground state is the easy-to-prepare uniform superposition \eqref{eq:plus-state} — converts combinatorial optimisation into ground-state preparation. The total adiabatic evolution time can in the worst case scale exponentially in $n$, however, so QAOA instead approximates the evolution by a fixed number $p$ of short alternating steps generated by $H_C$ and $H_M^{(X)}$ and treats the step durations $(\gamma_k, \beta_k)$ as variational parameters. In the limit $p \to \infty$ with an appropriate Trotterised schedule the ansatz recovers the exact adiabatic algorithm.
+QAOA \autocite{farhi2014qaoa} is most naturally motivated as a discretised, variational analogue of quantum adiabatic computation. The adiabatic theorem states that a system prepared in the ground state of an initial Hamiltonian and slowly evolved towards a final Hamiltonian remains in the instantaneous ground state throughout the evolution. Choosing the final Hamiltonian to be the diagonal cost operator $H_C$ of \cref{subsec:pauli} and the initial Hamiltonian to be the transverse-field mixer $H_M$ --- whose ground state is the easy-to-prepare uniform superposition~\eqref{eq:plus-state} --- converts combinatorial optimisation into ground-state preparation. The total adiabatic evolution time can in the worst case scale exponentially in $n$, so QAOA instead approximates the evolution by a fixed number $p$ of short alternating steps generated by $H_C$ and $H_M$ and treats the step durations $(\gamma_k, \beta_k)$ as variational parameters. In the limit $p \to \infty$ with an appropriate Trotterised schedule the ansatz recovers the exact adiabatic algorithm \autocite{zhou2018qaoa}.
 
 The single-layer ($p = 1$) ansatz is
 \begin{equation}
@@ -132,7 +126,7 @@ The single-layer ($p = 1$) ansatz is
     e^{-i \gamma H_C}\,
     |+\rangle^{\otimes n},
 \end{equation}
-where $e^{-i\gamma H_C}$ is the \emph{phase-separation} unitary --- it phases each basis state by $e^{-i\gamma H(z)}$, encoding cost information into the amplitudes --- and $e^{-i\beta H_M}$ is the \emph{mixing} unitary, which redistributes amplitude between bitstrings to enable transitions between candidate solutions.
+where $e^{-i\gamma H_C}$ is the \emph{phase-separation} unitary --- it phases each basis state by $e^{-i\gamma\, C(\boldsymbol{x})}$, encoding cost information into the amplitudes --- and $e^{-i\beta H_M}$ is the \emph{mixing} unitary, which redistributes amplitude between bitstrings to enable transitions between candidate solutions.
 
 \begin{equation}
     \underbrace{H^{\otimes n}}_{\text{superposition}}
@@ -157,25 +151,24 @@ For depth $p > 1$, $p$ cost and $p$ mixer layers are alternated,
 with $2p$ variational parameters $(\gamma_1,\dots,\gamma_p,\beta_1,\dots,\beta_p)$.
 
 \paragraph{Interference mechanism.}
-The two unitaries play complementary roles. The diagonal $e^{-i\gamma H_C}$ phases each basis state by $e^{-i\gamma H(z)}$, imprinting the cost landscape onto the wavefunction without changing measurement probabilities. The non-diagonal $e^{-i\beta H_M}$ mixes amplitude between basis states; because $[H_C, H_M] \neq 0$, the two operations together produce non-trivial quantum interference. With the right angles $(\boldsymbol\gamma, \boldsymbol\beta)$, amplitude accumulates constructively on low-cost bitstrings and destructively on high-cost ones, concentrating measurement probability on near-optimal solutions. This is the mechanism by which QAOA differs from a purely classical heuristic such as simulated annealing or tabu search: amplitude flows non-locally across the cost landscape in superposition, whereas classical samplers visit one configuration at a time.
+The two unitaries play complementary roles. The diagonal $e^{-i\gamma H_C}$ phases each basis state by $e^{-i\gamma C(\boldsymbol{x})}$, imprinting the cost landscape onto the wavefunction without changing measurement probabilities. The non-diagonal $e^{-i\beta H_M}$ mixes amplitude between basis states; because $[H_C, H_M] \neq 0$, the two operations together produce non-trivial quantum interference. With the right angles $(\boldsymbol\gamma, \boldsymbol\beta)$, amplitude accumulates constructively on low-cost bitstrings and destructively on high-cost ones, concentrating measurement probability on near-optimal solutions. This is the mechanism by which QAOA differs from a purely classical heuristic such as simulated annealing or tabu search: amplitude flows non-locally across the cost landscape in superposition, whereas classical samplers visit one configuration at a time \autocite{giovagnoli_qaoa_intro}.
 
 \paragraph{Hybrid quantum--classical loop.}
 A classical optimiser minimises the energy expectation value
-\begin{equation}
+\begin{equation}\label{eq:Egb}
     E(\boldsymbol\gamma, \boldsymbol\beta) =
     \langle \psi(\boldsymbol\gamma,\boldsymbol\beta) |\, H_C\, | \psi(\boldsymbol\gamma,\boldsymbol\beta)\rangle.
 \end{equation}
-Since $H_C$ is diagonal in the computational basis with eigenvalues $H(z)$, this reduces to
+Since $H_C$ is diagonal in the computational basis with eigenvalues $C(\boldsymbol{x})$, this reduces to
 \begin{equation}\label{eq:E-as-prob}
-    E(\boldsymbol\gamma, \boldsymbol\beta) = \sum_{z\in\{-1,+1\}^n} H(z)\, |\langle z | \psi \rangle|^2,
+    E(\boldsymbol\gamma, \boldsymbol\beta) = \sum_{\boldsymbol{x}\in\{0,1\}^n} C(\boldsymbol{x})\, |\langle \boldsymbol{x} | \psi \rangle|^2,
 \end{equation}
-so the QAOA cost is a probability-weighted sum of Ising energies. The quantum circuit has only $2p$ parameters and depth $O(p)$, which is what makes QAOA a prototypical NISQ algorithm: the quantum device contributes a non-classical sampling primitive, while the parameter search itself sits on a classical CPU. The variational principle guarantees $E(\boldsymbol\gamma,\boldsymbol\beta) \geq E_0$ for all angles, with equality recovered in the limit $p \to \infty$ \autocite{farhi2014qaoa}; finite-$p$ QAOA returns an approximation whose quality we track with the metrics of Section~\ref{subsec:metrics}. In this work the classical optimiser is COBYLA with random restarts; the optimisation pipeline is described in Section~\ref{subsec:codestructure}.
+so the QAOA energy is a probability-weighted average of cost values. The quantum circuit has only $2p$ parameters and depth $O(p)$, which is what makes QAOA a prototypical NISQ algorithm: the quantum device contributes a non-classical sampling primitive, while the parameter search itself sits on a classical CPU \autocite{tilly2022vqe}. The variational principle guarantees $E(\boldsymbol\gamma,\boldsymbol\beta) \geq E_{\text{opt}}$ for all angles, with equality recovered in the limit $p \to \infty$. In this work the classical optimiser is COBYLA with random multi-starts; the optimisation pipeline is described in \cref{subsec:codestructure}.
 
 
-\subsection{XY-Mixer: Constraint-Preserving Encoding}\label{subsec:xymixer}
+\subsection{XY-mixer: a constraint-preserving alternative}\label{subsec:xymixer}
 
-% --- Motivation -------------------------------------------------------
-The penalty term $A(\sum_i x_i - K)^2$ in \eqref{eq:Cx} enforces the budget only in the limit $A \to \infty$; for finite $A$, infeasible bitstrings with $\sum_i x_i \neq K$ remain in the search space and may carry non-negligible amplitude after a finite-depth circuit. An alternative is to discard the penalty and instead choose a mixer that preserves Hamming weight by construction \autocite{mancilla2026constrained}. The \emph{XY-ring mixer} is
+The penalty term $A(\sum_i x_i - K)^2$ in~\eqref{eq:Cx} enforces the budget only in the limit $A \to \infty$; for finite $A$, infeasible bitstrings with $\sum_i x_i \neq K$ remain in the search space and may carry non-negligible amplitude after a finite-depth circuit. An alternative is to discard the penalty and instead choose a mixer that preserves Hamming weight by construction \autocite{mancilla2026constrained}. The \emph{XY-ring mixer} is
 \begin{equation}\label{eq:HM-XY}
     H_M^{(XY)} = \tfrac{1}{2} \sum_{i=1}^{n} \bigl( \hat{X}_i \hat{X}_{i+1} + \hat{Y}_i \hat{Y}_{i+1} \bigr),
 \end{equation}
@@ -183,57 +176,42 @@ with periodic boundary conditions ($i + 1$ taken mod $n$) and
 \begin{equation}
     Y = \begin{pmatrix} 0 & -i \\ i & 0 \end{pmatrix}.
 \end{equation}
-The operator $\hat{X}_i \hat{X}_{i+1} + \hat{Y}_i \hat{Y}_{i+1}$ swaps the basis states $|01\rangle$ and $|10\rangle$ on neighbouring qubits while leaving $|00\rangle$ and $|11\rangle$ invariant, so it commutes with the Hamming-weight operator
-\begin{equation}
-    \hat{N} = \sum_i \tfrac{1}{2}(I - \hat{Z}_i).
-\end{equation}
-When the initial state is a feasible Dicke state $|D^n_K\rangle$ --- the equal superposition over all bitstrings with $\sum_i x_i = K$ --- the entire QAOA trajectory stays in the feasible subspace and the penalty parameter $A$ becomes unnecessary.
+The operator $\hat{X}_i \hat{X}_{i+1} + \hat{Y}_i \hat{Y}_{i+1}$ swaps the basis states $|01\rangle$ and $|10\rangle$ on neighbouring qubits while leaving $|00\rangle$ and $|11\rangle$ invariant, so it commutes with the Hamming-weight operator $\hat{N} = \sum_i \tfrac{1}{2}(I - \hat{Z}_i)$. When the initial state is a feasible Dicke state $|D^n_K\rangle$ --- the equal superposition over all bitstrings with $\sum_i x_i = K$ --- the entire QAOA trajectory stays in the feasible subspace and the penalty parameter $A$ becomes unnecessary.
 
-% --- Trade-offs to discuss in the Results section --------------------
-We compare the two encodings on the same data in Section~\ref{subsec:xymixer-results}: the penalty mixer is simpler to implement but inherits a hyperparameter; the XY-mixer is hyperparameter-free but requires Dicke-state preparation and has a slightly larger gate count per layer.
+The XY-mixer is hyperparameter-free but requires Dicke-state preparation and has a slightly larger gate count per layer than the transverse-field mixer~\eqref{eq:HM-transverse}. We describe it here for completeness and revisit it in \cref{section:conclusion} as an obvious next experiment; the numerical results reported in \cref{section:result} use the penalty encoding throughout.
 
 
-\subsection{Statistical Physics Connection}\label{subsec:statphys}
+\subsection{Metrics and validation}\label{subsec:metrics}
 
-The Ising form of $H_C$ defines a classical partition function at inverse temperature $\beta_{\text{th}}$,
-\begin{equation}
-    Z = \sum_{\{z\}} e^{-\beta_{\text{th}} H(z)},
-\end{equation}
-with associated free energy
-\begin{equation}
-    F = -\frac{1}{\beta_{\text{th}}} \ln Z.
-\end{equation}
-QAOA can be read as a variational approximation to the ground state of $H_C$,
-\begin{equation}
-    E(\boldsymbol\gamma, \boldsymbol\beta) = \langle \psi | H_C | \psi \rangle \geq E_0,
-\end{equation}
-and as $p \to \infty$ the ansatz can in principle reach the exact ground state. Finite-$p$ QAOA is thus directly analogous to a finite-temperature thermal state of the same Ising Hamiltonian, a connection we explore numerically in Section~\ref{subsec:thermal-results}.
+We use the following diagnostics throughout \cref{section:result}.
 
-
-\subsection{Metrics and Validation}\label{subsec:metrics}
-
-To compare runs across datasets and circuit depths we use:
-
-\paragraph{Approximation ratio.}
-Following the QAOA literature \autocite{farhi2014qaoa,zhou2018qaoa}, we define
+\paragraph{Scaled approximation ratio.}
+Let $E_{\text{opt}} = \min_{\boldsymbol{x}} C(\boldsymbol{x})$ and $E_{\text{worst}} = \max_{\boldsymbol{x}} C(\boldsymbol{x})$ denote the global minimum and maximum of the cost function, obtained by exhaustive enumeration. Following \textcite{farhi2014qaoa}, we define
 \begin{equation}\label{eq:approxratio}
-    r(p) = \frac{E(\boldsymbol\gamma^\star, \boldsymbol\beta^\star)\big|_{p} - C_{\max}}{C_{\min} - C_{\max}} \in [0, 1],
+    r \;=\; \frac{E_{\text{worst}} - E(\boldsymbol\gamma^\star, \boldsymbol\beta^\star)}{E_{\text{worst}} - E_{\text{opt}}} \;\in\; [0,\,1],
 \end{equation}
-where $C_{\min} = \min_x C(x)$ and $C_{\max} = \max_x C(x)$ are obtained by exhaustive enumeration at $n = 4$. A value $r = 1$ corresponds to recovering the optimum in expectation.
+where $(\boldsymbol\gamma^\star, \boldsymbol\beta^\star)$ are the COBYLA-optimised angles. A value $r = 1$ corresponds to recovering the optimum in expectation; an unbiased uniform sample over the basis yields $r$ equal to $(E_{\text{worst}} - \overline{E}) / (E_{\text{worst}} - E_{\text{opt}})$, which for the canonical instance with penalty $A=0.5$ sits around $0.5$.
+
+\paragraph{Relative gap.}
+Because $E_{\text{worst}}$ is dominated by the budget penalty $A K^2$ and inflates the denominator of~\eqref{eq:approxratio}, the scaled ratio compresses what can be a substantial absolute shortfall \autocite{zhou2018qaoa}. We therefore report alongside $r$ the unscaled relative gap
+\begin{equation}\label{eq:gaprel}
+    \mathrm{gap}_{\text{rel}} \;=\; \frac{E(\boldsymbol\gamma^\star,\boldsymbol\beta^\star) - E_{\text{opt}}}{|E_{\text{opt}}|},
+\end{equation}
+which is zero at the optimum and unbounded above.
 
 \paragraph{Top-1 success probability.}
-The probability that a single shot returns the true optimum,
-\begin{equation}
-    p_{\text{top-1}}(p) = |\langle z^\star | \psi(\boldsymbol\gamma^\star, \boldsymbol\beta^\star) \rangle|^2,
+The probability that a single measurement returns the true optimum,
+\begin{equation}\label{eq:popt}
+    p_{\text{opt}} \;=\; \bigl|\langle \boldsymbol{x}^\star | \psi(\boldsymbol\gamma^\star,\boldsymbol\beta^\star)\rangle\bigr|^2,
 \end{equation}
-with $z^\star$ the brute-force optimum.
+with $\boldsymbol{x}^\star = \arg\min_{\boldsymbol{x}} C(\boldsymbol{x})$ the brute-force optimum.
 
-\paragraph{Feasibility ratio.}
+\paragraph{Feasibility probability.}
 The probability that a measurement yields a budget-feasible bitstring,
-\begin{equation}
-    p_{\text{feas}}(p) = \sum_{z : \sum_i x_i = K} |\langle z | \psi \rangle|^2,
+\begin{equation}\label{eq:pfeas}
+    p_{\text{feas}} \;=\; \sum_{\boldsymbol{x}\,:\,\sum_i x_i = K} \bigl|\langle \boldsymbol{x} | \psi(\boldsymbol\gamma^\star,\boldsymbol\beta^\star)\rangle\bigr|^2,
 \end{equation}
-which equals $1$ identically under the XY-mixer and is a non-trivial diagnostic under the penalty mixer.
+which is unity by construction under the XY-mixer of \cref{subsec:xymixer} and is a non-trivial diagnostic for the penalty mixer used here.
 
 \paragraph{Validation strategy.}
-At $n = 4$ the brute-force optimum is computable in $2^4 = 16$ evaluations, so every QAOA run is anchored against the exact answer. Our QAOA implementation is additionally cross-checked against the construction in the FYS5419 course material at $p = 1$.
+At $n = 16$ the brute-force optimum is computable in $2^{16}\approx 6.5\times 10^4$ evaluations, taking about 30~ms in NumPy, so every QAOA run reported in \cref{section:result} is anchored against the exact answer. In addition, the QUBO$\to$Ising mapping of~\eqref{eq:hJ}--\eqref{eq:c} is verified numerically: $H(\boldsymbol{z}) + c$ is checked to equal $C(\boldsymbol{x})$ to floating-point precision for every basis state $|\boldsymbol{z}\rangle$, and the diagonal entries of $H_C$ in~\eqref{eq:HC} match the brute-force cost vector. Further implementation-level checks are summarised in \cref{subsec:validation}.

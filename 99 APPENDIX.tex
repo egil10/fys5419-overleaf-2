@@ -1,7 +1,56 @@
 \section{Appendix}
 \label{section:appendix}
 
-\subsection*{A. Exploratory data}
+\subsection*{A. Notation and conventions}\label{subsec:app_notation}
+
+Symbols are used consistently throughout the report, in line with \textcite{iso80000_2}. Vectors are typeset bold lower case ($\boldsymbol{x}$, $\boldsymbol\mu$), matrices bold upper case ($\boldsymbol\Sigma$, $Q$), and components carry an index ($x_i$, $\mu_i$, $\Sigma_{ij}$). Operators acting on the qubit Hilbert space carry a hat ($\hat{Z}_i$, $\hat{X}_i$); the cost and mixer Hamiltonians $H_C, H_M$ are written without hats because they are sums of hatted single-qubit operators and the typographical distinction is unambiguous in context. \Cref{tab:notation} collects every recurring symbol with its definition and the equation or section in which it is introduced.
+
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Recurring symbols. The right-hand column points to the equation or section where the symbol is introduced.}
+    \label{tab:notation}
+    \begin{tabular}{@{}lll@{}}
+        \toprule
+        Symbol & Meaning & Defined at \\
+        \midrule
+        $n$                       & number of candidate assets / qubits                         & \cref{subsec:meanvar} \\
+        $K$                       & target cardinality, $\sum_i x_i = K$                        & \cref{subsec:meanvar} \\
+        $\boldsymbol{x} \in \{0,1\}^n$ & binary selection vector                                & \cref{subsec:meanvar} \\
+        $\boldsymbol{z} \in \{-1,+1\}^n$ & spin image of $\boldsymbol{x}$, $z_i = 1-2x_i$       & \cref{subsec:ising} \\
+        $P_i(t)$                  & adjusted close price of asset $i$ at time $t$               & \eqref{eq:logreturn} \\
+        $r_i(t)$                  & log return of asset $i$                                     & \eqref{eq:logreturn} \\
+        $\boldsymbol\mu \in \mathbb{R}^n$ & expected-return vector, $\mu_i = \langle r_i\rangle_t$ & \cref{subsec:meanvar} \\
+        $\boldsymbol\Sigma \in \mathbb{R}^{n\times n}$ & return covariance matrix                  & \cref{subsec:meanvar} \\
+        $\lambda \geq 0$          & risk-aversion coefficient                                   & \cref{subsec:meanvar} \\
+        $A > 0$                   & budget-penalty coefficient                                  & \cref{subsec:meanvar} \\
+        $C(\boldsymbol{x})$       & penalised mean--variance cost                               & \eqref{eq:Cx} \\
+        $Q$                       & QUBO matrix, entries $Q_{ii}, Q_{ij}$                       & \eqref{eq:Qcoeffs} \\
+        $h_i, J_{ij}, c$          & Ising linear, coupling and constant terms                   & \eqref{eq:hJ}, \eqref{eq:c} \\
+        $H(\boldsymbol{z})$       & classical Ising energy                                      & \eqref{eq:Hz} \\
+        $\hat Z_i, \hat X_i, \hat Y_i$ & single-qubit Pauli operators on site $i$               & \cref{subsec:pauli} \\
+        $H_C$                     & quantum cost Hamiltonian, eigenvalues $C(\boldsymbol{x})$   & \eqref{eq:HC} \\
+        $H_M$                     & transverse-field mixer Hamiltonian $\sum_i \hat X_i$        & \eqref{eq:HM-transverse} \\
+        $H_M^{(XY)}$              & constraint-preserving XY-ring mixer                         & \eqref{eq:HM-XY} \\
+        $p$                       & QAOA circuit depth                                          & \cref{subsec:qaoa} \\
+        $\boldsymbol\gamma, \boldsymbol\beta \in \mathbb{R}^p$ & variational angles                  & \eqref{eq:multilayer} \\
+        $|+\rangle^{\otimes n}$   & initial uniform superposition                               & \eqref{eq:plus-state} \\
+        $|\psi(\boldsymbol\gamma,\boldsymbol\beta)\rangle$ & QAOA variational state                  & \eqref{eq:multilayer} \\
+        $E(\boldsymbol\gamma,\boldsymbol\beta)$ & QAOA energy expectation                           & \eqref{eq:Egb} \\
+        $E_{\text{opt}}, E_{\text{worst}}$ & extreme eigenvalues of $H_C$                         & \cref{subsec:metrics} \\
+        $\boldsymbol{x}^\star$    & brute-force optimum, $\arg\min_{\boldsymbol{x}} C(\boldsymbol{x})$ & \eqref{eq:popt} \\
+        $r$                       & scaled approximation ratio in $[0,1]$                       & \eqref{eq:approxratio} \\
+        $\mathrm{gap}_{\text{rel}}$ & unscaled relative gap to the optimum                      & \eqref{eq:gaprel} \\
+        $p_{\text{opt}}$          & top-1 success probability                                   & \eqref{eq:popt} \\
+        $p_{\text{feas}}$         & total mass on budget-feasible bitstrings                    & \eqref{eq:pfeas} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Unless a caption says otherwise, every numerical experiment in \cref{section:result} uses the \emph{canonical instance} fixed by \texttt{portfolio.DEFAULTS}: $n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, $p=3$, ten random COBYLA multi-starts, master seed $42$. Qubit $0$ is taken to be the most significant bit of the computational-basis index, matching the order in which the QUBO matrix is built and the Ising spins are addressed in \texttt{ising.py}. Log axes are used in figures where the underlying quantity spans more than a single decade (runtime, $1-r$, $p_{\text{opt}}$); linear axes are used otherwise.
+
+
+\subsection*{B. Exploratory data}
 
 \begin{figure}[H]
     \centering
@@ -46,7 +95,7 @@
 \end{figure}
 
 
-\subsection*{B. Motivational figures}
+\subsection*{C. Motivational figures}
 
 \begin{figure}[H]
     \centering
@@ -77,7 +126,7 @@
 \end{figure}
 
 
-\subsection*{C. QAOA diagnostics on the canonical instance}
+\subsection*{D. QAOA diagnostics on the canonical instance}
 
 \begin{figure}[H]
     \centering
@@ -87,7 +136,7 @@
 \end{figure}
 
 
-\subsection*{D. Sweep results}
+\subsection*{E. Sweep results}
 
 \begin{figure}[H]
     \centering
@@ -125,34 +174,48 @@
 \end{figure}
 
 
-\subsection*{E. Background literature}
+\subsection*{F. Background literature}
 
-The reference list collected during this project covers several overlapping themes; the entries below are cited here so that they appear in the bibliography for audit.
+The reference list collected during this project covers several overlapping themes; every bibliography entry is cited at least once here so that the reference list can be audited and pruned. Each citation is given individually rather than bundled, so that an author-year reader can match line by line.
 
 \paragraph{Foundational quantum mechanics.}
-The original EPR paper~\parencite{epr1935} sets the historical context for entanglement, which underpins the quantum interference mechanism exploited by QAOA. Early demonstrations of small-scale quantum computation on molecular spin systems~\parencite{gershenfeld_qc_molecules} mark the transition from thought experiment to physical implementation.
+The original EPR paper \parencite{epr1935} sets the historical context for entanglement, which underpins the interference mechanism exploited by QAOA. Early demonstrations of small-scale quantum computation on molecular spin systems were reported by \textcite{gershenfeld_qc_molecules}.
 
 \paragraph{Quantum computing textbooks.}
-General textbook references include the foundational \textcite{nielsen_chuang}, and the more recent treatments of \textcite{hidary_qc_applied,hundt_qc_programmers,scherer_math_qc,olivares_student_qc,rieffel1998introqc,loredo_learn_qc_python_ibm}. Quantum-machine-learning specific texts include \textcite{schuld_qml,conti_qml,pattanayak_qml_python}.
+General textbook references include the foundational \textcite{nielsen_chuang}, the applied treatment of \textcite{hidary_qc_applied}, the programmer-oriented exposition of \textcite{hundt_qc_programmers}, the formal mathematics of \textcite{scherer_math_qc}, the introductory text of \textcite{olivares_student_qc}, the early survey of \textcite{rieffel1998introqc}, and the Qiskit-flavoured course of \textcite{loredo_learn_qc_python_ibm}. Quantum machine learning specifically is covered by \textcite{schuld_qml}, \textcite{conti_qml} and \textcite{pattanayak_qml_python}.
 
 \paragraph{QAOA and the variational paradigm.}
-The QAOA algorithm itself is due to \textcite{farhi2014qaoa}, with the depth/landscape analysis of \textcite{zhou2018qaoa} and the introductory exposition of \textcite{giovagnoli_qaoa_intro,irfan_qaoa_simulators,ibm_qaoa_tutorial}. The closely related variational quantum eigensolver framework is reviewed in \textcite{tilly2022vqe}.
+The QAOA algorithm itself is due to \textcite{farhi2014qaoa}, with the depth and landscape analysis of \textcite{zhou2018qaoa}. Pedagogical introductions are given by \textcite{giovagnoli_qaoa_intro}, by \textcite{irfan_qaoa_simulators} for the hardware-vs-simulator comparison, and by the IBM Quantum tutorial \parencite{ibm_qaoa_tutorial}. The closely related variational quantum eigensolver framework is reviewed by \textcite{tilly2022vqe}.
 
 \paragraph{Many-body solvable models.}
-The Lipkin--Meshkov--Glick model~\parencite{lipkin1965} provides a small, exactly solvable many-body Hamiltonian routinely used as a VQE benchmark in the FYS5419 course.
+The Lipkin--Meshkov--Glick model \parencite{lipkin1965} provides a small, exactly solvable many-body Hamiltonian routinely used as a VQE benchmark in the FYS5419 course.
 
 \paragraph{Markowitz and quantum portfolio optimisation.}
-Modern portfolio theory originates with \textcite{markowitz1952}; statistical-learning context for return estimation is found in \textcite{hastie}. Recent QAOA- and annealing-based approaches to constrained portfolio selection are surveyed in \parencite{knapsack2024qaoa,thomassin2025slack,mancilla2026constrained,stopfer2025benchmark,shen2025noisy,morapakula2025annealing,soloviev2025pauli,soloviev2025cutting}.
+Modern portfolio theory originates with \textcite{markowitz1952}; statistical-learning context for return estimation is found in \textcite{hastie}. Recent quantum approaches to constrained portfolio selection are reported by \textcite{knapsack2024qaoa} for a knapsack formulation, by \textcite{thomassin2025slack} for slack variables, by \textcite{mancilla2026constrained} for XY-mixers, by \textcite{stopfer2025benchmark} for a systematic benchmark, by \textcite{shen2025noisy} for noisy-device simulations, by \textcite{morapakula2025annealing} for annealing comparisons, by \textcite{soloviev2025pauli} for a Pauli-correlation encoding, and by \textcite{soloviev2025cutting} for circuit-cutting techniques.
 
 \paragraph{Notation and standards.}
-Mathematical notation conventions follow \parencite{iso80000_2}.
+Mathematical notation conventions follow the ISO 80000-2 standard \parencite{iso80000_2}.
 
 \paragraph{Software libraries.}
-The implementations consulted while developing the code base include \parencite{qiskit,pennylane,qutip,qutip_github,pyscf,qbraid}.
+The implementations consulted while developing the code base include Qiskit \parencite{qiskit}, PennyLane \parencite{pennylane}, QuTiP \parencite{qutip} with its source on GitHub \parencite{qutip_github}, PySCF \parencite{pyscf}, and the qBraid platform \parencite{qbraid}.
 
 \paragraph{Course teaching material.}
-The FYS5419 course landing page is \textcite{qcm2026_coursepage}; the supplementary workshop material is \textcite{quantgates_workshop}. The weekly teaching materials, hand-written notes and lecture videos are cited as follows:
-weeks~1--4~\parencite{qcm2026_week1_material,qcm2026_week1_notes,qcm2026_week1_video,qcm2026_week2_material,qcm2026_week2_notes,qcm2026_week2_video,qcm2026_week3_material,qcm2026_week3_notes,qcm2026_week3_video,qcm2026_week4_material,qcm2026_week4_notes,qcm2026_week4_video};
-weeks~5--8~\parencite{qcm2026_week5_material,qcm2026_week5_notes,qcm2026_week5_video,qcm2026_week6_material,qcm2026_week6_notes,qcm2026_week6_video,qcm2026_week7_material,qcm2026_week7_notes,qcm2026_week7_video,qcm2026_week8_material,qcm2026_week8_notes,qcm2026_week8_video};
-weeks~9--12~\parencite{qcm2026_week9_material,qcm2026_week9_notes,qcm2026_week9_video,qcm2026_week10_material,qcm2026_week10_notes,qcm2026_week10_video,qcm2026_week11_material,qcm2026_week11_notes,qcm2026_week11_video,qcm2026_week12_material,qcm2026_week12_notes,qcm2026_week12_video};
-weeks~13--16~\parencite{qcm2026_week13_material,qcm2026_week14_material,qcm2026_week14_video,qcm2026_week15_material,qcm2026_week15_notes,qcm2026_week15_video,qcm2026_week16_material,qcm2026_week16_notes,qcm2026_week16_video}.
+The FYS5419 course landing page is \textcite{qcm2026_coursepage} and the supplementary workshop material is \textcite{quantgates_workshop}.
+
+Week-by-week material, hand-written notes, and lecture videos for the course are listed below as individual citations.\\[1pt]
+\textbf{Week 1}: material \parencite{qcm2026_week1_material}, notes \parencite{qcm2026_week1_notes}, video \parencite{qcm2026_week1_video}.
+\textbf{Week 2}: material \parencite{qcm2026_week2_material}, notes \parencite{qcm2026_week2_notes}, video \parencite{qcm2026_week2_video}.
+\textbf{Week 3}: material \parencite{qcm2026_week3_material}, notes \parencite{qcm2026_week3_notes}, video \parencite{qcm2026_week3_video}.
+\textbf{Week 4}: material \parencite{qcm2026_week4_material}, notes \parencite{qcm2026_week4_notes}, video \parencite{qcm2026_week4_video}.
+\textbf{Week 5}: material \parencite{qcm2026_week5_material}, notes \parencite{qcm2026_week5_notes}, video \parencite{qcm2026_week5_video}.
+\textbf{Week 6}: material \parencite{qcm2026_week6_material}, notes \parencite{qcm2026_week6_notes}, video \parencite{qcm2026_week6_video}.
+\textbf{Week 7}: material \parencite{qcm2026_week7_material}, notes \parencite{qcm2026_week7_notes}, video \parencite{qcm2026_week7_video}.
+\textbf{Week 8}: material \parencite{qcm2026_week8_material}, notes \parencite{qcm2026_week8_notes}, video \parencite{qcm2026_week8_video}.
+\textbf{Week 9}: material \parencite{qcm2026_week9_material}, notes \parencite{qcm2026_week9_notes}, video \parencite{qcm2026_week9_video}.
+\textbf{Week 10}: material \parencite{qcm2026_week10_material}, notes \parencite{qcm2026_week10_notes}, video \parencite{qcm2026_week10_video}.
+\textbf{Week 11}: material \parencite{qcm2026_week11_material}, notes \parencite{qcm2026_week11_notes}, video \parencite{qcm2026_week11_video}.
+\textbf{Week 12}: material \parencite{qcm2026_week12_material}, notes \parencite{qcm2026_week12_notes}, video \parencite{qcm2026_week12_video}.
+\textbf{Week 13}: material \parencite{qcm2026_week13_material}.
+\textbf{Week 14}: material \parencite{qcm2026_week14_material}, video \parencite{qcm2026_week14_video}.
+\textbf{Week 15}: material \parencite{qcm2026_week15_material}, notes \parencite{qcm2026_week15_notes}, video \parencite{qcm2026_week15_video}.
+\textbf{Week 16}: material \parencite{qcm2026_week16_material}, notes \parencite{qcm2026_week16_notes}, video \parencite{qcm2026_week16_video}.

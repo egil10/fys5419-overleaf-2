@@ -1,99 +1,25 @@
 \section{Conclusions and Perspectives}\label{section:conclusion}
 
-% =====================================================================
-%   CONCLUSIONS (target: ~1--1.5 columns; rubric: 10 pts)
-%   Required ingredients (per EvaluationForm.md):
-%     - State main findings and interpretations.
-%     - Discuss pros and cons of the method.
-%     - Possible directions / future improvements.
-%
-%   Anti-pattern to avoid: just re-stating the abstract in past tense.
-%   Each bullet below should be a *learned* insight, not a recap.
-% =====================================================================
+\subsection{Main findings}
 
+The four parameter sweeps on the canonical $n=16$, $K=4$ instance support five concrete observations.
 
-\subsection{What we found}
-
-% TODO: 3--5 numbered findings, each one sentence, e.g.:
-%   1. On both synthetic and S\&P data, QAOA reaches an approximation
-%      ratio $r \geq$ \emph{TBD} at $p =$ \emph{TBD}, recovering the
-%      brute-force optimum with top-1 probability $\geq$ \emph{TBD}.
-%   2. The XY-mixer outperforms / matches the penalty mixer at low $p$
-%      but the gap closes at $p \geq$ \emph{TBD}.
-%   3. Crisis-window covariance matrices degrade $r$ by a factor of
-%      \emph{TBD}, primarily due to landscape flattening, not optimiser
-%      failure.
-%   4. The penalty parameter $A$ has a narrow operating window.
-
+\begin{enumerate}
+    \item On the canonical $n=16$ instance at $p=3$, QAOA sits firmly in a ``vanity ratio'' regime: the scaled approximation ratio $r \approx 0.94$ is dominated by the large $E_{\text{worst}}$ contributed by the budget penalty $AK^2$, while the absolute energy is roughly $2847\times$ the brute-force optimum and the top-1 success probability is only about $10\times$ the uniform baseline $1/2^{16}$ (see \cref{fig:single-run}).
+    \item QAOA's solution quality is essentially flat across three orders of magnitude in the risk-aversion parameter $\lambda$, so risk aversion is not the bottleneck on this instance.
+    \item The budget-penalty calibration $A$ does not produce the expected monotone improvement; instead, the $A$-sweep is dominated by COBYLA restart variance at the fixed budget of ten random seeds.
+    \item The median top-1 success probability collapses geometrically with system size, from $p_{\text{opt}} \approx 0.23$ at $n=4$ to $p_{\text{opt}} \approx 1.6 \times 10^{-4}$ at $n=16$ (\cref{fig:scaling}), tracking $1/\binom{n}{K}$ almost as if QAOA were sampling uniformly over feasible bitstrings.
+    \item The depth sweep is non-monotonic --- the ratio peaks at $r \approx 0.99$ for $p=2$, drops to $0.93$ at $p=4$, and partially recovers at $p=5$ (\cref{fig:depth-sweep}) --- consistent with the $2p$-dimensional landscape exceeding what ten random COBYLA seeds can reliably explore at $p \geq 3$.
+\end{enumerate}
 
 \subsection{Method-level discussion}
 
-% TODO: critical assessment.
-%   Pros:
-%     - Statevector simulation at $n=4$ gives a clean, noise-free
-%       picture of QAOA dynamics — useful for pedagogy.
-%     - The pipeline is modular: $(\mu, \Sigma) \to Q \to (h, J, c)
-%       \to H_C$ is dataset-agnostic and can be re-run on any return
-%       series.
-%     - The variational principle (Section~\ref{subsec:qaoa}) gives a
-%       built-in correctness anchor: the energy is monotone non-increasing
-%       in $p$ in expectation, and brute force at $n=4$ provides a
-%       hard upper bound on what good angles can achieve.
-%   Cons:
-%     - At $n=4$ the problem is classically trivial — sixteen brute-force
-%       evaluations suffice and exact integer programming (Gurobi,
-%       CPLEX) solves the full mean--variance problem in milliseconds
-%       at hundreds of assets. We cannot claim a quantum speedup, only
-%       methodological clarity. This mirrors the broader empirical
-%       status of QAOA: no quantum advantage has been demonstrated on
-%       any useful combinatorial problem, and on MAX-CUT specifically
-%       Goemans--Williamson outperforms QAOA at depths reachable on
-%       current hardware.
-%     - The penalty mixer is sensitive to $A$ in a way that is hard
-%       to set a priori without enumerating $C(x)$ — which is what
-%       we are trying to avoid.
-%     - COBYLA + random restarts is robust but pessimistic for
-%       hardware: every restart is a fresh circuit execution. More
-%       fundamentally, deep variational circuits suffer from barren
-%       plateaus — the gradient of $E(\boldsymbol\gamma,\boldsymbol\beta)$
-%       vanishes exponentially in $n$ for random initialisations — so
-%       the classical optimisation step itself becomes the bottleneck
-%       as $n$ grows.
-%     - The circuit depth $p$ required to compete with classical
-%       heuristics on hard instances appears to grow with $n$, which
-%       erodes the NISQ-friendliness argument that motivated the
-%       algorithm in the first place.
-%
-% Honest framing — to lift from Section~\ref{section:Introduction}:
-% QAOA is interesting because it is a clean, near-term-runnable
-% framework that ties combinatorial optimisation, statistical physics
-% (spin glasses, frustrated systems) and quantum computing together
-% in a single algorithm. Its value at this stage is in the questions
-% it lets us ask — what does the $E(\gamma,\beta)$ landscape look
-% like, how does the approximation ratio scale with $p$, where does
-% adiabaticity break down — not in answers it gives over Gurobi on
-% a four-asset portfolio.
+The exercise has clear methodological merits. Statevector simulation produces a clean, noise-free picture of QAOA dynamics that is well suited to pedagogy, and the modular pipeline $(\boldsymbol\mu, \boldsymbol\Sigma) \rightarrow Q \rightarrow (h, J, c) \rightarrow H_C$ is dataset-agnostic, so the same machinery would run on any return series. The variational principle $E \geq E_0$ supplies a built-in correctness anchor, and brute-force enumeration at $n \leq 16$ provides an unambiguous ground truth against which approximation ratios can be reported honestly rather than relative to a moving target \parencite{farhi2014qaoa}.
 
+The drawbacks are equally honest. At $n \leq 16$ the problem is classically trivial: brute force terminates in roughly $30~\text{ms}$ at $n=16$ and the greedy-Sharpe and simulated-annealing baselines reach the true optimum at machine precision while running about $4000\times$ faster than QAOA. The penalty mixer is sensitive to $A$ in a way that is difficult to tune without enumerating $C(\boldsymbol x)$ --- which is precisely the work QAOA is meant to avoid. Ten random restarts are borderline at $p=3$ and clearly insufficient at higher depth, and the standard QAOA literature \parencite{zhou2018qaoa} prescribes warm-started angles that were not used here.
+
+The honest framing is therefore that QAOA at this scale is valuable for the questions it lets us ask --- what does the $E(\boldsymbol\gamma, \boldsymbol\beta)$ landscape look like, how does $r$ scale with $p$, and where does adiabaticity break down --- rather than for answers it provides over Gurobi on 16-asset portfolios. No quantum advantage is claimed.
 
 \subsection{Future directions}
 
-% TODO: realistic next steps. Some candidates:
-%   - Scale to $n = 8$ or $n = 16$ assets (still statevector-tractable)
-%     and test whether crisis-window degradation worsens with $n$, and
-%     whether the gradient variance shows early signs of the barren
-%     plateau scaling.
-%   - Replace COBYLA with a parameter-shift / gradient-based optimiser
-%     and compare convergence speed; quantify barren-plateau onset.
-%   - Add a relative-cardinality constraint via slack variables
-%     \autocite{thomassin2025slack} so the budget $K$ can be itself
-%     a variable.
-%   - Run a single seed on real IBM hardware to characterise the
-%     noise penalty.
-%   - Explore problem-tailored initialisation
-%     \autocite{zhou2018qaoa,mancilla2026constrained} as warm starts,
-%     i.e.\ start from angles close to the adiabatic schedule rather
-%     than from random points.
-%   - Compare directly to a strong classical baseline (Gurobi MIP,
-%     simulated annealing on the same Ising Hamiltonian) on identical
-%     instances so the gap to classical is quantified rather than
-%     asserted.
+Several concrete next steps would directly address the limitations identified above. The most immediate is warm-started angle initialisation near the adiabatic schedule rather than from random points \parencite{zhou2018qaoa}, which should resolve the non-monotone depth sweep. A companion fix is to re-run the depth sweep with fifty or more random seeds so that landscape difficulty can be disentangled from optimiser variance. Replacing the soft budget penalty with a constraint-preserving XY-mixer and a Dicke initial state \parencite{mancilla2026constrained} would remove the $A$ hyperparameter entirely; the comparison was promised in the abstract scaffolding but not delivered in this report. Extending to inequality budgets $\sum_i x_i \leq K_{\max}$ via slack variables \parencite{thomassin2025slack} is a natural follow-on. Scaling beyond the $2^n$ statevector barrier is feasible through circuit cutting \parencite{soloviev2025cutting}, and benchmarking against alternative quantum heuristics such as quantum annealing \parencite{morapakula2025annealing} would situate the present results in a broader landscape \parencite{stopfer2025benchmark}. Finally, a direct comparison against Gurobi or CPLEX MIP on identical instances would quantify the QAOA-vs-classical gap rather than merely assert it.

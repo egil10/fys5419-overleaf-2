@@ -1,109 +1,66 @@
 \section{Implementation and Datasets}\label{section:impl}
 
-% =====================================================================
-%   IMPLEMENTATION (target: ~1.5--2 columns; rubric: shares the
-%   20-pt ``Code / Implementation / Testing'' category with the
-%   actual codebase).
-%
-%   Required ingredients (per EvaluationForm.md):
-%     - Say something about the structure of the algorithm.
-%     - Present selected parts of the code.
-%     - Plug in calculations that validate the code against benchmarks.
-%   Strategy:
-%     - Short module-by-module overview, no full code dumps here
-%       (those belong in the appendix).
-%     - Be explicit about datasets and time windows so the experiments
-%       in Section~\ref{section:result} are reproducible.
-% =====================================================================
-
-
 \subsection{Code structure}\label{subsec:codestructure}
 
-% TODO: brief paragraph describing the modular layout, e.g.:
-%   - data/        download + cache S&P 500 prices via yfinance
-%   - qubo.py      build Q from (mu, Sigma, lambda, A, K)
-%   - ising.py     QUBO -> (h, J, c)
-%   - hamiltonian  build H_C, H_M^{(X)}, H_M^{(XY)}
-%   - qaoa.py      circuit unitaries, energy expectation, run_qaoa()
-%   - bruteforce   exhaustive 2^n classical optimum
-%   - metrics.py   approximation ratio, top-1 probability, feasibility
-%   - experiments  Jupyter notebooks that produce every figure
-%   Mention statevector simulation (no shot noise) at $n=4$, and that
-%   the implementation closes the hybrid quantum--classical loop
-%   described in Section~\ref{subsec:qaoa}: the simulator returns
-%   $E(\boldsymbol\gamma,\boldsymbol\beta)$ for a given parameter
-%   point, and \texttt{scipy.optimize.minimize} (COBYLA, gradient-free)
-%   updates the parameters, with $n_\text{restarts}$ random
-%   $(\boldsymbol\gamma_0, \boldsymbol\beta_0)$ to mitigate convergence
-%   to local minima of the variational landscape. Statevector
-%   simulation removes shot noise so any non-monotonicity in $p$
-%   reflects the optimiser, not sampling variance.
+The implementation is a small collection of pure-NumPy / SciPy modules, deliberately written from scratch rather than on top of a high-level VQA library so that every conventional choice (sign of the cost, qubit ordering, scaling of the approximation ratio) is explicit and auditable. The package layout mirrors the pipeline introduced in \cref{section:methods}: \texttt{data.py} loads the cached daily-close Parquet files and assembles $(\boldsymbol{\mu},\boldsymbol{\Sigma})$; \texttt{portfolio.py} defines the single canonical cost $C(\boldsymbol{x})$ via the \texttt{PortfolioProblem} dataclass and the \texttt{DEFAULTS} dictionary used by every notebook; \texttt{ising.py} performs the $x_i = (1-z_i)/2$ substitution and builds the diagonal $H_C$ and sparse mixer $H_M$; \texttt{qaoa.py} implements the alternating ansatz and the $\langle\psi|H_C|\psi\rangle$ energy; \texttt{optimize.py} provides the classical outer loop; \texttt{classical.py} collects the brute-force, greedy-Sharpe, Markowitz-then-round and simulated-annealing baselines behind a uniform \texttt{SolverResult} type; \texttt{metrics.py} computes the approximation ratio, $p_{\text{opt}}$ and $p_{\text{feas}}$; and \texttt{compare.py} and \texttt{plotting.py} drive the experiments and figures in \cref{section:result}.
 
-% TODO: short code listing of run_qaoa() to anchor the discussion:
-% \begin{lstlisting}[caption={Core QAOA loop (statevector).}, label={lst:qaoa}]
-% def run_qaoa(HC, HM, psi0, p, n_restarts=15):
-%     ...
-%     return best
-% \end{lstlisting}
+The numerical heart of the simulator is short enough to display in full. Because $H_C$ is diagonal in the computational basis it is stored as a length-$2^n$ vector and applied by elementwise multiplication; because the X-mixer factorises as $\exp(-i\beta\sum_i X_i) = \prod_i \exp(-i\beta X_i)$, each layer is applied as $n$ independent single-qubit rotations on a $(2,\dots,2)$ tensor reshape rather than by diagonalising a $2^n\times 2^n$ matrix.
 
+\begin{lstlisting}[language=Python,style=python,caption={Core QAOA layer (pure NumPy, $\mathcal{O}(n\cdot 2^n)$ per layer).},label={lst:qaoa-core}]
+def _apply_X_mixer(psi, beta, n):
+    cos  = np.cos(beta)
+    isin = -1j * np.sin(beta)
+    psi  = psi.reshape((2,) * n)
+    for i in range(n):
+        psi = np.moveaxis(psi, i, 0)
+        new = np.empty_like(psi)
+        new[0] = cos * psi[0] + isin * psi[1]
+        new[1] = isin * psi[0] + cos * psi[1]
+        psi = np.moveaxis(new, 0, i)
+    return psi.reshape(-1)
+
+def qaoa_statevector(gammas, betas, H_C_diag, n):
+    dim = 1 << n
+    psi = np.ones(dim, dtype=complex) / np.sqrt(dim)
+    for gamma, beta in zip(gammas, betas):
+        psi = np.exp(-1j * gamma * H_C_diag) * psi
+        psi = _apply_X_mixer(psi, float(beta), n)
+    return psi
+\end{lstlisting}
+
+\paragraph{Hybrid loop.} The simulator returns the variational energy $E(\boldsymbol{\gamma},\boldsymbol{\beta}) = \langle\psi(\boldsymbol{\gamma},\boldsymbol{\beta})|H_C|\psi(\boldsymbol{\gamma},\boldsymbol{\beta})\rangle$ for a given parameter point, and SciPy's COBYLA --- a gradient-free trust-region method with \texttt{maxiter}\,$=200$ and initial step \texttt{rhobeg}\,$=0.1$ --- updates the $2p$ angles \parencite{zhou2018qaoa}. Each call to \texttt{solve} performs ten random restarts $(\boldsymbol{\gamma}_0,\boldsymbol{\beta}_0)$ to mitigate convergence to local minima of the non-convex landscape \parencite{farhi2014qaoa}, parallelised over a \texttt{ThreadPoolExecutor} (both SciPy's C-level optimiser and the NumPy kernels release the GIL, giving a near-linear speed-up on a multicore laptop). Statevector simulation removes shot noise entirely, so any non-monotonicity in $p$ that appears in \cref{section:result} is attributable to the optimiser, not to sampling variance.
 
 \subsection{Datasets}\label{subsec:datasets}
 
-% --- 3.2.1  Synthetic 4-asset benchmark ------------------------------
-% TODO: describe the synthetic dataset — small, hand-tuned $(\mu, \Sigma)$
-% chosen so that the optimum is non-trivial but predictable. Used to
-% verify the full pipeline end-to-end before touching real data.
+All price data is daily adjusted close from \texttt{yfinance}, cached locally as Parquet. Four thematic baskets feed the experiments, summarised in \cref{tab:datasets}. Log-returns are computed as $r_i(t) = \log(P_i(t+1)/P_i(t))$, the expected-return vector $\mu_i = \langle r_i\rangle_t$ as the time-mean, and the covariance $\Sigma_{ij} = \mathrm{cov}(r_i, r_j)$ as the sample covariance over the same window.
 
-% --- 3.2.2  Real S&P 500 data ----------------------------------------
-% TODO: 4 tickers (e.g., AAPL, MSFT, AMZN, GOOG), daily adjusted close,
-% log returns. Default ``calm'' window: 2017-01-01 -- 2019-12-31.
-% Source: yfinance.
+\begin{table}[H]
+  \centering
+  \small
+  \caption{Datasets used throughout \cref{section:result}. The canonical $n=16$ instance is the concatenation of all four baskets; GOOGL appears in both \texttt{mag7} and \texttt{quantum\_big}, so the union contains 15 unique tickers and one duplicated column (kept intentionally so that each basket remains a self-contained 4-asset problem).}
+  \label{tab:datasets}
+  \begin{tabular}{@{}llrr@{}}
+    \toprule
+    Basket & Tickers & Rows & Window \\
+    \midrule
+    \texttt{mag7}        & AAPL, MSFT, GOOGL, AMZN   & 1006 & 2020-01 -- 2023-12 \\
+    \texttt{anti}        & XOM, DAL, NEM, JPM        & 1006 & 2020-01 -- 2023-12 \\
+    \texttt{quantum\_big} & IBM, HON, GOOGL, NVDA     & 1006 & 2020-01 -- 2023-12 \\
+    \texttt{quantum}     & IONQ, RGTI, QBTS, QUBT    &  608 & 2022-08 -- 2024-12 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-% --- 3.2.3  Crisis windows ------------------------------------------
-% TODO: three additional windows used for stress-testing:
-%   - 2008 GFC:   2008-09-01 -- 2009-03-31 (~6 months)
-%   - 2020 COVID: 2020-02-15 -- 2020-08-15 (~6 months)
-%   - 2022 rates: 2022-01-01 -- 2022-12-31 (~12 months)
-% Discuss what happens to $\Sigma$: correlation rises, spectrum flattens,
-% condition number explodes.
-
-% --- Placeholder table -----------------------------------------------
-% \begin{table}[h]
-%   \centering
-%   \caption{Datasets and time windows used in Section~\ref{section:result}.
-%            ``$\kappa(\Sigma)$'' is the condition number of the sample
-%            covariance.}
-%   \label{tab:datasets}
-%   \begin{tabular}{@{}llrr@{}}
-%     \toprule
-%     Window & Period & $\bar{\rho}$ & $\kappa(\Sigma)$ \\
-%     \midrule
-%     Synthetic   & ---              & --- & --- \\
-%     Calm        & 2017--2019       & --- & --- \\
-%     GFC         & Sep 2008--Mar 2009 & --- & --- \\
-%     Pandemic    & Feb--Aug 2020    & --- & --- \\
-%     Rate-spike  & 2022             & --- & --- \\
-%     \bottomrule
-%   \end{tabular}
-% \end{table}
-
+The four baskets are deliberately heterogeneous in volatility and correlation structure: \texttt{mag7} is a tightly co-moving block of tech mega-caps; \texttt{anti} (energy, airline, gold, bank) is a low-correlation contrast set; \texttt{quantum\_big} mixes large-cap quantum-adjacent names; and \texttt{quantum} is a high-volatility pure-play quantum basket whose shorter window reflects the recent IPO of two of its constituents. This range lets us check that QAOA's behaviour is not an artefact of a single covariance regime.
 
 \subsection{Hyperparameters and conventions}\label{subsec:hyperparams}
 
-% TODO: fix once and for all the defaults used in Section~\ref{section:result}:
-%   $n = 4$ assets, $K = 2$, $\lambda = 1.0$, $A$ chosen per Section~\ref{subsec:Asensitivity-results},
-%   $p \in \{1,2,3,4\}$, COBYLA with 15 random restarts and
-%   $\gamma \in [0, \pi]$, $\beta \in [0, \pi/2]$ initialisation.
-% Anything that varies in a sweep should be flagged explicitly in the
-% caption of the corresponding figure.
+Unless a figure caption says otherwise, every experiment uses the canonical instance: $n=16$ assets (the concatenation of all four baskets), target cardinality $K=4$, risk-aversion $\lambda=2.0$, budget penalty $A=0.5$, and circuit depth $p=3$. These are the values exported from \texttt{portfolio.DEFAULTS} so that every notebook agrees by construction.
 
+The classical optimiser is COBYLA with \texttt{maxiter}\,$=200$ and \texttt{rhobeg}\,$=0.1$, run from ten random multi-starts; SPSA is available as an alternative for noisy objectives but is not used in the reported figures. Initial parameters are drawn as $\gamma_k,\beta_k \sim \mathcal{U}[0, 2\pi]$ for all $k=1,\dots,p$. Because $\exp(-i\beta\sum_i X_i)$ is $2\pi$-periodic in $\beta$ up to a global phase, using a single common sampling range is equivalent to the more conventional $\beta\in[0,\pi]$ choice and keeps the multi-start sampler uniform.
+
+Seeding follows a single master seed of $42$; restart $r$ for SPSA uses seed $42+r$, while COBYLA is deterministic given its initial point and therefore needs no additional seed. For the assets-vs-runtime scaling sweep in \cref{fig:app_scaling} we vary the number of random subsets per problem size as $M(n) = 20$ for $n\leq 10$, $M(12)=8$, $M(14)=4$ and $M(16)=1$, balancing statistical resolution at small $n$ against the cost of the $2^n$ brute-force reference at large $n$.
 
 \subsection{Validation}\label{subsec:validation}
 
-% TODO: one short paragraph documenting the validation chain:
-%   (i)   $H_C$ diagonal entries match $H(z) + c$ for all $2^n$ bitstrings.
-%   (ii)  $[H_M^{(XY)}, \hat{N}] = 0$ verified numerically (norm $< 10^{-12}$).
-%   (iii) On the synthetic dataset, $\min_x C(x)$ from brute force equals
-%         the minimum eigenvalue of $H_C + cI$ to machine precision.
-%   (iv)  QAOA at $p=1$ reproduces the energies in the FYS5419 course
-%         notebook for the same $(\mu, \Sigma)$.
+Three numerical checks were performed before any production run. First, the QUBO$\to$Ising substitution was verified by evaluating \texttt{ising.from\_portfolio(pf)} at the spin image $\boldsymbol{z} = 1-2\boldsymbol{x}$ of every basis state $\boldsymbol{x}\in\{0,1\}^n$ for the canonical $n=16$ instance and confirming $H(\boldsymbol{z}) + c = C(\boldsymbol{x})$ to within $10^{-12}$, where $C(\boldsymbol{x})$ is the one true cost from \texttt{portfolio.eval\_cost}. Second, \texttt{qaoa.make\_hamiltonians} returns the diagonal $H_C$ whose $k$-th entry is $C(\boldsymbol{x}_k)$; we checked that \texttt{H\_C.min()} matches the cost reported by \texttt{classical.brute\_force(pf)} to machine precision for every basket. Third, the approximation-ratio convention \texttt{metrics.scaled\_ratio} returns $r = (E_{\text{worst}}-E)/(E_{\text{worst}}-E_{\text{opt}})\in[0,1]$ with explicit clipping; we verified that floating-point artefacts of the form $1 + \mathcal{O}(10^{-16})$ for exact-optimum solvers (brute force, SA at the optimum) are suppressed so no reader sees a ratio nominally above one. Together these checks pin down the cost function, the Hamiltonian, and the reported metric to the same numerical reference, leaving the QAOA results in \cref{section:result} to be read as statements about the optimiser and the ansatz rather than about the bookkeeping.
