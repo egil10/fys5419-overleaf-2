@@ -2,9 +2,9 @@
 
 \subsection{Code structure}\label{subsec:codestructure}
 
-The implementation is a small collection of pure-NumPy / SciPy modules, deliberately written from scratch rather than on top of a high-level VQA library so that every conventional choice (sign of the cost, qubit ordering, scaling of the approximation ratio) is explicit and auditable. The package layout mirrors the pipeline introduced in \cref{section:methods}.
+The implementation is a small collection of pure-NumPy / SciPy modules, written from scratch rather than on top of a high-level VQA library so that every conventional choice (sign of the cost, qubit ordering, scaling of the approximation ratio) is explicit and auditable. The package layout mirrors the pipeline of \cref{section:methods}.
 
-\paragraph{Modules.} The \emph{data layer} (\texttt{data.py}) loads the cached daily-close Parquet files and assembles $(\boldsymbol{\mu},\boldsymbol{\Sigma})$. The \emph{problem layer} (\texttt{portfolio.py}, \texttt{ising.py}) fixes the single canonical cost $C(\boldsymbol{x})$ through the \texttt{PortfolioProblem} dataclass and the \texttt{DEFAULTS} dictionary used by every notebook, and performs the $x_i = (1-z_i)/2$ substitution to build the diagonal $H_C$ and sparse mixer $H_M$. The \emph{solver layer} (\texttt{qaoa.py}, \texttt{optimize.py}, \texttt{classical.py}) implements the alternating ansatz with its $\langle\psi|H_C|\psi\rangle$ energy, the classical outer loop, and the brute-force, greedy-Sharpe, Markowitz-then-round and simulated-annealing baselines behind a uniform \texttt{SolverResult} type. Finally, the \emph{orchestration layer} (\texttt{metrics.py}, \texttt{compare.py}, \texttt{plotting.py}) computes the approximation ratio together with $p_{\text{opt}}$ and $p_{\text{feas}}$, then drives the experiments and figures in \cref{section:result}.
+\paragraph{Modules.} The \emph{data layer} (\texttt{data.py}) loads cached daily-close Parquet files and assembles $(\boldsymbol{\mu},\boldsymbol{\Sigma})$. The \emph{problem layer} (\texttt{portfolio.py}, \texttt{ising.py}) fixes the canonical cost $C(\boldsymbol{x})$ via the \texttt{PortfolioProblem} dataclass and the \texttt{DEFAULTS} dictionary, and performs the $x_i = (1-z_i)/2$ substitution to build the diagonal $H_C$ and the sparse mixer $H_M$. The \emph{solver layer} (\texttt{qaoa.py}, \texttt{optimize.py}, \texttt{classical.py}) implements the alternating ansatz with its $\langle\psi|H_C|\psi\rangle$ energy, the classical outer loop, and the brute-force, greedy-Sharpe, Markowitz-then-round and simulated-annealing baselines behind a uniform \texttt{SolverResult} type. The \emph{orchestration layer} (\texttt{metrics.py}, \texttt{compare.py}, \texttt{plotting.py}) computes the approximation ratio with $p_{\text{opt}}$ and $p_{\text{feas}}$, and drives the figures of \cref{section:result}.
 
 \paragraph{Reproducibility.} Dependencies are pinned in \texttt{requirements.txt} to \texttt{numpy>=1.26,<3}, \texttt{pandas>=2,<3}, \texttt{scipy>=1.11,<2}, \texttt{matplotlib>=3.7,<4}, \texttt{yfinance>=0.2.40,<1}, \texttt{pyarrow>=14,<22} and \texttt{pytest>=8,<9}, with Python 3.11 as the target interpreter; the project ran without modification both on a local 3.11.x environment and on Colab.
 
@@ -41,21 +41,52 @@ All price data is daily adjusted close from \texttt{yfinance}, cached locally as
 \begin{table*}[t]
   \centering
   \small
-  \caption{Datasets used throughout \cref{section:result}. The canonical $n=16$ instance is the concatenation of all four baskets, giving sixteen distinct tickers spanning mega-cap tech, established firms with quantum-computing exposure, pure-play quantum small-caps, and a macro-opposed control basket (oil producer, airline, gold miner, bank).}
+  \caption{Datasets used throughout \cref{section:result}. All four baskets share the project-wide universe window 2023-01-03 to 2025-12-30 (751 trading days), set once in \texttt{scripts.data.UNIVERSE\_START}/\texttt{\_END} so that every basket and every concatenated $n$-asset instance uses the same in-sample period.}
   \label{tab:datasets}
-  \begin{tabular}{@{}llrr@{}}
+  \begin{tabular}{@{}llll@{}}
     \toprule
-    Basket & Tickers & Rows & Window \\
+    Basket & Tickers & Theme & Window \\
     \midrule
-    \texttt{mag7}        & AAPL, MSFT, GOOGL, AMZN & 1006 & 2020-01 -- 2023-12 \\
-    \texttt{anti}        & XOM, DAL, NEM, JPM      & 1006 & 2020-01 -- 2023-12 \\
-    \texttt{quantum\_big} & IBM, HON, ACN, NVDA     & 1006 & 2020-01 -- 2023-12 \\
-    \texttt{quantum}     & IONQ, RGTI, QBTS, QUBT  &  608 & 2022-08 -- 2024-12 \\
+    \texttt{mag7}         & AAPL, MSFT, GOOGL, AMZN & Mega-cap tech --- high correlation, low dispersion       & 2023-01 -- 2025-12 \\
+    \texttt{anti}         & XOM, DAL, NEM, JPM      & Macro-opposed (oil, airline, gold, bank)                   & 2023-01 -- 2025-12 \\
+    \texttt{quantum\_big} & IBM, HON, ACN, NVDA     & Established firms with quantum exposure                    & 2023-01 -- 2025-12 \\
+    \texttt{quantum}      & IONQ, RGTI, QBTS, QUBT  & Quantum-computing pure-plays --- speculative, high vol     & 2023-01 -- 2025-12 \\
     \bottomrule
   \end{tabular}
 \end{table*}
 
-The four baskets are deliberately heterogeneous in volatility and correlation structure: \texttt{mag7} is a tightly co-moving block of tech mega-caps; \texttt{anti} (energy, airline, gold, bank) is a low-correlation contrast set; \texttt{quantum\_big} mixes large-cap quantum-adjacent names; and \texttt{quantum} is a high-volatility pure-play quantum basket whose shorter window reflects the recent IPO of two of its constituents. This range lets us check that QAOA's behaviour is not an artefact of a single covariance regime.
+The four baskets are deliberately heterogeneous in volatility and correlation structure: \texttt{mag7} is a tightly co-moving block of tech mega-caps; \texttt{anti} (energy, airline, gold, bank) is a low-correlation contrast set; \texttt{quantum\_big} mixes large-cap quantum-adjacent names; and \texttt{quantum} is a high-volatility pure-play quantum basket. This range lets us check that QAOA's behaviour is not an artefact of a single covariance regime. The canonical $n=16$ instance used throughout \cref{section:result} is exactly the concatenation of the four baskets in the order \texttt{mag7}, \texttt{quantum}, \texttt{quantum\_big}, \texttt{anti}, and the brute-force optimum of the canonical problem $(K=4,\lambda=2.0,A=0.5)$ selects $\{\text{GOOGL},\text{IBM},\text{NVDA},\text{JPM}\}$ --- one mega-cap, one quantum-adjacent, one quantum proxy, and one macro-opposed bank, an economically diversified quartet rather than a top-Sharpe corner solution.
+
+Per-ticker annualised statistics over the shared window are listed in \cref{tab:assets}. NVDA dominates the universe on a risk-adjusted basis ($\mathrm{Sharpe}=1.74$), with GOOGL ($1.41$) and JPM ($1.38$) close behind, while the quantum pure-plays trade extreme realised returns against extreme volatility (RGTI annualises at $143\%$ vol). The $\{\text{GOOGL},\text{IBM},\text{NVDA},\text{JPM}\}$ optimum is consistent with this ranking, but the macro-opposed JPM is preferred over a fourth tech name because the $\lambda \boldsymbol{x}^\top\boldsymbol{\Sigma}\boldsymbol{x}$ term penalises the high pairwise correlation inside \texttt{mag7}.
+
+\begin{table}[H]
+  \centering
+  \small
+  \caption{Annualised return, volatility and Sharpe ratio for the 16-asset universe over 2023-01-03 to 2025-12-30 (751 daily observations).}
+  \label{tab:assets}
+  \begin{tabular}{@{}lrrr@{}}
+    \toprule
+    Ticker & Ann.\ Ret.\ & Ann.\ Vol.\ & Sharpe \\
+    \midrule
+    AAPL  &  26.74\% &  25.46\% & 1.050 \\
+    MSFT  &  24.66\% &  23.13\% & 1.066 \\
+    GOOGL &  42.55\% &  30.24\% & 1.407 \\
+    AMZN  &  33.49\% &  31.86\% & 1.051 \\
+    IONQ  &  86.43\% & 100.05\% & 0.864 \\
+    RGTI  & 115.15\% & 143.41\% & 0.803 \\
+    QBTS  &  97.54\% & 146.41\% & 0.666 \\
+    QUBT  &  64.62\% & 139.01\% & 0.465 \\
+    IBM   &  29.15\% &  23.70\% & 1.230 \\
+    HON   &   1.22\% &  20.59\% & 0.059 \\
+    ACN   &   1.51\% &  25.14\% & 0.060 \\
+    NVDA  &  86.48\% &  49.64\% & \textbf{1.742} \\
+    XOM   &   7.75\% &  22.66\% & 0.342 \\
+    DAL   &  26.27\% &  38.45\% & 0.683 \\
+    NEM   &  26.92\% &  37.06\% & 0.726 \\
+    JPM   &  31.81\% &  23.07\% & 1.379 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \subsection{Hyperparameters and conventions}\label{subsec:hyperparams}
 

@@ -52,45 +52,74 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 
 \subsection*{B. Exploratory data}
 
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Annualised returns, volatilities, and Sharpe ratios for each of the sixteen tickers in the universe (2023-01-03 to 2025-12-30, 751 daily observations). NVDA has the highest single-asset Sharpe (1.742), and the brute-force optimum portfolio of \cref{tab:classical-baselines} picks the four highest-Sharpe names from across baskets (GOOGL, IBM, NVDA, JPM).}
+    \label{tab:app_asset_summary}
+    \begin{tabular}{@{}lrrrl@{}}
+        \toprule
+        Ticker & Ann.\ return & Ann.\ vol & Sharpe & Basket \\
+        \midrule
+        AAPL  &  26.74\% &  25.46\% & 1.050         & mag7 \\
+        MSFT  &  24.66\% &  23.13\% & 1.066         & mag7 \\
+        GOOGL &  42.55\% &  30.24\% & 1.407         & mag7 \\
+        AMZN  &  33.49\% &  31.86\% & 1.051         & mag7 \\
+        IONQ  &  86.43\% & 100.05\% & 0.864         & quantum \\
+        RGTI  & 115.15\% & 143.41\% & 0.803         & quantum \\
+        QBTS  &  97.54\% & 146.41\% & 0.666         & quantum \\
+        QUBT  &  64.62\% & 139.01\% & 0.465         & quantum \\
+        IBM   &  29.15\% &  23.70\% & 1.230         & quantum\_big \\
+        HON   &   1.22\% &  20.59\% & 0.059         & quantum\_big \\
+        ACN   &   1.51\% &  25.14\% & 0.060         & quantum\_big \\
+        NVDA  &  86.48\% &  49.64\% & \textbf{1.742} & quantum\_big \\
+        XOM   &   7.75\% &  22.66\% & 0.342         & anti \\
+        DAL   &  26.27\% &  38.45\% & 0.683         & anti \\
+        NEM   &  26.92\% &  37.06\% & 0.726         & anti \\
+        JPM   &  31.81\% &  23.07\% & \textbf{1.379} & anti \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/eda/all_prices.pdf}
-    \caption{Normalised prices for the 16-equity universe (mag7 + quantum + quantum\_big + anti).}
+    \caption{Adjusted close prices for the sixteen-equity universe (mag7 + quantum + quantum\_big + anti), normalised to unity at the start of the sample. Horizontal axis: calendar date over 751 trading days, 2023-01-03 to 2025-12-30. Vertical axis: price relative to the first observation, linear scale. The small-cap quantum names (IONQ, RGTI, QBTS, QUBT) dominate the upper envelope but with order-of-magnitude swings, while the mega-cap mag7 and quantum\_big basket follow a smoother upward trend.}
     \label{fig:app_all_prices}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/eda/all_returns.pdf}
-    \caption{Daily log-returns, per asset, overlaid.}
+    \caption{Daily log-returns $r_i(t)=\ln P_i(t)/P_i(t-1)$ per asset, overlaid on a shared vertical axis (751 trading days, 2023-01-03 to 2025-12-30). The clustered spikes at $\pm 0.3$ in the quantum basket panels (IONQ, RGTI, QBTS, QUBT) reflect the high idiosyncratic volatility that drives those names' Sharpe ratios below the mega-cap tickers despite higher mean returns.}
     \label{fig:app_all_returns}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/eda/all_rolling_vol.pdf}
-    \caption{30-day rolling annualised volatility.}
+    \caption{Thirty-day rolling annualised volatility $\sqrt{252}\,\sigma_{30}(r_i)$ for each ticker (751 trading days, 2023-01-03 to 2025-12-30, vertical axis in fractional units). The four small-cap quantum names sit persistently above the 1.0 line (i.e.\ 100\% annualised), whereas the mag7 and quantum\_big baskets remain below 0.5 throughout the sample.}
     \label{fig:app_all_rolling_vol}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/eda/all_histogram.pdf}
-    \caption{Return distributions per asset.}
+    \caption{Empirical distribution of daily log-returns per asset (751 observations, 2023-01-03 to 2025-12-30). Horizontal axis: $r_i(t)$; vertical axis: frequency count per bin. The mag7 panels are sharply peaked near zero with light tails, while the quantum-basket histograms are visibly fatter and broader, consistent with the elevated annualised volatilities reported in \cref{tab:app_asset_summary}.}
     \label{fig:app_all_histogram}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/eda/all_risk_return.pdf}
-    \caption{Annualised risk--return scatter for the full universe.}
+    \caption{Annualised risk--return scatter for the sixteen-equity universe (751 trading days, 2023-01-03 to 2025-12-30). Horizontal axis: annualised volatility $\sqrt{252}\,\sigma(r_i)$; vertical axis: annualised mean return $252\,\langle r_i\rangle$; markers coloured by basket. NVDA sits at the top of the cloud with the highest single-asset Sharpe ratio (1.742, see \cref{tab:app_asset_summary}); JPM and GOOGL form the next-best risk-adjusted cluster, while the four small-cap quantum names are pushed to the high-volatility right edge.}
     \label{fig:app_all_risk_return}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/eda/all_correlation.pdf}
-    \caption{Return correlation matrix, leading-eigenvector seriated.}
+    \caption{Pearson return-correlation matrix $\boldsymbol\Sigma_{ij}/\sqrt{\boldsymbol\Sigma_{ii}\boldsymbol\Sigma_{jj}}$ across all sixteen tickers (751 trading days, 2023-01-03 to 2025-12-30), reordered by the leading eigenvector to expose block structure. The dense bright block in the top-left corresponds to the mega-cap tech cluster (mag7 + IBM + NVDA), which co-moves at correlations of $0.5$--$0.7$; the anti basket (XOM, DAL, NEM, JPM) and the small-cap quantum basket sit in less coherent blocks toward the bottom-right.}
     \label{fig:app_all_correlation}
 \end{figure}
 
@@ -100,28 +129,28 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/visuals/markowitz_frontier.pdf}
-    \caption{Continuous Markowitz efficient frontier on the mag7 sub-basket ($n=4$), with random portfolios sampled on the simplex (grey cloud), the analytical frontier (red), the capital allocation line through the tangency portfolio (ochre dotted), and per-asset annualised risk/return markers.}
+    \caption{Continuous Markowitz efficient frontier on the mag7 sub-basket ($n=4$: AAPL, MSFT, GOOGL, AMZN). Horizontal axis: annualised volatility; vertical axis: annualised return. Random simplex-sampled portfolios are the grey cloud, the analytical efficient frontier is the red curve, the ochre dotted line is the capital allocation line through the tangency portfolio, and the four labelled markers give per-asset annualised risk/return.}
     \label{fig:app_markowitz}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/visuals/cardinality_constrained.pdf}
-    \caption{The cardinality constraint discretises the problem: binary equal-weighted selections form a finite set of $2^n-1$ points coloured by selection size $K$, overlaid on the continuous frontier.}
+    \caption{The cardinality constraint discretises the mag7 frontier ($n=4$). Binary equal-weighted selections form a finite set of $2^n-1=15$ points coloured by selection size $K \in \{1,2,3,4\}$, overlaid on the continuous frontier of \cref{fig:app_markowitz}. Only the $\binom{n}{K}$ points at the prescribed budget are admissible solutions to the cardinality-constrained problem.}
     \label{fig:app_cardinality}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/visuals/combinatorial_wall.pdf}
-    \caption{The combinatorial wall: $2^n$ bitstrings on a log axis, with annotated time-budgets at one microsecond per evaluation --- the motivation for a heuristic such as QAOA.}
+    \caption{The combinatorial wall on the canonical mag7-extended instance: $2^n$ bitstrings on a log vertical axis as $n$ grows, with annotated wall-clock budgets at one microsecond per evaluation (one second, one minute, one hour, one day, one year, age of the universe). At $n=16$ the brute force is still tractable ($2^{16}=65\,536$ evaluations), motivating the use of a heuristic such as QAOA for the regime beyond.}
     \label{fig:app_combinatorial}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/visuals/cost_landscape.pdf}
-    \caption{Cost landscape: all $2^n$ bitstring costs sorted in increasing order, with budget-feasible states ($\sum_i x_i = K$) highlighted in red.}
+    \caption{Cost landscape on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$): all $2^{16}=65\,536$ bitstring costs $C(\boldsymbol{x})$ sorted in increasing order (horizontal axis: rank, vertical axis: cost). Budget-feasible states with $\sum_i x_i = K=4$ are highlighted in red; the $\binom{16}{4}=1820$ feasible bitstrings are sprinkled throughout the sorted spectrum rather than clustered, which is why a soft penalty $A$ rather than a hard projection is needed during the QAOA search.}
     \label{fig:app_cost_landscape}
 \end{figure}
 
