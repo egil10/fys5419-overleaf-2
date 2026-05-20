@@ -19,12 +19,12 @@ of \cref{eq:approxratio} is reported alongside the unscaled relative gap $\mathr
 
 How does a single QAOA run perform on the $n=16$ benchmark, and where on the cost spectrum does it actually land? \Cref{fig:single-run} shows the converged energy per restart and the measurement distribution of the best run.
 
-\begin{figure}[H]
+\begin{figure*}[t]
     \centering
-    \includegraphics[width=\linewidth]{plots/qaoa/single_run_universe_p3.pdf}
+    \includegraphics[width=\textwidth]{plots/qaoa/single_run_universe_p3.pdf}
     \caption{Canonical instance ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, ten random COBYLA multi-starts, statevector backend). Left: final converged energy per restart, with the brute-force optimum $E_{\text{opt}} = -1.4\times 10^{-3}$ marked as a horizontal line; the spread illustrates the non-convex variational landscape and how often the optimiser settles well above the optimum. Right: probability mass on the top-40 of $\binom{16}{4} = 1820$ budget-feasible bitstrings, plotted against the uniform baseline $1/2^{16} \approx 1.5\times 10^{-5}$.}
     \label{fig:single-run}
-\end{figure}
+\end{figure*}
 
 The best of ten restarts converges to $E = 4.00$ on a cost spectrum bounded below by $E_{\text{opt}} = -1.40\times 10^{-3}$ and above by $E_{\text{worst}} = 72.2$. By the scaled metric this is $r = 0.945$, a number that looks reassuring on its own. The unscaled relative gap, however, is $\mathrm{gap} = 2847$: the variational state's mean energy is nearly three thousand times the optimum. The denominator of $r$ is dominated by the budget penalty $AK^2$, which inflates $E_{\text{worst}}$ from the small return/risk scale to order ten; this compresses the entire population of plausible bitstrings into a narrow band near the top of $[0,1]$, a point made earlier by \textcite{stopfer2025benchmark} on different portfolio benchmarks. The right panel quantifies the measurement story: the probability mass on the true optimum is $p_{\text{opt}} = 1.6\times 10^{-4}$, only about ten times the uniform baseline, and the total feasibility mass is $p_{\text{feas}} = 0.31$. The variational state is feasibility-biased but not optimum-concentrated. We will retain this single point of operation as the reference for the four sweeps that follow.
 
@@ -33,12 +33,12 @@ The best of ten restarts converges to $E = 4.00$ on a cost spectrum bounded belo
 
 Does deeper circuit ansatz monotonically improve the approximation ratio, as the original QAOA analysis of \textcite{farhi2014qaoa} would suggest in the noiseless limit? \Cref{fig:depth-sweep} sweeps $p \in \{1,\dots,5\}$ on the canonical instance, with everything else held fixed.
 
-\begin{figure}[H]
+\begin{figure*}[t]
     \centering
-    \includegraphics[width=\linewidth]{plots/compare/depth_sweep.pdf}
+    \includegraphics[width=\textwidth]{plots/compare/depth_sweep.pdf}
     \caption{Depth sweep on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, ten COBYLA multi-starts per $p$, statevector backend). Left: scaled approximation ratio $r$ versus circuit depth $p$, with the brute-force reference at $r=1$ shown as a dashed line. Right: top-1 success probability $p_{\text{opt}}$ and feasibility probability $p_{\text{feas}}$ versus $p$, with the uniform-sampling baseline $1/2^{16}$ for context.}
     \label{fig:depth-sweep}
-\end{figure}
+\end{figure*}
 
 The observed sequence is non-monotonic. The ratio rises gently from $r = 0.991$ at $p=1$ to $r = 0.993$ at $p=2$, then falls to $r = 0.945$ at $p=3$, falls further to $r = 0.925$ at $p=4$, and partially recovers to $r = 0.956$ at $p=5$. The unscaled relative gap tells a sharper version of the same story: $\mathrm{gap}$ moves from $461$ at $p=1$ to $374$ at $p=2$ before exploding to $2847$, $3854$, and $2257$ at $p=3,4,5$. The top-1 probability stays in a narrow band $p_{\text{opt}} \in [1.4\times 10^{-5}, 2.1\times 10^{-4}]$ throughout, and the feasibility mass also fluctuates $p_{\text{feas}} \in [0.04, 0.48]$ without a clear trend.
 
@@ -49,12 +49,12 @@ The non-monotonicity is best read as an optimiser pathology rather than a proper
 
 The cardinality constraint $\sum_i x_i = K$ enters the cost Hamiltonian as a quadratic penalty $A(\sum_i x_i - K)^2$. Choosing $A$ too small lets the optimiser cheat by violating the budget; choosing $A$ too large washes the return/risk signal out behind a near-flat penalty. \Cref{fig:penalty-sweep} sweeps $A$ over almost two decades at fixed $p=3$.
 
-\begin{figure}[H]
+\begin{figure*}[t]
     \centering
-    \includegraphics[width=\linewidth]{plots/compare/penalty_sweep.pdf}
+    \includegraphics[width=\textwidth]{plots/compare/penalty_sweep.pdf}
     \caption{Penalty sweep on the canonical instance ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, ten COBYLA multi-starts per $A$, statevector backend). Left: scaled approximation ratio $r$ versus $A \in \{0.5, 2, 8, 32\}$ on a log axis. Right: top-1 success probability $p_{\text{opt}}$ and feasibility probability $p_{\text{feas}}$ versus $A$. The strong non-monotonicity in $p_{\text{feas}}$ reflects restart variance at a fixed ten-seed budget rather than a genuine signal in $A$.}
     \label{fig:penalty-sweep}
-\end{figure}
+\end{figure*}
 
 The scaled ratio creeps upward across the sweep: $r = 0.945$, $0.970$, $0.972$, $0.984$ as $A$ moves through $0.5, 2, 8, 32$. This upward drift is mostly an artefact of the metric itself, because the denominator $(E_{\text{worst}}-E_{\text{opt}})$ scales linearly with $A$ via the worst basis state, while the numerator (the absolute gap) grows by a much smaller factor; in the unscaled gap the sequence reads $2847, 6169, 23230, 52647$, i.e.\ the variational state is moving further above the optimum in absolute terms, not closer to it. The feasibility mass $p_{\text{feas}}$ is non-monotone --- $0.31, 0.45, 0.05, 0.42$ --- with a striking collapse at $A=8$ that is almost certainly an unlucky COBYLA initialisation rather than a phase transition in the landscape: only ten starts at a single seed support each $A$.
 
@@ -65,12 +65,12 @@ Taken together, the penalty sweep is too coarse to identify an optimal $A$ and t
 
 The mean-variance objective $-\boldsymbol\mu^\top \boldsymbol{x} + \lambda\, \boldsymbol{x}^\top \boldsymbol\Sigma \boldsymbol{x}$ contains a single user-facing tuning knob, the risk-aversion $\lambda$. \Cref{fig:risk-sweep} traces the canonical solvers across seven log-spaced values $\lambda \in [10^{-1}, 10^{2}]$ at fixed $p=3$.
 
-\begin{figure}[H]
+\begin{figure*}[t]
     \centering
-    \includegraphics[width=\linewidth]{plots/compare/risk.pdf}
+    \includegraphics[width=\textwidth]{plots/compare/risk.pdf}
     \caption{Risk-aversion sweep on the canonical instance ($n=16$, $K=4$, $p=3$, $A=0.5$, ten COBYLA multi-starts per $\lambda$). Scaled approximation ratio versus $\lambda$, log-spaced over three decades. Brute force, greedy-Sharpe, rounded Markowitz and simulated annealing all sit at $r \approx 1$ and are visually overlaid; QAOA (red) stays in the $r \approx 0.93$--$0.97$ band across the full sweep.}
     \label{fig:risk-sweep}
-\end{figure}
+\end{figure*}
 
 The four classical baselines --- brute force, greedy-Sharpe, rounded continuous Markowitz, and simulated annealing --- all sit at $r = 1$ to within numerical precision across the full $\lambda$ range. QAOA at $p=3$ trails them by a stable $0.03$--$0.07$ in the scaled ratio. The headline numbers across the sweep are $r_{\text{qaoa}} = 0.950, 0.949, 0.949, 0.930, 0.943, 0.970, 0.954$ for $\lambda = 0.1, 0.316, 1, 3.16, 10, 31.6, 100$ respectively; the unscaled gap is uniformly large but tracks the absolute scale of the objective, which itself drifts with $\lambda$. The top-1 mass is unaffected, oscillating between $3\times 10^{-5}$ and $2\times 10^{-4}$ throughout.
 
@@ -81,19 +81,19 @@ That QAOA is $\lambda$-insensitive at this resolution is informative: the algori
 
 How do the solvers compare as the problem size grows from $n=4$ to $n=16$, and is there any operating point where QAOA is competitive? \Cref{fig:scaling,fig:scaling-zoom} answer this question on five solvers and seven problem sizes.
 
-\begin{figure}[H]
+\begin{figure*}[t]
     \centering
-    \includegraphics[width=\linewidth]{plots/compare/scaling.pdf}
+    \includegraphics[width=\textwidth]{plots/compare/scaling.pdf}
     \caption{Size scaling on random subsets of the canonical universe (target cardinality $K = 1, 2, 2, 2, 3, 4, 4$ for $n = 4, 6, 8, 10, 12, 14, 16$ respectively; $\lambda = 2.0$, $A = 0.5$, QAOA at $p=3$ with ten COBYLA multi-starts). Median over $M$ random subsets per problem size: $M=20$ for $n \in \{4,6,8,10\}$, $M=8$ for $n=12$, $M=4$ for $n=14$ and $M=1$ for $n=16$ --- the last point is a single instance and should be read as a sanity check rather than an estimate. Left: scaled approximation ratio per solver vs $n$. Right: median wall-clock runtime in seconds on a log axis; QAOA grows roughly as $2^n$ from circuit simulation cost while greedy-Sharpe, rounded Markowitz and brute force stay below tens of milliseconds.}
     \label{fig:scaling}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[H]
+\begin{figure*}[t]
     \centering
-    \includegraphics[width=\linewidth]{plots/compare/scaling_zoom.pdf}
+    \includegraphics[width=\textwidth]{plots/compare/scaling_zoom.pdf}
     \caption{Same sweep as \cref{fig:scaling}, zoomed to expose the QAOA-vs-classical gap. Left: scaled ratio restricted to $r \in [0.93, 1.00]$. Right: $1-r$ on a log axis; the classical solvers floor near floating-point zero, while QAOA stays in the $10^{-2}$--$10^{-1}$ band across all $n$.}
     \label{fig:scaling-zoom}
-\end{figure}
+\end{figure*}
 
 The classical baselines are essentially indistinguishable from brute force on these instances: median $r = 1$ for greedy-Sharpe, rounded Markowitz and simulated annealing at every $n$ tested, with $\mathrm{gap}$ at floating-point zero. QAOA at $p=3$ trails them: median $r$ takes the values $0.987, 0.983, 0.993, 0.988, 0.982, 0.982, 0.945$ for $n = 4, 6, 8, 10, 12, 14, 16$. The trend is mild in the scaled metric but stark in the top-1 mass, which collapses geometrically: median $p_{\text{opt}} = 0.23, 0.061, 0.030, 0.010, 1.7\times 10^{-3}, 3.3\times 10^{-4}, 1.6\times 10^{-4}$ for $n = 4, 6, 8, 10, 12, 14, 16$. The successive ratios fluctuate between $2\times$ and $6\times$ per step of two in $n$, broadly tracking the growth of $\binom{n}{K}$; the implication is that the QAOA distribution at $p=3$ tends towards uniformity over the feasible subspace as $n$ grows, rather than concentrating on the optimum.
 

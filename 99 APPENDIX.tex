@@ -54,42 +54,42 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/eda/all_prices.pdf}
+    \includegraphics[width=\linewidth]{plots/eda/all_prices.pdf}
     \caption{Normalised prices for the 16-equity universe (mag7 + quantum + quantum\_big + anti).}
     \label{fig:app_all_prices}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/eda/all_returns.pdf}
+    \includegraphics[width=\linewidth]{plots/eda/all_returns.pdf}
     \caption{Daily log-returns, per asset, overlaid.}
     \label{fig:app_all_returns}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/eda/all_rolling_vol.pdf}
+    \includegraphics[width=\linewidth]{plots/eda/all_rolling_vol.pdf}
     \caption{30-day rolling annualised volatility.}
     \label{fig:app_all_rolling_vol}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/eda/all_histogram.pdf}
+    \includegraphics[width=\linewidth]{plots/eda/all_histogram.pdf}
     \caption{Return distributions per asset.}
     \label{fig:app_all_histogram}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/eda/all_risk_return.pdf}
+    \includegraphics[width=\linewidth]{plots/eda/all_risk_return.pdf}
     \caption{Annualised risk--return scatter for the full universe.}
     \label{fig:app_all_risk_return}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/eda/all_correlation.pdf}
+    \includegraphics[width=\linewidth]{plots/eda/all_correlation.pdf}
     \caption{Return correlation matrix, leading-eigenvector seriated.}
     \label{fig:app_all_correlation}
 \end{figure}
@@ -99,28 +99,28 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/visuals/markowitz_frontier.pdf}
+    \includegraphics[width=\linewidth]{plots/visuals/markowitz_frontier.pdf}
     \caption{Continuous Markowitz efficient frontier on the mag7 sub-basket ($n=4$), with random portfolios sampled on the simplex (grey cloud), the analytical frontier (red), the capital allocation line through the tangency portfolio (ochre dotted), and per-asset annualised risk/return markers.}
     \label{fig:app_markowitz}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/visuals/cardinality_constrained.pdf}
+    \includegraphics[width=\linewidth]{plots/visuals/cardinality_constrained.pdf}
     \caption{The cardinality constraint discretises the problem: binary equal-weighted selections form a finite set of $2^n-1$ points coloured by selection size $K$, overlaid on the continuous frontier.}
     \label{fig:app_cardinality}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/visuals/combinatorial_wall.pdf}
+    \includegraphics[width=\linewidth]{plots/visuals/combinatorial_wall.pdf}
     \caption{The combinatorial wall: $2^n$ bitstrings on a log axis, with annotated time-budgets at one microsecond per evaluation --- the motivation for a heuristic such as QAOA.}
     \label{fig:app_combinatorial}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/visuals/cost_landscape.pdf}
+    \includegraphics[width=\linewidth]{plots/visuals/cost_landscape.pdf}
     \caption{Cost landscape: all $2^n$ bitstring costs sorted in increasing order, with budget-feasible states ($\sum_i x_i = K$) highlighted in red.}
     \label{fig:app_cost_landscape}
 \end{figure}
@@ -130,7 +130,7 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{plots/qaoa/single_run_universe_p3.pdf}
+    \includegraphics[width=\linewidth]{plots/qaoa/single_run_universe_p3.pdf}
     \caption{Single QAOA run on the canonical universe ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, $10$ COBYLA multi-starts). Left: converged energy per restart; the spread illustrates the non-convex variational landscape and how often the optimiser gets stuck above the brute-force optimum $C(x^\star)$. Right: probability mass on the top-40 of $1820$ budget-feasible bitstrings, against a uniform baseline of $1/2^{16}$.}
     \label{fig:app_qaoa_single}
 \end{figure}
@@ -140,35 +140,35 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\linewidth]{plots/compare/depth_sweep.pdf}
+    \includegraphics[width=\linewidth]{plots/compare/depth_sweep.pdf}
     \caption{Sweep 1 --- QAOA circuit depth. Canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, $10$ multi-starts) with $p \in \{1,\dots,5\}$. Left: scaled approximation ratio $r=(E_{\text{worst}}-E)/(E_{\text{worst}}-E_{\text{opt}})$; the dashed red line marks the brute-force optimum at $r=1$. Right: top-1 success probability and feasibility probability, against the uniform-sampling baseline at $1/2^{16}$.}
     \label{fig:app_depth_sweep}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\linewidth]{plots/compare/penalty_sweep.pdf}
+    \includegraphics[width=\linewidth]{plots/compare/penalty_sweep.pdf}
     \caption{Sweep 4 --- budget-penalty calibration. Canonical instance with $p=3$ and $A \in \{0.5, 2, 8, 32\}$. Left: scaled ratio vs $A$ (log axis). Right: top-1 and feasibility probabilities; the strong non-monotonicity in feasibility reflects optimiser variance at fixed multi-start count rather than a genuine $A$-dependence.}
     \label{fig:app_penalty_sweep}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\linewidth]{plots/compare/risk.pdf}
+    \includegraphics[width=\linewidth]{plots/compare/risk.pdf}
     \caption{Sweep 3 --- risk aversion. Scaled ratio vs $\lambda \in [10^{-1}, 10^2]$ (seven log-spaced values) at $p=3$. Brute force, greedy-Sharpe, Markowitz-round and simulated annealing all sit at $r\approx 1$ and are visually overlaid; QAOA (red) stays in the $r \approx 0.93$--$0.97$ band across the full sweep.}
     \label{fig:app_risk_sweep}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\linewidth]{plots/compare/scaling.pdf}
+    \includegraphics[width=\linewidth]{plots/compare/scaling.pdf}
     \caption{Sweep 2 --- size scaling. Median over random size-$n$ subsets of the canonical universe ($M=20$ at $n\!\leq\!10$, $M=8$ at $n=12$, $M=4$ at $n=14$, $M=1$ at $n=16$); shaded bands show interquartile range across subsets. Left: scaled ratio per solver vs $n$. Right: median wall-clock runtime on a log scale; QAOA grows roughly as $2^n$ while the classical baselines stay essentially flat.}
     \label{fig:app_scaling}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\linewidth]{plots/compare/scaling_zoom.pdf}
+    \includegraphics[width=\linewidth]{plots/compare/scaling_zoom.pdf}
     \caption{Sweep 2 (zoom). Left: same scaled ratio as Fig.~\ref{fig:app_scaling}, restricted to $r \in [0.93, 1.00]$ so the QAOA band is visible against the classical solvers that all sit at machine precision. Right: $1-r$ on a log axis, making the QAOA-vs-classical gap explicit; classical solvers floor near floating-point zero, while QAOA stays $10^{-2}$ to $10^{-1}$ above the optimum.}
     \label{fig:app_scaling_zoom}
 \end{figure}
@@ -200,22 +200,4 @@ Mathematical notation conventions follow the ISO 80000-2 standard \parencite{iso
 The implementations consulted while developing the code base include Qiskit \parencite{qiskit}, PennyLane \parencite{pennylane}, QuTiP \parencite{qutip} with its source on GitHub \parencite{qutip_github}, PySCF \parencite{pyscf}, and the qBraid platform \parencite{qbraid}.
 
 \paragraph{Course teaching material.}
-The FYS5419 course landing page is \textcite{qcm2026_coursepage} and the supplementary workshop material is \textcite{quantgates_workshop}.
-
-Week-by-week material, hand-written notes, and lecture videos for the course are listed below as individual citations.\\[1pt]
-\textbf{Week 1}: material \parencite{qcm2026_week1_material}, notes \parencite{qcm2026_week1_notes}, video \parencite{qcm2026_week1_video}.
-\textbf{Week 2}: material \parencite{qcm2026_week2_material}, notes \parencite{qcm2026_week2_notes}, video \parencite{qcm2026_week2_video}.
-\textbf{Week 3}: material \parencite{qcm2026_week3_material}, notes \parencite{qcm2026_week3_notes}, video \parencite{qcm2026_week3_video}.
-\textbf{Week 4}: material \parencite{qcm2026_week4_material}, notes \parencite{qcm2026_week4_notes}, video \parencite{qcm2026_week4_video}.
-\textbf{Week 5}: material \parencite{qcm2026_week5_material}, notes \parencite{qcm2026_week5_notes}, video \parencite{qcm2026_week5_video}.
-\textbf{Week 6}: material \parencite{qcm2026_week6_material}, notes \parencite{qcm2026_week6_notes}, video \parencite{qcm2026_week6_video}.
-\textbf{Week 7}: material \parencite{qcm2026_week7_material}, notes \parencite{qcm2026_week7_notes}, video \parencite{qcm2026_week7_video}.
-\textbf{Week 8}: material \parencite{qcm2026_week8_material}, notes \parencite{qcm2026_week8_notes}, video \parencite{qcm2026_week8_video}.
-\textbf{Week 9}: material \parencite{qcm2026_week9_material}, notes \parencite{qcm2026_week9_notes}, video \parencite{qcm2026_week9_video}.
-\textbf{Week 10}: material \parencite{qcm2026_week10_material}, notes \parencite{qcm2026_week10_notes}, video \parencite{qcm2026_week10_video}.
-\textbf{Week 11}: material \parencite{qcm2026_week11_material}, notes \parencite{qcm2026_week11_notes}, video \parencite{qcm2026_week11_video}.
-\textbf{Week 12}: material \parencite{qcm2026_week12_material}, notes \parencite{qcm2026_week12_notes}, video \parencite{qcm2026_week12_video}.
-\textbf{Week 13}: material \parencite{qcm2026_week13_material}.
-\textbf{Week 14}: material \parencite{qcm2026_week14_material}, video \parencite{qcm2026_week14_video}.
-\textbf{Week 15}: material \parencite{qcm2026_week15_material}, notes \parencite{qcm2026_week15_notes}, video \parencite{qcm2026_week15_video}.
-\textbf{Week 16}: material \parencite{qcm2026_week16_material}, notes \parencite{qcm2026_week16_notes}, video \parencite{qcm2026_week16_video}.
+The full set of FYS5419 weekly teaching material, hand-written notes, and lecture videos is hosted in the public course repository maintained by \textcite{qcm2026_coursepage}; supplementary workshop material is provided by \textcite{quantgates_workshop}.

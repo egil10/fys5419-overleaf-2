@@ -37,7 +37,7 @@ All price data is daily adjusted close from \texttt{yfinance}, cached locally as
 \begin{table}[H]
   \centering
   \small
-  \caption{Datasets used throughout \cref{section:result}. The canonical $n=16$ instance is the concatenation of all four baskets; GOOGL appears in both \texttt{mag7} and \texttt{quantum\_big}, so the union contains 15 unique tickers and one duplicated column (kept intentionally so that each basket remains a self-contained 4-asset problem).}
+  \caption{Datasets used throughout \cref{section:result}. The canonical $n=16$ instance is the concatenation of all four baskets, giving sixteen distinct tickers spanning mega-cap tech, established firms with quantum-computing exposure, pure-play quantum small-caps, and a macro-opposed control basket (oil producer, airline, gold miner, bank).}
   \label{tab:datasets}
   \begin{tabular}{@{}llrr@{}}
     \toprule
@@ -45,7 +45,7 @@ All price data is daily adjusted close from \texttt{yfinance}, cached locally as
     \midrule
     \texttt{mag7}        & AAPL, MSFT, GOOGL, AMZN   & 1006 & 2020-01 -- 2023-12 \\
     \texttt{anti}        & XOM, DAL, NEM, JPM        & 1006 & 2020-01 -- 2023-12 \\
-    \texttt{quantum\_big} & IBM, HON, GOOGL, NVDA     & 1006 & 2020-01 -- 2023-12 \\
+    \texttt{quantum\_big} & IBM, HON, ACN, NVDA       & 1006 & 2020-01 -- 2023-12 \\
     \texttt{quantum}     & IONQ, RGTI, QBTS, QUBT    &  608 & 2022-08 -- 2024-12 \\
     \bottomrule
   \end{tabular}
