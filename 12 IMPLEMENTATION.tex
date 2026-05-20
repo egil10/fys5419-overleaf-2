@@ -34,7 +34,7 @@ def qaoa_statevector(gammas, betas, H_C_diag, n):
 
 All price data is daily adjusted close from \texttt{yfinance}, cached locally as Parquet. Four thematic baskets feed the experiments, summarised in \cref{tab:datasets}. Log-returns are computed as $r_i(t) = \log(P_i(t+1)/P_i(t))$, the expected-return vector $\mu_i = \langle r_i\rangle_t$ as the time-mean, and the covariance $\Sigma_{ij} = \mathrm{cov}(r_i, r_j)$ as the sample covariance over the same window.
 
-\begin{table}[H]
+\begin{table*}[t]
   \centering
   \small
   \caption{Datasets used throughout \cref{section:result}. The canonical $n=16$ instance is the concatenation of all four baskets, giving sixteen distinct tickers spanning mega-cap tech, established firms with quantum-computing exposure, pure-play quantum small-caps, and a macro-opposed control basket (oil producer, airline, gold miner, bank).}
@@ -43,13 +43,13 @@ All price data is daily adjusted close from \texttt{yfinance}, cached locally as
     \toprule
     Basket & Tickers & Rows & Window \\
     \midrule
-    \texttt{mag7}        & AAPL, MSFT, GOOGL, AMZN   & 1006 & 2020-01 -- 2023-12 \\
-    \texttt{anti}        & XOM, DAL, NEM, JPM        & 1006 & 2020-01 -- 2023-12 \\
-    \texttt{quantum\_big} & IBM, HON, ACN, NVDA       & 1006 & 2020-01 -- 2023-12 \\
-    \texttt{quantum}     & IONQ, RGTI, QBTS, QUBT    &  608 & 2022-08 -- 2024-12 \\
+    \texttt{mag7}        & AAPL, MSFT, GOOGL, AMZN & 1006 & 2020-01 -- 2023-12 \\
+    \texttt{anti}        & XOM, DAL, NEM, JPM      & 1006 & 2020-01 -- 2023-12 \\
+    \texttt{quantum\_big} & IBM, HON, ACN, NVDA     & 1006 & 2020-01 -- 2023-12 \\
+    \texttt{quantum}     & IONQ, RGTI, QBTS, QUBT  &  608 & 2022-08 -- 2024-12 \\
     \bottomrule
   \end{tabular}
-\end{table}
+\end{table*}
 
 The four baskets are deliberately heterogeneous in volatility and correlation structure: \texttt{mag7} is a tightly co-moving block of tech mega-caps; \texttt{anti} (energy, airline, gold, bank) is a low-correlation contrast set; \texttt{quantum\_big} mixes large-cap quantum-adjacent names; and \texttt{quantum} is a high-volatility pure-play quantum basket whose shorter window reflects the recent IPO of two of its constituents. This range lets us check that QAOA's behaviour is not an artefact of a single covariance regime.
 

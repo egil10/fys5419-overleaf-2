@@ -21,7 +21,7 @@ How does a single QAOA run perform on the $n=16$ benchmark, and where on the cos
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=\textwidth]{plots/qaoa/single_run_universe_p3.pdf}
+    \includegraphics[width=0.8\textwidth]{plots/qaoa/single_run_universe_p3.pdf}
     \caption{Canonical instance ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, ten random COBYLA multi-starts, statevector backend). Left: final converged energy per restart, with the brute-force optimum $E_{\text{opt}} = -1.4\times 10^{-3}$ marked as a horizontal line; the spread illustrates the non-convex variational landscape and how often the optimiser settles well above the optimum. Right: probability mass on the top-40 of $\binom{16}{4} = 1820$ budget-feasible bitstrings, plotted against the uniform baseline $1/2^{16} \approx 1.5\times 10^{-5}$.}
     \label{fig:single-run}
 \end{figure*}
@@ -35,7 +35,7 @@ Does deeper circuit ansatz monotonically improve the approximation ratio, as the
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=\textwidth]{plots/compare/depth_sweep.pdf}
+    \includegraphics[width=0.8\textwidth]{plots/compare/depth_sweep.pdf}
     \caption{Depth sweep on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, ten COBYLA multi-starts per $p$, statevector backend). Left: scaled approximation ratio $r$ versus circuit depth $p$, with the brute-force reference at $r=1$ shown as a dashed line. Right: top-1 success probability $p_{\text{opt}}$ and feasibility probability $p_{\text{feas}}$ versus $p$, with the uniform-sampling baseline $1/2^{16}$ for context.}
     \label{fig:depth-sweep}
 \end{figure*}
@@ -51,7 +51,7 @@ The cardinality constraint $\sum_i x_i = K$ enters the cost Hamiltonian as a qua
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=\textwidth]{plots/compare/penalty_sweep.pdf}
+    \includegraphics[width=0.8\textwidth]{plots/compare/penalty_sweep.pdf}
     \caption{Penalty sweep on the canonical instance ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, ten COBYLA multi-starts per $A$, statevector backend). Left: scaled approximation ratio $r$ versus $A \in \{0.5, 2, 8, 32\}$ on a log axis. Right: top-1 success probability $p_{\text{opt}}$ and feasibility probability $p_{\text{feas}}$ versus $A$. The strong non-monotonicity in $p_{\text{feas}}$ reflects restart variance at a fixed ten-seed budget rather than a genuine signal in $A$.}
     \label{fig:penalty-sweep}
 \end{figure*}
@@ -67,7 +67,7 @@ The mean-variance objective $-\boldsymbol\mu^\top \boldsymbol{x} + \lambda\, \bo
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=\textwidth]{plots/compare/risk.pdf}
+    \includegraphics[width=0.8\textwidth]{plots/compare/risk.pdf}
     \caption{Risk-aversion sweep on the canonical instance ($n=16$, $K=4$, $p=3$, $A=0.5$, ten COBYLA multi-starts per $\lambda$). Scaled approximation ratio versus $\lambda$, log-spaced over three decades. Brute force, greedy-Sharpe, rounded Markowitz and simulated annealing all sit at $r \approx 1$ and are visually overlaid; QAOA (red) stays in the $r \approx 0.93$--$0.97$ band across the full sweep.}
     \label{fig:risk-sweep}
 \end{figure*}
@@ -83,14 +83,14 @@ How do the solvers compare as the problem size grows from $n=4$ to $n=16$, and i
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=\textwidth]{plots/compare/scaling.pdf}
+    \includegraphics[width=0.8\textwidth]{plots/compare/scaling.pdf}
     \caption{Size scaling on random subsets of the canonical universe (target cardinality $K = 1, 2, 2, 2, 3, 4, 4$ for $n = 4, 6, 8, 10, 12, 14, 16$ respectively; $\lambda = 2.0$, $A = 0.5$, QAOA at $p=3$ with ten COBYLA multi-starts). Median over $M$ random subsets per problem size: $M=20$ for $n \in \{4,6,8,10\}$, $M=8$ for $n=12$, $M=4$ for $n=14$ and $M=1$ for $n=16$ --- the last point is a single instance and should be read as a sanity check rather than an estimate. Left: scaled approximation ratio per solver vs $n$. Right: median wall-clock runtime in seconds on a log axis; QAOA grows roughly as $2^n$ from circuit simulation cost while greedy-Sharpe, rounded Markowitz and brute force stay below tens of milliseconds.}
     \label{fig:scaling}
 \end{figure*}
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=\textwidth]{plots/compare/scaling_zoom.pdf}
+    \includegraphics[width=0.8\textwidth]{plots/compare/scaling_zoom.pdf}
     \caption{Same sweep as \cref{fig:scaling}, zoomed to expose the QAOA-vs-classical gap. Left: scaled ratio restricted to $r \in [0.93, 1.00]$. Right: $1-r$ on a log axis; the classical solvers floor near floating-point zero, while QAOA stays in the $10^{-2}$--$10^{-1}$ band across all $n$.}
     \label{fig:scaling-zoom}
 \end{figure*}
