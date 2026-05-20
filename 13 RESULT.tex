@@ -29,6 +29,20 @@ How does a single QAOA run perform on the $n=16$ benchmark, and where on the cos
 The best of ten restarts converges to $E = 4.00$ on a cost spectrum bounded below by $E_{\text{opt}} = -1.40\times 10^{-3}$ and above by $E_{\text{worst}} = 72.2$. By the scaled metric this is $r = 0.945$, a number that looks reassuring on its own. The unscaled relative gap, however, is $\mathrm{gap} = 2847$: the variational state's mean energy is nearly three thousand times the optimum. The denominator of $r$ is dominated by the budget penalty $AK^2$, which inflates $E_{\text{worst}}$ from the small return/risk scale to order ten; this compresses the entire population of plausible bitstrings into a narrow band near the top of $[0,1]$, a point made earlier by \textcite{stopfer2025benchmark} on different portfolio benchmarks. The right panel quantifies the measurement story: the probability mass on the true optimum is $p_{\text{opt}} = 1.6\times 10^{-4}$, only about ten times the uniform baseline, and the total feasibility mass is $p_{\text{feas}} = 0.31$. The variational state is feasibility-biased but not optimum-concentrated. We will retain this single point of operation as the reference for the four sweeps that follow.
 
 
+\subsection{Energy landscape at $p=1$}\label{subsec:landscape-results}
+
+What does the variational energy surface $E(\gamma,\beta)$ of \eqref{eq:Egb} actually look like? Mapping it on a grid is only feasible at $p=1$, where the surface is two-dimensional; \cref{fig:landscape} shows the contour plot on the canonical $n=16$ instance.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.8\textwidth]{plots/analysis/universe_p1_landscape.pdf}
+    \caption{QAOA energy landscape $E(\gamma,\beta) = \langle\psi(\gamma,\beta)|H_C|\psi(\gamma,\beta)\rangle$ at $p=1$ on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$), evaluated on a uniform grid over $(\gamma/\pi, \beta/\pi) \in [0,2]\times[0,2]$. The red star marks the best of ten COBYLA multi-starts, at $E = 0.6456$.}
+    \label{fig:landscape}
+\end{figure*}
+
+The surface is visibly $\pi$-periodic in $\gamma$ and exhibits a small number of broad basins separated by saddles; the energy varies by roughly two orders of magnitude across the grid, from $E \sim 50$ in the bright hot-spots near $(\gamma/\pi, \beta/\pi) \approx (0, 0.25)$ to the small basins in the corners where the COBYLA optimum lives. Two practical consequences follow. First, the basins of attraction are reasonably large, so random multi-start COBYLA does find the right neighbourhood at $p=1$, consistent with the single-run figure above. Second, at $p \geq 2$ the analogue surface lives in $\mathbb{R}^4$ and beyond, and the same multi-start budget covers it exponentially less densely --- a useful frame for reading the non-monotonic depth sweep in the next subsection.
+
+
 \subsection{Circuit depth $p$}\label{subsec:sp-depth-results}
 
 Does deeper circuit ansatz monotonically improve the approximation ratio, as the original QAOA analysis of \textcite{farhi2014qaoa} would suggest in the noiseless limit? \Cref{fig:depth-sweep} sweeps $p \in \{1,\dots,5\}$ on the canonical instance, with everything else held fixed.

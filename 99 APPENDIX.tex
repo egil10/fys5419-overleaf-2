@@ -131,8 +131,15 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/qaoa/single_run_universe_p3.pdf}
-    \caption{Single QAOA run on the canonical universe ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, $10$ COBYLA multi-starts). Left: converged energy per restart; the spread illustrates the non-convex variational landscape and how often the optimiser gets stuck above the brute-force optimum $C(x^\star)$. Right: probability mass on the top-40 of $1820$ budget-feasible bitstrings, against a uniform baseline of $1/2^{16}$.}
+    \caption{Single QAOA run on the canonical universe ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, $10$ COBYLA multi-starts). Left: converged energy per restart; the spread illustrates the non-convex variational landscape and how often the optimiser gets stuck above the brute-force optimum $C(\boldsymbol{x}^\star)$. Right: probability mass on the top-40 of $1820$ budget-feasible bitstrings, against a uniform baseline of $1/2^{16}$.}
     \label{fig:app_qaoa_single}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/analysis/universe_p1_landscape.pdf}
+    \caption{QAOA energy landscape $E(\gamma,\beta)$ at $p=1$ on the canonical universe ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$). Bright contours mark high-energy basins; dark corners are low-energy minima; the red star marks the best of ten COBYLA multi-starts at $E = 0.6456$.}
+    \label{fig:app_landscape}
 \end{figure}
 
 
