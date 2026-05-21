@@ -163,46 +163,7 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 
 \vspace{-0.4em}
 
-\subsection*{D. QAOA diagnostics on the canonical instance}
-
-\vspace{-0.4em}
-
-\begin{figure}[H]
-    \centering
-    \captionsetup{font=scriptsize}
-    \includegraphics[
-        width=0.78\textwidth,
-        height=0.255\textheight,
-        keepaspectratio
-    ]{plots/qaoa/single_run_universe_p3.pdf}
-    \caption{Single QAOA run on the canonical universe ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, $10$ COBYLA multi-starts). Left: converged energy per restart. Right: probability mass on the top budget-feasible bitstrings against a uniform baseline. At this restart budget: $r=0.945$, $\mathrm{gap}=2847$, $p_{\text{opt}}=1.6\times 10^{-4}$, $p_{\text{feas}}=0.31$.}
-    \label{fig:app_qaoa_single}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \captionsetup{font=scriptsize}
-    \includegraphics[
-        width=0.78\textwidth,
-        height=0.255\textheight,
-        keepaspectratio
-    ]{plots/analysis/cost_spectrum.pdf}
-    \caption{Cost spectrum over all $2^{16}=65{,}536$ bitstrings of the canonical instance, colour-coded by feasibility. Vertical lines mark the brute-force optimum, the converged QAOA expectation, and the all-ones-state cost.}
-    \label{fig:app_cost_spectrum}
-\end{figure}
-
-\vspace{-0.4em}
-
-\begin{figure}[H]
-    \centering
-    \captionsetup{font=scriptsize}
-    \includegraphics[
-        width=0.78\textwidth,
-        height=0.255\textheight,
-        keepaspectratio
-    ]{plots/analysis/hamming_weight_mass.pdf}
-    \caption{QAOA probability mass by Hamming weight on the canonical instance ($n=16$, $K=4$, $p=3$). The QAOA distribution roughly tracks the binomial baseline, with only mild enhancement at the target weight $K=4$.}
-    \label{fig:app_hamming_mass}
-\end{figure}
+\subsection*{D. QAOA energy landscape (supplementary view)}
 
 \vspace{-0.4em}
 
@@ -214,103 +175,8 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
         height=0.255\textheight,
         keepaspectratio
     ]{plots/analysis/universe_p1_landscape.pdf}
-    \caption{QAOA energy landscape $E(\gamma,\beta)$ at $p=1$ on the canonical universe. The red star marks the best of ten COBYLA multi-starts.}
+    \caption{QAOA energy landscape $E(\gamma,\beta)$ at $p=1$ on the canonical universe, shown without the restart-endpoint overlay of \cref{fig:landscape}. The red star marks the best of ten COBYLA multi-starts.}
     \label{fig:app_landscape}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \captionsetup{font=scriptsize}
-    \includegraphics[
-        width=0.78\textwidth,
-        height=0.255\textheight,
-        keepaspectratio
-    ]{plots/analysis/universe_p1_landscape_with_restarts.pdf}
-    \caption{Same $p=1$ energy landscape as \cref{fig:app_landscape}, with all ten COBYLA restart endpoints overlaid. The endpoints cluster tightly inside the same lower-right basin, indicating that the multi-start budget is effectively saturated already at $p=1$.}
-    \label{fig:app_landscape_restarts}
-\end{figure}
-
-\vspace{-0.4em}
-
-\subsection*{E. Sweep results}
-
-\vspace{-0.4em}
-
-\begin{figure}[H]
-    \centering
-    \captionsetup{font=scriptsize}
-    \includegraphics[
-        width=0.78\textwidth,
-        height=0.255\textheight,
-        keepaspectratio
-    ]{plots/compare/depth_sweep.pdf}
-    \caption{Sweep 1: QAOA circuit depth under random multi-start on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, $50$ restarts) for $p \in \{1,\dots,5\}$. The non-monotonic dip at higher depths reflects the angle-space/restart-budget mismatch.}
-    \label{fig:app_depth_sweep}
-\end{figure}
-
-\vspace{-0.4em}
-
-\begin{figure}[H]
-    \centering
-    \captionsetup{font=scriptsize}
-    \includegraphics[
-        width=0.78\textwidth,
-        height=0.255\textheight,
-        keepaspectratio
-    ]{plots/compare/depth_warm_vs_random.pdf}
-    \caption{Sweep 1 extension: warm-start versus random multi-start QAOA on the canonical instance. Warm starts restore roughly monotone depth scaling and substantially improve feasibility mass relative to random restarts.}
-    \label{fig:app_depth_warm}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \captionsetup{font=scriptsize}
-    \includegraphics[
-        width=0.78\textwidth,
-        height=0.255\textheight,
-        keepaspectratio
-    ]{plots/compare/penalty_sweep.pdf}
-    \caption{Sweep 4: budget-penalty calibration on the canonical instance at $p=3$. Feasibility peaks near $A=0.32$ and then decays as the penalty begins to flatten the feasible-subspace cost surface.}
-    \label{fig:app_penalty_sweep}
-\end{figure}
-
-\vspace{-0.4em}
-
-\begin{figure}[H]
-    \centering
-    \captionsetup{font=scriptsize}
-    \includegraphics[
-        width=0.78\textwidth,
-        height=0.255\textheight,
-        keepaspectratio
-    ]{plots/compare/risk.pdf}
-    \caption{Sweep 3: risk aversion. Scaled ratio versus $\lambda$ at $p=3$. The classical baselines remain essentially optimal throughout, while QAOA stays in a narrow $r\approx 0.97$--$0.99$ band.}
-    \label{fig:app_risk_sweep}
-\end{figure}
-
-\vspace{-0.4em}
-
-\begin{figure}[H]
-    \centering
-    \captionsetup{font=scriptsize}
-    \includegraphics[
-        width=0.78\textwidth,
-        height=0.255\textheight,
-        keepaspectratio
-    ]{plots/compare/scaling.pdf}
-    \caption{Sweep 2: size scaling. Left: scaled ratio per solver versus $n$. Right: median wall-clock runtime on a log scale; QAOA grows roughly as $2^n$ while the classical baselines remain nearly flat.}
-    \label{fig:app_scaling}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\linewidth]{plots/compare/scaling_zoom.pdf}
-    \caption{Sweep 2 (zoom). Left: same scaled ratio as Fig.~\ref{fig:app_scaling}, restricted to $r \in [0.93, 1.005]$ so the QAOA band is visible against the classical solvers that all sit at machine precision. Right: $1-r$ on a log axis, making the QAOA-vs-classical gap explicit; classical solvers floor near floating-point zero, while QAOA stays $10^{-2}$ to $10^{-1}$ above the optimum.}
-    \label{fig:app_scaling_zoom}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\linewidth]{plots/compare/xy_mixer.pdf}
-    \caption{Sweep 5: constraint-preserving XY-ring mixer with Dicke initial state, benchmarked against the standard transverse-field mixer with uniform $|+\rangle^{\otimes n}$ start. Sub-instance: $n=8$, $K=2$, $\lambda=2.0$ (penalty $A=0.5$ active for the standard protocol; ignored by XY-Dicke). Twenty random COBYLA restarts per depth, $p\in\{1,2,3,4\}$. Left: scaled ratio versus depth; XY-Dicke is flat at $r\approx 0.9995$ across all depths, while standard $r$ peaks at $0.992$ and dips at $p=4$. Centre: feasibility probability; XY-Dicke is at $p_{\text{feas}}=1$ by construction, standard fluctuates in $[0.47, 0.81]$. Right: wall-clock runtime per solve on a log scale; XY-Dicke is roughly $5\times$ slower per layer because \texttt{expm\_multiply} replaces the factorised single-qubit rotations.}
-    \label{fig:app_xy_mixer}
 \end{figure}
 
 
