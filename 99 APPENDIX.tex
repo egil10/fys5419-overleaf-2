@@ -161,8 +161,22 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/qaoa/single_run_universe_p3.pdf}
-    \caption{Single QAOA run on the canonical universe ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, $10$ COBYLA multi-starts). Left: converged energy per restart; the spread illustrates the non-convex variational landscape and how often the optimiser gets stuck above the brute-force optimum $C(\boldsymbol{x}^\star)$. Right: probability mass on the top-40 of $1820$ budget-feasible bitstrings, against a uniform baseline of $1/2^{16}$.}
+    \caption{Single QAOA run on the canonical universe ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, $10$ COBYLA multi-starts). Left: converged energy per restart; the spread illustrates the non-convex variational landscape and how often the optimiser gets stuck above the brute-force optimum $C(\boldsymbol{x}^\star)$. Right: probability mass on the top-40 of $1820$ budget-feasible bitstrings, against a uniform baseline of $1/2^{16}$. Headline numbers at this restart budget: $r=0.945$, $\mathrm{gap}=2847$, $p_{\text{opt}}=1.6\times 10^{-4}$, $p_{\text{feas}}=0.31$.}
     \label{fig:app_qaoa_single}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/analysis/cost_spectrum.pdf}
+    \caption{Cost spectrum over all $2^{16}=65{,}536$ bitstrings of the canonical instance, colour-coded by feasibility ($\sum_i x_i = K = 4$ in red, infeasible in grey, log-scale count). Vertical lines mark the brute-force optimum $C(\boldsymbol x^\star) = -1.40\times 10^{-3}$, the converged QAOA expectation $E = 3.997$, and the all-ones-state cost $C=72.21$. The narrow feasible band near zero and the lonely all-ones tail at $C=72.21$ explain why the scaled ratio $r = 0.945$ ``looks good'' even though the absolute QAOA energy sits at $2847\times$ the optimum.}
+    \label{fig:app_cost_spectrum}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/analysis/hamming_weight_mass.pdf}
+    \caption{QAOA probability mass by Hamming weight $|\boldsymbol x| = \sum_i x_i$ on the canonical instance ($n=16$, $K=4$, $p=3$). Red bars: converged QAOA mass per weight bin. Blue dashed line: the uniform-mixer baseline $\binom{n}{k}/2^n$. The QAOA distribution tracks the binomial baseline at every weight with a mild enhancement at the target $k=K=4$ and excess mass at the extremes $k\in\{0,16\}$, confirming that the $A=0.5$ penalty does not concentrate the variational state on the feasible subspace.}
+    \label{fig:app_hamming_mass}
 \end{figure}
 
 \begin{figure}[H]
@@ -172,46 +186,147 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
     \label{fig:app_landscape}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/analysis/universe_p1_landscape_with_restarts.pdf}
+    \caption{Same $p=1$ energy landscape as \cref{fig:app_landscape}, with every one of the ten COBYLA restart endpoints overlaid (red dots, restart index labelled). The endpoints cluster tightly inside the lower-right basin, confirming visually what the tight restart-energy spread of \cref{fig:app_qaoa_single} suggests: at $p=1$ the multi-start budget is already saturated and the angle space contains essentially one usable basin.}
+    \label{fig:app_landscape_restarts}
+\end{figure}
+
 
 \subsection*{E. Sweep results}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/compare/depth_sweep.pdf}
-    \caption{Sweep 1 --- QAOA circuit depth. Canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, $10$ multi-starts) with $p \in \{1,\dots,5\}$. Left: scaled approximation ratio $r=(E_{\text{worst}}-E)/(E_{\text{worst}}-E_{\text{opt}})$; the dashed red line marks the brute-force optimum at $r=1$. Right: top-1 success probability and feasibility probability, against the uniform-sampling baseline at $1/2^{16}$.}
+    \caption{Sweep 1 --- QAOA circuit depth, random multi-start. Canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, $50$ multi-starts) with $p \in \{1,\dots,5\}$. Left: scaled approximation ratio $r=(E_{\text{worst}}-E)/(E_{\text{worst}}-E_{\text{opt}})$; the dashed red line marks the brute-force optimum at $r=1$. Right: top-1 success probability and feasibility probability, against the uniform-sampling baseline at $1/2^{16}$. The non-monotonic dip at $p=3,4,5$ is the angle-space/restart-budget mismatch that the warm-start variant of \cref{fig:app_depth_warm} repairs.}
     \label{fig:app_depth_sweep}
 \end{figure}
 
 \begin{figure}[H]
     \centering
+    \includegraphics[width=0.8\linewidth]{plots/compare/depth_warm_vs_random.pdf}
+    \caption{Sweep 1 extension --- warm-start versus random multi-start QAOA on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$). Blue circles: fifty random restarts per depth. Ochre squares: the warm-start protocol of \cref{eq:warmstart} --- one freshly-sampled extra layer appended to the depth-$(p-1)$ optimum, plus ten random refinements. Left: scaled ratio versus $p$; warm starts restore monotone scaling ($r$ climbs from $0.991$ to $0.997$). Right: feasibility mass climbs from $p_{\text{feas}}=0.38$ to $0.62$ under warm starts and dips repeatedly under random.}
+    \label{fig:app_depth_warm}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
     \includegraphics[width=0.8\linewidth]{plots/compare/penalty_sweep.pdf}
-    \caption{Sweep 4 --- budget-penalty calibration. Canonical instance with $p=3$ and $A \in \{0.5, 2, 8, 32\}$. Left: scaled ratio vs $A$ (log axis). Right: top-1 and feasibility probabilities; the strong non-monotonicity in feasibility reflects optimiser variance at fixed multi-start count rather than a genuine $A$-dependence.}
+    \caption{Sweep 4 --- budget-penalty calibration. Canonical instance with $p=3$ and $A \in \{0.01, 0.032, 0.1, 0.32, 1, 3.16, 10, 31.6\}$ (eight log-spaced points), fifty multi-starts per $A$. Left: scaled ratio vs $A$ (log axis). Right: top-1 and feasibility probabilities; feasibility peaks at $p_{\text{feas}}=0.91$ near $A=0.32$ then decays as the penalty term begins to flatten the feasible-subspace cost surface.}
     \label{fig:app_penalty_sweep}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/compare/risk.pdf}
-    \caption{Sweep 3 --- risk aversion. Scaled ratio vs $\lambda \in [10^{-1}, 10^2]$ (seven log-spaced values) at $p=3$. Brute force, greedy-Sharpe, Markowitz-round and simulated annealing all sit at $r\approx 1$ and are visually overlaid; QAOA (red) stays in the $r \approx 0.93$--$0.97$ band across the full sweep.}
+    \caption{Sweep 3 --- risk aversion. Scaled ratio vs $\lambda \in [10^{-1}, 10^2]$ (seven log-spaced values) at $p=3$, fifty multi-starts per $\lambda$. Brute force, greedy-Sharpe, Markowitz-round and simulated annealing all sit at $r\approx 1$ and are visually overlaid; QAOA (red) stays in the $r \approx 0.97$--$0.99$ band across the full sweep, with a modest improvement at high $\lambda$.}
     \label{fig:app_risk_sweep}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/compare/scaling.pdf}
-    \caption{Sweep 2 --- size scaling. Median over random size-$n$ subsets of the canonical universe ($M=20$ at $n\!\leq\!10$, $M=8$ at $n=12$, $M=4$ at $n=14$, $M=1$ at $n=16$); shaded bands show interquartile range across subsets. Left: scaled ratio per solver vs $n$. Right: median wall-clock runtime on a log scale; QAOA grows roughly as $2^n$ while the classical baselines stay essentially flat.}
+    \caption{Sweep 2 --- size scaling. Median over random size-$n$ subsets of the canonical universe ($M=20$ at $n\!\leq\!10$, $M=8$ at $n=12$, $M=10$ at $n=14$, $M=1$ at $n=16$); shaded bands show interquartile range across subsets. Left: scaled ratio per solver vs $n$. Right: median wall-clock runtime on a log scale; QAOA grows roughly as $2^n$ while the classical baselines stay essentially flat.}
     \label{fig:app_scaling}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{plots/compare/scaling_zoom.pdf}
-    \caption{Sweep 2 (zoom). Left: same scaled ratio as Fig.~\ref{fig:app_scaling}, restricted to $r \in [0.93, 1.00]$ so the QAOA band is visible against the classical solvers that all sit at machine precision. Right: $1-r$ on a log axis, making the QAOA-vs-classical gap explicit; classical solvers floor near floating-point zero, while QAOA stays $10^{-2}$ to $10^{-1}$ above the optimum.}
+    \caption{Sweep 2 (zoom). Left: same scaled ratio as Fig.~\ref{fig:app_scaling}, restricted to $r \in [0.93, 1.005]$ so the QAOA band is visible against the classical solvers that all sit at machine precision. Right: $1-r$ on a log axis, making the QAOA-vs-classical gap explicit; classical solvers floor near floating-point zero, while QAOA stays $10^{-2}$ to $10^{-1}$ above the optimum.}
     \label{fig:app_scaling_zoom}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{plots/compare/xy_mixer.pdf}
+    \caption{Sweep 5 --- constraint-preserving XY-ring mixer with Dicke initial state, benchmarked against the standard transverse-field mixer with uniform $|+\rangle^{\otimes n}$ start. Sub-instance: $n=8$, $K=2$, $\lambda=2.0$ (penalty $A=0.5$ active for the standard protocol; ignored by XY-Dicke). Twenty random COBYLA restarts per depth, $p\in\{1,2,3,4\}$. Left: scaled ratio versus depth --- XY-Dicke is flat at $r\approx 0.9995$ across all depths; standard $r$ peaks at $0.992$ and dips at $p=4$. Centre: feasibility probability --- XY-Dicke is at $p_{\text{feas}}=1$ by construction, standard fluctuates in $[0.47, 0.81]$. Right: wall-clock runtime per solve on a log scale; XY-Dicke is roughly $5\times$ slower per layer because \texttt{expm\_multiply} replaces the factorised single-qubit rotations.}
+    \label{fig:app_xy_mixer}
+\end{figure}
 
-\subsection*{F. Background literature}
+
+\subsection*{F. Selected code listings}
+
+The full source tree is available at \texttt{github.com/egil10/fys5419}. We reproduce three modules in full because they are the smallest non-trivial pieces of code that the report's empirical claims rest on, and the line counts are short enough that printing them here makes the report self-contained.
+
+\paragraph{Hamming-weight-preserving XY-ring mixer.} The XY-ring mixer of \cref{eq:HM-XY} is built as a sparse $2^n \times 2^n$ matrix from the per-pair $(X_iX_j + Y_iY_j)$ contributions; the operator acts non-trivially only on basis states where bits $i$ and $j$ differ, and swaps them. The applicator then uses \texttt{scipy.sparse.linalg.expm\_multiply} to evaluate $\exp(-i\beta H_M^{(XY)})|\psi\rangle$ without ever materialising the dense exponential.
+
+\begin{lstlisting}[language=Python,style=pythonappendix,caption={\texttt{xy\_mixer.py}: sparse XY-ring mixer and \texttt{expm\_multiply} applicator.},label={lst:xy_mixer}]
+def _xy_pair_indices(n, i, j):
+    # (1/2)(X_i X_j + Y_i Y_j) acts non-trivially only on basis states
+    # where bits i and j differ, and swaps them (hopping term).
+    dim = 1 << n
+    bit_i = 1 << (n - 1 - i); bit_j = 1 << (n - 1 - j)
+    rows, cols = [], []
+    for k in range(dim):
+        bi = (k >> (n - 1 - i)) & 1
+        bj = (k >> (n - 1 - j)) & 1
+        if bi != bj:
+            rows.append(k); cols.append(k ^ bit_i ^ bit_j)
+    return rows, cols, np.ones(len(rows))
+
+def build_HM_xy(n, periodic=True):
+    pairs = ([(i, (i + 1) % n) for i in range(n)] if periodic
+             else [(i, i + 1) for i in range(n - 1)])
+    rows, cols, data = [], [], []
+    for (i, j) in pairs:
+        r, c, d = _xy_pair_indices(n, i, j)
+        rows.extend(r); cols.extend(c); data.extend(d)
+    return 0.5 * sp.csr_matrix((data, (rows, cols)),
+                               shape=(1 << n, 1 << n))
+
+def apply_xy_mixer(psi, beta, H_M_xy):
+    # exp(-i beta H) @ psi via Krylov; no dense exponential.
+    return expm_multiply(-1j * beta * H_M_xy, psi)
+\end{lstlisting}
+
+\paragraph{Dicke initial state.} The equal superposition over weight-$K$ bitstrings is the symmetric ground state of $-H_M^{(XY)}$ in the constrained subspace. At the $n \leq 12$ sizes benchmarked we prepare it by direct enumeration; for $n \gg 20$ the asymptotically efficient depth-$O(n)$ circuit of \textcite{bartschi2022dicke} would be used instead.
+
+\begin{lstlisting}[language=Python,style=pythonappendix,caption={\texttt{dicke.py}: direct-enumeration Dicke state prep on the $\binom{n}{K}$-dimensional weight-$K$ manifold.},label={lst:dicke}]
+def dicke_state(n, K):
+    # |D^n_K> = (1/sqrt(C(n,K))) * sum_{|x|=K} |x>
+    if not (0 <= K <= n):
+        raise ValueError(f"K={K} out of range [0, {n}]")
+    psi = np.zeros(1 << n, dtype=complex)
+    amp = 1.0 / np.sqrt(comb(n, K))
+    for k in range(1 << n):
+        if bin(k).count('1') == K:
+            psi[k] = amp
+    return psi
+\end{lstlisting}
+
+\paragraph{Exact MIP baseline via PuLP/CBC.} The same QUBO, but with the cardinality constraint imposed exactly and the variance term linearised by the standard McCormick--Glover construction \parencite{glover1975integerprog}.
+
+\begin{lstlisting}[language=Python,style=pythonappendix,caption={\texttt{mip.py}: McCormick-linearised mixed-integer programme solved by COIN-OR CBC \parencite{forrest_cbc}.},label={lst:mip}]
+def mip_exact(pf, time_limit=60.0, msg=False):
+    import pulp
+    n, K = pf.n, int(pf.K)
+    prob = pulp.LpProblem("portfolio_mip", pulp.LpMinimize)
+    x = [pulp.LpVariable(f"x_{i}", cat=pulp.LpBinary) for i in range(n)]
+    # z_ij = x_i x_j (McCormick linearisation).
+    z = {}
+    for i in range(n):
+        for j in range(i + 1, n):
+            z_ij = pulp.LpVariable(f"z_{i}_{j}", lowBound=0, upBound=1)
+            z[(i, j)] = z_ij
+            prob += z_ij <= x[i]; prob += z_ij <= x[j]
+            prob += z_ij >= x[i] + x[j] - 1
+    # Hard cardinality constraint replaces the QUBO's A-penalty.
+    prob += pulp.lpSum(x) == K
+    # Objective: -mu^T x + lam * (sum Sigma_ii x_i + 2 sum_{i<j} Sigma_ij z_ij).
+    linear = pulp.lpSum(-pf.mu[i] * x[i] for i in range(n))
+    diag   = pulp.lpSum(pf.lam * pf.Sigma[i, i] * x[i] for i in range(n))
+    off    = pulp.lpSum(2 * pf.lam * pf.Sigma[i, j] * z[(i, j)]
+                        for i, j in z)
+    prob += linear + diag + off
+    prob.solve(pulp.PULP_CBC_CMD(msg=msg, timeLimit=time_limit))
+    x_val = np.array([int(round(pulp.value(xi))) for xi in x])
+    return SolverResult(name="mip_cbc", x=x_val, cost=pf.cost(x_val), ...)
+\end{lstlisting}
+
+
+\subsection*{G. Background literature}
 
 The reference list collected during this project covers several overlapping themes; every bibliography entry is cited at least once here so that the reference list can be audited and pruned. Each citation is given individually rather than bundled, so that an author-year reader can match line by line.
 
@@ -228,7 +343,10 @@ The QAOA algorithm itself is due to \textcite{farhi2014qaoa}, with the depth and
 The Lipkin--Meshkov--Glick model \parencite{lipkin1965} provides a small, exactly solvable many-body Hamiltonian routinely used as a VQE benchmark in the FYS5419 course.
 
 \paragraph{Markowitz and quantum portfolio optimisation.}
-Modern portfolio theory originates with \textcite{markowitz1952}; statistical-learning context for return estimation is found in \textcite{hastie}. Recent quantum approaches to constrained portfolio selection are reported by \textcite{knapsack2024qaoa} for a knapsack formulation, by \textcite{thomassin2025slack} for slack variables, by \textcite{mancilla2026constrained} for XY-mixers, by \textcite{stopfer2025benchmark} for a systematic benchmark, by \textcite{shen2025noisy} for noisy-device simulations, by \textcite{morapakula2025annealing} for annealing comparisons, by \textcite{soloviev2025pauli} for a Pauli-correlation encoding, and by \textcite{soloviev2025cutting} for circuit-cutting techniques.
+Modern portfolio theory originates with \textcite{markowitz1952}; statistical-learning context for return estimation is found in \textcite{hastie}. Recent quantum approaches to constrained portfolio selection are reported by \textcite{knapsack2024qaoa} for a knapsack formulation, by \textcite{thomassin2025slack} for slack variables, by \textcite{mancilla2026constrained} for XY-mixers, by \textcite{stopfer2025benchmark} for a systematic benchmark, by \textcite{shen2025noisy} for noisy-device simulations, by \textcite{morapakula2025annealing} for annealing comparisons, by \textcite{soloviev2025pauli} for a Pauli-correlation encoding, and by \textcite{soloviev2025cutting} for circuit-cutting techniques. The deterministic Dicke-state preparation circuit used as the initial state of the constraint-preserving XY-mixer pipeline is due to \textcite{bartschi2022dicke}.
+
+\paragraph{Classical optimisation baselines.}
+The QUBO is solved exactly via the standard McCormick--Glover linearisation of the quadratic objective \parencite{glover1975integerprog}, implemented in PuLP and dispatched to the bundled COIN-OR \textsc{Cbc} branch-and-cut solver \parencite{forrest_cbc}.
 
 \paragraph{Notation and standards.}
 Mathematical notation conventions follow the ISO 80000-2 standard \parencite{iso80000_2}.

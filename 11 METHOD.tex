@@ -4,7 +4,7 @@ The QAOA pipeline maps a financial dataset to a quantum circuit through a sequen
 \begin{equation}
     \text{Financial data} \rightarrow (\boldsymbol\mu,\boldsymbol\Sigma) \rightarrow \text{QUBO} \rightarrow \text{Ising} \rightarrow \text{Pauli operators} \rightarrow \text{QAOA}.
 \end{equation}
-Subsections~\ref{subsec:meanvar}--\ref{subsec:qaoa} develop each arrow in turn. \Cref{subsec:xymixer} sketches a constraint-preserving mixer that we discuss as a theoretical alternative to the penalty encoding but do not benchmark in this report, and \cref{subsec:metrics} fixes the metrics used throughout \cref{section:result}.
+Subsections~\ref{subsec:meanvar}--\ref{subsec:qaoa} develop each arrow in turn. \Cref{subsec:xymixer} develops the constraint-preserving XY-ring mixer that we later benchmark in \cref{subsec:xymixer-results}, \cref{subsec:warmstart} formalises the warm-start initialisation prescription benchmarked in \cref{subsec:warmstart-results}, and \cref{subsec:metrics} fixes the metrics used throughout \cref{section:result}.
 
 
 \subsection{Mean--variance portfolio optimisation}\label{subsec:meanvar}
@@ -178,7 +178,23 @@ with periodic boundary conditions ($i + 1$ taken mod $n$) and
 \end{equation}
 The operator $\hat{X}_i \hat{X}_{i+1} + \hat{Y}_i \hat{Y}_{i+1}$ swaps the basis states $|01\rangle$ and $|10\rangle$ on neighbouring qubits while leaving $|00\rangle$ and $|11\rangle$ invariant, so it commutes with the Hamming-weight operator $\hat{N} = \sum_i \tfrac{1}{2}(I - \hat{Z}_i)$. When the initial state is a feasible Dicke state $|D^n_K\rangle$ --- the equal superposition over all bitstrings with $\sum_i x_i = K$ --- the entire QAOA trajectory stays in the feasible subspace and the penalty parameter $A$ becomes unnecessary.
 
-The XY-mixer is hyperparameter-free but requires Dicke-state preparation and has a slightly larger gate count per layer than the transverse-field mixer~\eqref{eq:HM-transverse}. We describe it here for completeness and revisit it in \cref{section:conclusion} as an obvious next experiment; the numerical results reported in \cref{section:result} use the penalty encoding throughout.
+The XY-mixer is hyperparameter-free but requires Dicke-state preparation and has a larger gate count per layer than the transverse-field mixer~\eqref{eq:HM-transverse}; in our statevector simulator the per-layer cost of the XY-mixer is dominated by a sparse \texttt{expm\_multiply} on a $2^n\times 2^n$ matrix, whereas the transverse-field mixer factorises into $n$ independent single-qubit rotations and is therefore cheaper by roughly an order of magnitude. The Dicke initial state $|D^n_K\rangle$, defined as the equal superposition over all bitstrings of Hamming weight $K$,
+\begin{equation}\label{eq:dicke}
+    |D^n_K\rangle \;=\; \frac{1}{\sqrt{\binom{n}{K}}} \sum_{\boldsymbol{x}:\,|\boldsymbol{x}|=K} |\boldsymbol{x}\rangle,
+\end{equation}
+is the symmetric ground state of $-H_M^{(XY)}$ in the weight-$K$ subspace, and the asymptotically efficient preparation circuit of \textcite{bartschi2022dicke} runs in depth $O(n)$ on a fully connected device. The benchmark in \cref{subsec:xymixer-results} compares the XY-mixer/Dicke pipeline against the penalty/transverse-field pipeline at fixed $n$, $K$ and depth.
+
+
+\subsection{Warm-started angle initialisation}\label{subsec:warmstart}
+
+The variational landscape $E(\boldsymbol\gamma, \boldsymbol\beta)$ lives in $2p$ real dimensions and is non-convex even at $p=1$ (\cref{fig:landscape}). Drawing all $2p$ angles uniformly from $\mathcal{U}[0,2\pi]^{2p}$ for each depth treats the depth sweep as $p$ independent optimisation problems, so a fixed restart budget covers the angle space exponentially less densely as $p$ grows. \textcite{zhou2018qaoa} observed that for a wide class of cost Hamiltonians the optimal angles at depth $p$ are continuously related to the optimal angles at depth $p-1$, and proposed seeding the depth-$p$ optimiser from a warm start built by appending one freshly-sampled $(\gamma_p, \beta_p)$ layer to the depth-$(p-1)$ optimum,
+\begin{equation}\label{eq:warmstart}
+    (\boldsymbol\gamma_0^{(p)}, \boldsymbol\beta_0^{(p)})
+    \;=\;
+    \bigl((\boldsymbol\gamma^{\star,(p-1)}, \gamma_p^{\text{rand}}),\,
+          (\boldsymbol\beta^{\star,(p-1)}, \beta_p^{\text{rand}})\bigr),
+\end{equation}
+followed by a short COBYLA refinement. Iterating from $p=1$ upwards turns the depth sweep into a single optimisation trajectory through the cumulative $\mathbb{R}^{2p}$ angle space rather than $p$ independent ones, and the predicted effect is that any non-monotonicity in $r$ versus $p$ traceable to angle-space coverage --- as opposed to fundamental ansatz limits --- should disappear. This is exactly the empirical test reported in \cref{subsec:warmstart-results}. The warm-start prescription is computationally free (it adds one extra layer per depth, no extra restarts) and is independent of the mixer choice, so it can be stacked with the XY-mixer of \cref{subsec:xymixer}.
 
 
 \subsection{Metrics and validation}\label{subsec:metrics}
