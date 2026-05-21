@@ -165,6 +165,9 @@ Since $H_C$ is diagonal in the computational basis with eigenvalues $C(\boldsymb
 \end{equation}
 so the QAOA energy is a probability-weighted average of cost values. The circuit has $2p$ parameters and depth $O(p)$: the quantum device supplies a non-classical sampling primitive, while the parameter search sits on a classical CPU \autocite{tilly2022vqe}. The variational principle guarantees $E(\boldsymbol\gamma,\boldsymbol\beta) \geq E_{\text{opt}}$ for all angles, with equality as $p \to \infty$. Our classical optimiser is COBYLA with random multi-starts; see \cref{subsec:codestructure}.
 
+\paragraph{Optimiser pathologies.}
+The classical outer loop is the dominant practical bottleneck. Two failure modes are known. First, \emph{barren plateaus}: for sufficiently deep random parameterised circuits the variance of $\partial E / \partial\theta$ vanishes exponentially in $n$, so gradient-based or random-search methods need exponentially many samples to make progress \autocite{mcclean2018barren}. The transverse-field mixer ansatz studied here is, formally, in the regime where this prediction applies once $p$ is large; the warm-start prescription of \cref{subsec:warmstart} is one of the standard mitigations. Second, even outside the barren-plateau regime the angle space $(\boldsymbol\gamma, \boldsymbol\beta) \in \mathbb{R}^{2p}$ is non-convex, and a fixed random-multi-start budget covers it exponentially less densely as $p$ grows. \Cref{subsec:sp-depth-results,subsec:warmstart-results} report both effects empirically.
+
 
 \subsection{XY-mixer: a constraint-preserving alternative}\label{subsec:xymixer}
 
