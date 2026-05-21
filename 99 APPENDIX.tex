@@ -83,42 +83,42 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/eda/all_prices.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/eda/all_prices.pdf}
     \caption{Adjusted close prices for the sixteen-equity universe (mag7 + quantum + quantum\_big + anti), normalised to unity at the start of the sample. Horizontal axis: calendar date over 751 trading days, 2023-01-03 to 2025-12-30. Vertical axis: price relative to the first observation, linear scale. The small-cap quantum names (IONQ, RGTI, QBTS, QUBT) dominate the upper envelope but with order-of-magnitude swings, while the mega-cap mag7 and quantum\_big basket follow a smoother upward trend.}
     \label{fig:app_all_prices}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/eda/all_returns.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/eda/all_returns.pdf}
     \caption{Daily log-returns $r_i(t)=\ln P_i(t)/P_i(t-1)$ per asset, overlaid on a shared vertical axis (751 trading days, 2023-01-03 to 2025-12-30). The clustered spikes at $\pm 0.3$ in the quantum basket panels (IONQ, RGTI, QBTS, QUBT) reflect the high idiosyncratic volatility that drives those names' Sharpe ratios below the mega-cap tickers despite higher mean returns.}
     \label{fig:app_all_returns}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/eda/all_rolling_vol.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/eda/all_rolling_vol.pdf}
     \caption{Thirty-day rolling annualised volatility $\sqrt{252}\,\sigma_{30}(r_i)$ for each ticker (751 trading days, 2023-01-03 to 2025-12-30, vertical axis in fractional units). The four small-cap quantum names sit persistently above the 1.0 line (i.e.\ 100\% annualised), whereas the mag7 and quantum\_big baskets remain below 0.5 throughout the sample.}
     \label{fig:app_all_rolling_vol}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/eda/all_histogram.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/eda/all_histogram.pdf}
     \caption{Empirical distribution of daily log-returns per asset (751 observations, 2023-01-03 to 2025-12-30). Horizontal axis: $r_i(t)$; vertical axis: frequency count per bin. The mag7 panels are sharply peaked near zero with light tails, while the quantum-basket histograms are visibly fatter and broader, consistent with the elevated annualised volatilities reported in \cref{tab:app_asset_summary}.}
     \label{fig:app_all_histogram}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/eda/all_risk_return.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/eda/all_risk_return.pdf}
     \caption{Annualised risk--return scatter for the sixteen-equity universe (751 trading days, 2023-01-03 to 2025-12-30). Horizontal axis: annualised volatility $\sqrt{252}\,\sigma(r_i)$; vertical axis: annualised mean return $252\,\langle r_i\rangle$; markers coloured by basket. NVDA sits at the top of the cloud with the highest single-asset Sharpe ratio (1.742, see \cref{tab:app_asset_summary}); JPM and GOOGL form the next-best risk-adjusted cluster, while the four small-cap quantum names are pushed to the high-volatility right edge.}
     \label{fig:app_all_risk_return}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/eda/all_correlation.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/eda/all_correlation.pdf}
     \caption{Pearson return-correlation matrix $\boldsymbol\Sigma_{ij}/\sqrt{\boldsymbol\Sigma_{ii}\boldsymbol\Sigma_{jj}}$ across all sixteen tickers (751 trading days, 2023-01-03 to 2025-12-30), reordered by the leading eigenvector to expose block structure. The dense bright block in the top-left corresponds to the mega-cap tech cluster (mag7 + IBM + NVDA), which co-moves at correlations of $0.5$--$0.7$; the anti basket (XOM, DAL, NEM, JPM) and the small-cap quantum basket sit in less coherent blocks toward the bottom-right.}
     \label{fig:app_all_correlation}
 \end{figure}
@@ -128,21 +128,21 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/visuals/markowitz_frontier.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/visuals/markowitz_frontier.pdf}
     \caption{Continuous Markowitz efficient frontier on the mag7 sub-basket ($n=4$: AAPL, MSFT, GOOGL, AMZN). Horizontal axis: annualised volatility; vertical axis: annualised return. Random simplex-sampled portfolios are the grey cloud, the analytical efficient frontier is the red curve, the ochre dotted line is the capital allocation line through the tangency portfolio, and the four labelled markers give per-asset annualised risk/return.}
     \label{fig:app_markowitz}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/visuals/cardinality_constrained.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/visuals/cardinality_constrained.pdf}
     \caption{The cardinality constraint discretises the mag7 frontier ($n=4$). Binary equal-weighted selections form a finite set of $2^n-1=15$ points coloured by selection size $K \in \{1,2,3,4\}$, overlaid on the continuous frontier of \cref{fig:app_markowitz}. Only the $\binom{n}{K}$ points at the prescribed budget are admissible solutions to the cardinality-constrained problem.}
     \label{fig:app_cardinality}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/visuals/combinatorial_wall.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/visuals/combinatorial_wall.pdf}
     \caption{The combinatorial wall on the canonical mag7-extended instance: $2^n$ bitstrings on a log vertical axis as $n$ grows, with annotated wall-clock budgets at one microsecond per evaluation (one second, one minute, one hour, one day, one year, age of the universe). At $n=16$ the brute force is still tractable ($2^{16}=65\,536$ evaluations), motivating the use of a heuristic such as QAOA for the regime beyond.}
     \label{fig:app_combinatorial}
 \end{figure}
@@ -150,7 +150,7 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
  
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/visuals/cost_landscape.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/visuals/cost_landscape.pdf}
     \caption{Cost landscape on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$): all $2^{16}=65\,536$ bitstring costs $C(\boldsymbol{x})$ sorted in increasing order (horizontal axis: rank, vertical axis: cost). Budget-feasible states with $\sum_i x_i = K=4$ are highlighted in red; the $\binom{16}{4}=1820$ feasible bitstrings are sprinkled throughout the sorted spectrum rather than clustered, which is why a soft penalty $A$ rather than a hard projection is needed during the QAOA search.}
     \label{fig:app_cost_landscape}
 \end{figure}
@@ -160,35 +160,35 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/qaoa/single_run_universe_p3.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/qaoa/single_run_universe_p3.pdf}
     \caption{Single QAOA run on the canonical universe ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, $10$ COBYLA multi-starts). Left: converged energy per restart; the spread illustrates the non-convex variational landscape and how often the optimiser gets stuck above the brute-force optimum $C(\boldsymbol{x}^\star)$. Right: probability mass on the top-40 of $1820$ budget-feasible bitstrings, against a uniform baseline of $1/2^{16}$. Headline numbers at this restart budget: $r=0.945$, $\mathrm{gap}=2847$, $p_{\text{opt}}=1.6\times 10^{-4}$, $p_{\text{feas}}=0.31$.}
     \label{fig:app_qaoa_single}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/analysis/cost_spectrum.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/analysis/cost_spectrum.pdf}
     \caption{Cost spectrum over all $2^{16}=65{,}536$ bitstrings of the canonical instance, colour-coded by feasibility ($\sum_i x_i = K = 4$ in red, infeasible in grey, log-scale count). Vertical lines mark the brute-force optimum $C(\boldsymbol x^\star) = -1.40\times 10^{-3}$, the converged QAOA expectation $E = 3.997$, and the all-ones-state cost $C=72.21$. The narrow feasible band near zero and the lonely all-ones tail at $C=72.21$ explain why the scaled ratio $r = 0.945$ ``looks good'' even though the absolute QAOA energy sits at $2847\times$ the optimum.}
     \label{fig:app_cost_spectrum}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/analysis/hamming_weight_mass.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/analysis/hamming_weight_mass.pdf}
     \caption{QAOA probability mass by Hamming weight $|\boldsymbol x| = \sum_i x_i$ on the canonical instance ($n=16$, $K=4$, $p=3$). Red bars: converged QAOA mass per weight bin. Blue dashed line: the uniform-mixer baseline $\binom{n}{k}/2^n$. The QAOA distribution tracks the binomial baseline at every weight with a mild enhancement at the target $k=K=4$ and excess mass at the extremes $k\in\{0,16\}$, confirming that the $A=0.5$ penalty does not concentrate the variational state on the feasible subspace.}
     \label{fig:app_hamming_mass}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/analysis/universe_p1_landscape.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/analysis/universe_p1_landscape.pdf}
     \caption{QAOA energy landscape $E(\gamma,\beta)$ at $p=1$ on the canonical universe ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$). Bright contours mark high-energy basins; dark corners are low-energy minima; the red star marks the best of ten COBYLA multi-starts at $E = 0.6456$.}
     \label{fig:app_landscape}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/analysis/universe_p1_landscape_with_restarts.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/analysis/universe_p1_landscape_with_restarts.pdf}
     \caption{Same $p=1$ energy landscape as \cref{fig:app_landscape}, with every one of the ten COBYLA restart endpoints overlaid (red dots, restart index labelled). The endpoints cluster tightly inside the lower-right basin, confirming visually what the tight restart-energy spread of \cref{fig:app_qaoa_single} suggests: at $p=1$ the multi-start budget is already saturated and the angle space contains essentially one usable basin.}
     \label{fig:app_landscape_restarts}
 \end{figure}
@@ -198,50 +198,50 @@ Unless a caption says otherwise, every numerical experiment in \cref{section:res
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/compare/depth_sweep.pdf}
-    \caption{Sweep 1 --- QAOA circuit depth, random multi-start. Canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, $50$ multi-starts) with $p \in \{1,\dots,5\}$. Left: scaled approximation ratio $r=(E_{\text{worst}}-E)/(E_{\text{worst}}-E_{\text{opt}})$; the dashed red line marks the brute-force optimum at $r=1$. Right: top-1 success probability and feasibility probability, against the uniform-sampling baseline at $1/2^{16}$. The non-monotonic dip at $p=3,4,5$ is the angle-space/restart-budget mismatch that the warm-start variant of \cref{fig:app_depth_warm} repairs.}
+    \includegraphics[width=0.7\linewidth]{plots/compare/depth_sweep.pdf}
+    \caption{Sweep 1: QAOA circuit depth, random multi-start. Canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, $50$ multi-starts) with $p \in \{1,\dots,5\}$. Left: scaled approximation ratio $r=(E_{\text{worst}}-E)/(E_{\text{worst}}-E_{\text{opt}})$; the dashed red line marks the brute-force optimum at $r=1$. Right: top-1 success probability and feasibility probability, against the uniform-sampling baseline at $1/2^{16}$. The non-monotonic dip at $p=3,4,5$ is the angle-space/restart-budget mismatch that the warm-start variant of \cref{fig:app_depth_warm} repairs.}
     \label{fig:app_depth_sweep}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/compare/depth_warm_vs_random.pdf}
-    \caption{Sweep 1 extension --- warm-start versus random multi-start QAOA on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$). Blue circles: fifty random restarts per depth. Ochre squares: the warm-start protocol of \cref{eq:warmstart} --- one freshly-sampled extra layer appended to the depth-$(p-1)$ optimum, plus ten random refinements. Left: scaled ratio versus $p$; warm starts restore monotone scaling ($r$ climbs from $0.991$ to $0.997$). Right: feasibility mass climbs from $p_{\text{feas}}=0.38$ to $0.62$ under warm starts and dips repeatedly under random.}
+    \includegraphics[width=0.7\linewidth]{plots/compare/depth_warm_vs_random.pdf}
+    \caption{Sweep 1 extension: warm-start versus random multi-start QAOA on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$). Blue circles: fifty random restarts per depth. Ochre squares: the warm-start protocol of \cref{eq:warmstart} (one freshly-sampled extra layer appended to the depth-$(p-1)$ optimum, plus ten random refinements). Left: scaled ratio versus $p$; warm starts restore monotone scaling ($r$ climbs from $0.991$ to $0.997$). Right: feasibility mass climbs from $p_{\text{feas}}=0.38$ to $0.62$ under warm starts and dips repeatedly under random.}
     \label{fig:app_depth_warm}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/compare/penalty_sweep.pdf}
-    \caption{Sweep 4 --- budget-penalty calibration. Canonical instance with $p=3$ and $A \in \{0.01, 0.032, 0.1, 0.32, 1, 3.16, 10, 31.6\}$ (eight log-spaced points), fifty multi-starts per $A$. Left: scaled ratio vs $A$ (log axis). Right: top-1 and feasibility probabilities; feasibility peaks at $p_{\text{feas}}=0.91$ near $A=0.32$ then decays as the penalty term begins to flatten the feasible-subspace cost surface.}
+    \includegraphics[width=0.7\linewidth]{plots/compare/penalty_sweep.pdf}
+    \caption{Sweep 4: budget-penalty calibration. Canonical instance with $p=3$ and $A \in \{0.01, 0.032, 0.1, 0.32, 1, 3.16, 10, 31.6\}$ (eight log-spaced points), fifty multi-starts per $A$. Left: scaled ratio vs $A$ (log axis). Right: top-1 and feasibility probabilities; feasibility peaks at $p_{\text{feas}}=0.91$ near $A=0.32$ then decays as the penalty term begins to flatten the feasible-subspace cost surface.}
     \label{fig:app_penalty_sweep}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/compare/risk.pdf}
-    \caption{Sweep 3 --- risk aversion. Scaled ratio vs $\lambda \in [10^{-1}, 10^2]$ (seven log-spaced values) at $p=3$, fifty multi-starts per $\lambda$. Brute force, greedy-Sharpe, Markowitz-round and simulated annealing all sit at $r\approx 1$ and are visually overlaid; QAOA (red) stays in the $r \approx 0.97$--$0.99$ band across the full sweep, with a modest improvement at high $\lambda$.}
+    \includegraphics[width=0.7\linewidth]{plots/compare/risk.pdf}
+    \caption{Sweep 3: risk aversion. Scaled ratio vs $\lambda \in [10^{-1}, 10^2]$ (seven log-spaced values) at $p=3$, fifty multi-starts per $\lambda$. Brute force, greedy-Sharpe, Markowitz-round and simulated annealing all sit at $r\approx 1$ and are visually overlaid; QAOA (red) stays in the $r \approx 0.97$--$0.99$ band across the full sweep, with a modest improvement at high $\lambda$.}
     \label{fig:app_risk_sweep}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/compare/scaling.pdf}
-    \caption{Sweep 2 --- size scaling. Median over random size-$n$ subsets of the canonical universe ($M=20$ at $n\!\leq\!10$, $M=8$ at $n=12$, $M=10$ at $n=14$, $M=1$ at $n=16$); shaded bands show interquartile range across subsets. Left: scaled ratio per solver vs $n$. Right: median wall-clock runtime on a log scale; QAOA grows roughly as $2^n$ while the classical baselines stay essentially flat.}
+    \includegraphics[width=0.7\linewidth]{plots/compare/scaling.pdf}
+    \caption{Sweep 2: size scaling. Median over random size-$n$ subsets of the canonical universe ($M=20$ at $n\!\leq\!10$, $M=8$ at $n=12$, $M=10$ at $n=14$, $M=1$ at $n=16$); shaded bands show interquartile range across subsets. Left: scaled ratio per solver vs $n$. Right: median wall-clock runtime on a log scale; QAOA grows roughly as $2^n$ while the classical baselines stay essentially flat.}
     \label{fig:app_scaling}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/compare/scaling_zoom.pdf}
+    \includegraphics[width=0.7\linewidth]{plots/compare/scaling_zoom.pdf}
     \caption{Sweep 2 (zoom). Left: same scaled ratio as Fig.~\ref{fig:app_scaling}, restricted to $r \in [0.93, 1.005]$ so the QAOA band is visible against the classical solvers that all sit at machine precision. Right: $1-r$ on a log axis, making the QAOA-vs-classical gap explicit; classical solvers floor near floating-point zero, while QAOA stays $10^{-2}$ to $10^{-1}$ above the optimum.}
     \label{fig:app_scaling_zoom}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{plots/compare/xy_mixer.pdf}
-    \caption{Sweep 5 --- constraint-preserving XY-ring mixer with Dicke initial state, benchmarked against the standard transverse-field mixer with uniform $|+\rangle^{\otimes n}$ start. Sub-instance: $n=8$, $K=2$, $\lambda=2.0$ (penalty $A=0.5$ active for the standard protocol; ignored by XY-Dicke). Twenty random COBYLA restarts per depth, $p\in\{1,2,3,4\}$. Left: scaled ratio versus depth --- XY-Dicke is flat at $r\approx 0.9995$ across all depths; standard $r$ peaks at $0.992$ and dips at $p=4$. Centre: feasibility probability --- XY-Dicke is at $p_{\text{feas}}=1$ by construction, standard fluctuates in $[0.47, 0.81]$. Right: wall-clock runtime per solve on a log scale; XY-Dicke is roughly $5\times$ slower per layer because \texttt{expm\_multiply} replaces the factorised single-qubit rotations.}
+    \includegraphics[width=0.7\linewidth]{plots/compare/xy_mixer.pdf}
+    \caption{Sweep 5: constraint-preserving XY-ring mixer with Dicke initial state, benchmarked against the standard transverse-field mixer with uniform $|+\rangle^{\otimes n}$ start. Sub-instance: $n=8$, $K=2$, $\lambda=2.0$ (penalty $A=0.5$ active for the standard protocol; ignored by XY-Dicke). Twenty random COBYLA restarts per depth, $p\in\{1,2,3,4\}$. Left: scaled ratio versus depth; XY-Dicke is flat at $r\approx 0.9995$ across all depths, while standard $r$ peaks at $0.992$ and dips at $p=4$. Centre: feasibility probability; XY-Dicke is at $p_{\text{feas}}=1$ by construction, standard fluctuates in $[0.47, 0.81]$. Right: wall-clock runtime per solve on a log scale; XY-Dicke is roughly $5\times$ slower per layer because \texttt{expm\_multiply} replaces the factorised single-qubit rotations.}
     \label{fig:app_xy_mixer}
 \end{figure}
 
@@ -326,33 +326,3 @@ def mip_exact(pf, time_limit=60.0, msg=False):
 \end{lstlisting}
 
 
-\subsection*{G. Background literature}
-
-The reference list collected during this project covers several overlapping themes; every bibliography entry is cited at least once here so that the reference list can be audited and pruned. Each citation is given individually rather than bundled, so that an author-year reader can match line by line.
-
-\paragraph{Foundational quantum mechanics.}
-The original EPR paper \parencite{epr1935} sets the historical context for entanglement, which underpins the interference mechanism exploited by QAOA. Early demonstrations of small-scale quantum computation on molecular spin systems were reported by \textcite{gershenfeld_qc_molecules}.
-
-\paragraph{Quantum computing textbooks.}
-General textbook references include the foundational \textcite{nielsen_chuang}, the applied treatment of \textcite{hidary_qc_applied}, the programmer-oriented exposition of \textcite{hundt_qc_programmers}, the formal mathematics of \textcite{scherer_math_qc}, the introductory text of \textcite{olivares_student_qc}, the early survey of \textcite{rieffel1998introqc}, and the Qiskit-flavoured course of \textcite{loredo_learn_qc_python_ibm}. Quantum machine learning specifically is covered by \textcite{schuld_qml}, \textcite{conti_qml} and \textcite{pattanayak_qml_python}.
-
-\paragraph{QAOA and the variational paradigm.}
-The QAOA algorithm itself is due to \textcite{farhi2014qaoa}, with the depth and landscape analysis of \textcite{zhou2018qaoa}. Pedagogical introductions are given by \textcite{giovagnoli_qaoa_intro}, by \textcite{irfan_qaoa_simulators} for the hardware-vs-simulator comparison, and by the IBM Quantum tutorial \parencite{ibm_qaoa_tutorial}. The closely related variational quantum eigensolver framework is reviewed by \textcite{tilly2022vqe}.
-
-\paragraph{Many-body solvable models.}
-The Lipkin--Meshkov--Glick model \parencite{lipkin1965} provides a small, exactly solvable many-body Hamiltonian routinely used as a VQE benchmark in the FYS5419 course.
-
-\paragraph{Markowitz and quantum portfolio optimisation.}
-Modern portfolio theory originates with \textcite{markowitz1952}; statistical-learning context for return estimation is found in \textcite{hastie}. Recent quantum approaches to constrained portfolio selection are reported by \textcite{knapsack2024qaoa} for a knapsack formulation, by \textcite{thomassin2025slack} for slack variables, by \textcite{mancilla2026constrained} for XY-mixers, by \textcite{stopfer2025benchmark} for a systematic benchmark, by \textcite{shen2025noisy} for noisy-device simulations, by \textcite{morapakula2025annealing} for annealing comparisons, by \textcite{soloviev2025pauli} for a Pauli-correlation encoding, and by \textcite{soloviev2025cutting} for circuit-cutting techniques. The deterministic Dicke-state preparation circuit used as the initial state of the constraint-preserving XY-mixer pipeline is due to \textcite{bartschi2022dicke}.
-
-\paragraph{Classical optimisation baselines.}
-The QUBO is solved exactly via the standard McCormick--Glover linearisation of the quadratic objective \parencite{glover1975integerprog}, implemented in PuLP and dispatched to the bundled COIN-OR \textsc{Cbc} branch-and-cut solver \parencite{forrest_cbc}.
-
-\paragraph{Notation and standards.}
-Mathematical notation conventions follow the ISO 80000-2 standard \parencite{iso80000_2}.
-
-\paragraph{Software libraries.}
-The implementations consulted while developing the code base include Qiskit \parencite{qiskit}, PennyLane \parencite{pennylane}, QuTiP \parencite{qutip} with its source on GitHub \parencite{qutip_github}, PySCF \parencite{pyscf}, and the qBraid platform \parencite{qbraid}.
-
-\paragraph{Course teaching material.}
-The full set of FYS5419 weekly teaching material, hand-written notes, and lecture videos is hosted in the public course repository maintained by \textcite{qcm2026_coursepage}; supplementary workshop material is provided by \textcite{quantgates_workshop}.
