@@ -37,31 +37,31 @@ The baskets span volatility and correlation regimes (tightly co-moving mega-caps
 
 Per-ticker annualised statistics over the shared window are listed in \cref{tab:assets}. NVDA dominates the universe on a risk-adjusted basis ($\mathrm{Sharpe}=1.74$), with GOOGL ($1.41$) and JPM ($1.38$) close behind, while the quantum pure-plays trade extreme realised returns against extreme volatility (RGTI annualises at $143\%$ vol). The $\{\text{GOOGL},\text{IBM},\text{NVDA},\text{JPM}\}$ optimum is consistent with this ranking, but the macro-opposed JPM is preferred over a fourth tech name because the $\lambda \boldsymbol{x}^\top\boldsymbol{\Sigma}\boldsymbol{x}$ term penalises the high pairwise correlation inside \texttt{mag7}.
 
-\begin{table}[H]
+\begin{table}[!t]
   \centering
   \small
-  \caption{Annualised return, volatility and Sharpe ratio for the 16-asset universe over 2023-01-03 to 2025-12-30 (751 daily observations).}
+  \caption{Annualised return, volatility and Sharpe ratio for the 16-asset universe over 2023-01-03 to 2025-12-30 (751 daily observations). Rows are sorted by Sharpe ratio (descending).}
   \label{tab:assets}
   \begin{tabular}{@{}lrrr@{}}
     \toprule
     Ticker & Ann.\ Ret.\ & Ann.\ Vol.\ & Sharpe \\
     \midrule
-    AAPL  &  26.74\% &  25.46\% & 1.050 \\
-    MSFT  &  24.66\% &  23.13\% & 1.066 \\
+    NVDA  &  86.48\% &  49.64\% & \textbf{1.742} \\
     GOOGL &  42.55\% &  30.24\% & 1.407 \\
+    JPM   &  31.81\% &  23.07\% & 1.379 \\
+    IBM   &  29.15\% &  23.70\% & 1.230 \\
+    MSFT  &  24.66\% &  23.13\% & 1.066 \\
     AMZN  &  33.49\% &  31.86\% & 1.051 \\
+    AAPL  &  26.74\% &  25.46\% & 1.050 \\
     IONQ  &  86.43\% & 100.05\% & 0.864 \\
     RGTI  & 115.15\% & 143.41\% & 0.803 \\
+    NEM   &  26.92\% &  37.06\% & 0.726 \\
+    DAL   &  26.27\% &  38.45\% & 0.683 \\
     QBTS  &  97.54\% & 146.41\% & 0.666 \\
     QUBT  &  64.62\% & 139.01\% & 0.465 \\
-    IBM   &  29.15\% &  23.70\% & 1.230 \\
-    HON   &   1.22\% &  20.59\% & 0.059 \\
-    ACN   &   1.51\% &  25.14\% & 0.060 \\
-    NVDA  &  86.48\% &  49.64\% & \textbf{1.742} \\
     XOM   &   7.75\% &  22.66\% & 0.342 \\
-    DAL   &  26.27\% &  38.45\% & 0.683 \\
-    NEM   &  26.92\% &  37.06\% & 0.726 \\
-    JPM   &  31.81\% &  23.07\% & 1.379 \\
+    ACN   &   1.51\% &  25.14\% & 0.060 \\
+    HON   &   1.22\% &  20.59\% & 0.059 \\
     \bottomrule
   \end{tabular}
 \end{table}

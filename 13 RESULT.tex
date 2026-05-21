@@ -26,7 +26,7 @@ A single QAOA run on the $n=16$ benchmark lands well above the true optimum, but
     \label{fig:single-run}
 \end{figure*}
 
-\begin{table}[H]
+\begin{table*}[!t]
     \centering
     \small
     \caption{Top-5 most probable bitstrings in the converged QAOA state on the canonical instance ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, ten random multi-starts). None of the five are budget-feasible: rank 1 selects every asset, ranks 2--5 select a single asset each. The true optimum $\boldsymbol x^\star = 0010000010010001$ (GOOGL+IBM+NVDA+JPM) carries probability $p_{\text{opt}} = 1.6\times 10^{-4}$ at rank $\sim 125$ in this list. Brute-force cost at the optimum is $C(\boldsymbol x^\star) = -1.404\times 10^{-3}$, Sharpe $0.136$; the all-ones state has $C = 72.21$ and Sharpe $0.082$, and each single-asset state has $C \approx 4.51$ and Sharpe $\approx 0.05$. The infeasible top picks are inferior \emph{for the investor} on Sharpe as well as on QUBO cost.}
@@ -44,7 +44,7 @@ A single QAOA run on the $n=16$ benchmark lands well above the true optimum, but
         $\sim 125$ & \texttt{0010000010010001} & GOOGL+IBM+NVDA+JPM & $-1.4\!\times\!10^{-3}$ & $1.6\!\times\!10^{-4}$ & $\mathbf{0.136}$ \\
         \bottomrule
     \end{tabular}
-\end{table}
+\end{table*}
 
 The best of ten restarts converges to $E = 3.997$ on a spectrum bounded by $E_{\text{opt}} = -1.40\times 10^{-3}$ and $E_{\text{worst}} = 72.21$. The scaled metric gives $r = 0.945$, but the unscaled relative gap is $\mathrm{gap} = 2847$: the variational state's mean energy is nearly three thousand times the optimum. The $r$ denominator is dominated by the budget penalty $AK^2$, which inflates $E_{\text{worst}}$ to order ten and compresses plausible bitstrings into a narrow band near the top of $[0,1]$, a measurement-side artefact also flagged by \textcite{stopfer2025benchmark}. The right panel of \cref{fig:single-run} quantifies the same story: $p_{\text{opt}} = 1.6\times 10^{-4}$, about ten times the uniform baseline $1/2^{16}$, while $p_{\text{feas}} = 0.31$ is roughly two thousand times uniform. \Cref{fig:cost-spectrum} makes the inflation visual: the $\binom{16}{4} = 1820$ feasible states sit in a narrow band near $C \approx 0$, while the all-ones state at $C = 72.21$ alone dominates $E_{\text{worst}} - E_{\text{opt}}$.
 
@@ -153,7 +153,7 @@ QAOA's $\lambda$-insensitivity in $r$ at this resolution is informative: the alg
 
 Before sweeping problem size, \cref{tab:classical-baselines} fixes the verdict at the canonical instance.
 
-\begin{table}[H]
+\begin{table*}[!t]
     \centering
     \small
     \caption{Solver comparison at the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, fifty COBYLA multi-starts for QAOA, ten random seeds for simulated annealing). All five classical baselines recover the same optimum; both QAOA variants are an order of magnitude slower with worse expectation. The QAOA portfolio entry is blank because the top-probability bitstring (\cref{tab:top5}) is infeasible; the energy columns report the best converged restart. The MIP row uses PuLP's bundled CBC backend with a $60$-second time limit (the solve actually returns in well under a second).}
@@ -171,7 +171,7 @@ Before sweeping problem size, \cref{tab:classical-baselines} fixes the verdict a
         \texttt{qaoa\_p3} (warm)     & (infeasible)       & $+0.304$               & ---     & $\sim 30$ s \\
         \bottomrule
     \end{tabular}
-\end{table}
+\end{table*}
 
 This is the cleanest verdict the report has to offer. On the canonical instance the landscape is benign enough that greedy-Sharpe, rounded Markowitz, the median SA run across ten seeds, and the exact CBC MIP all agree with brute force on \texttt{0010000010010001} (GOOGL+IBM+NVDA+JPM), cost $-1.404\times 10^{-3}$, Sharpe $0.136$. They differ only in runtime, by orders of magnitude rather than constants: the slowest classical pipeline (SA across ten seeds) finishes in roughly half a second; QAOA at $p=3$ takes between thirty seconds (warm) and two minutes (random). Penalty QAOA converges to $E = +0.72$ on a state whose modal bitstring violates the budget by twelve assets; warm starts close half that gap in expectation but leave the modal story untouched. The gap is not a percentage; it is a sign reversal.
 
@@ -216,7 +216,7 @@ The combined picture from \cref{subsec:warmstart-results,subsec:xymixer-results}
 
 The eight experiments converge on a consistent picture, summarised in \cref{tab:results-summary}: the standard penalty/X-mixer pipeline trails the classical baselines on every axis, warm starts restore monotone depth scaling, and the XY-Dicke variant achieves $r = 0.9995$ with $p_{\text{feas}} = 1$ by construction.
 
-\begin{table}[H]
+\begin{table}[!t]
     \centering
     \caption{Headline numbers across the three QAOA variants benchmarked in this report. ``Standard'' is the penalty/X-mixer pipeline at the canonical $n=16$, $p=3$, $K=4$, $\lambda=2.0$, $A=0.5$ with fifty COBYLA multi-starts. ``Warm'' is the same instance with the warm-start protocol of \cref{eq:warmstart} at $p=5$ (the deepest converged warm-start point). ``XY-Dicke'' is the constraint-preserving variant at $n=8$, $K=2$, $p=3$, twenty multi-starts. Runtimes are wall-clock seconds for the full multi-start solve.}
     \label{tab:results-summary}
