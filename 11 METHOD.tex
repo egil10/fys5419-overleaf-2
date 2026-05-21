@@ -229,5 +229,12 @@ The probability that a measurement yields a budget-feasible bitstring,
 \end{equation}
 which is unity by construction under the XY-mixer of \cref{subsec:xymixer} and is a non-trivial diagnostic for the penalty mixer used here.
 
+\paragraph{Sharpe ratio.}
+For comparing candidate portfolios in financial terms alongside the QUBO cost, we report the equal-weighted Sharpe ratio of a selected basket $\boldsymbol{x}$ over the in-sample window,
+\begin{equation}\label{eq:sharpe}
+    \mathrm{Sharpe}(\boldsymbol{x}) \;=\; \frac{\boldsymbol{\mu}^\top \boldsymbol{x}}{\sqrt{\boldsymbol{x}^\top \boldsymbol{\Sigma}\, \boldsymbol{x}}},
+\end{equation}
+computed from the same daily-return moments. This is the metric a portfolio manager would actually care about; the QUBO cost $C(\boldsymbol{x})$ of \eqref{eq:Cx} is a $\lambda$-weighted proxy for it plus the budget penalty.
+
 \paragraph{Validation strategy.}
 At $n = 16$ the brute-force optimum is computable in $2^{16}\approx 6.5\times 10^4$ evaluations ($\sim 30$~ms in NumPy), so every QAOA run in \cref{section:result} is anchored against the exact answer. The QUBO$\to$Ising mapping of~\eqref{eq:hJ}--\eqref{eq:c} is also verified numerically: $H(\boldsymbol{z}) + c = C(\boldsymbol{x})$ to floating-point precision for every $|\boldsymbol{z}\rangle$, and the diagonal of $H_C$ in~\eqref{eq:HC} matches the brute-force cost vector. Further checks are in \cref{subsec:validation}.

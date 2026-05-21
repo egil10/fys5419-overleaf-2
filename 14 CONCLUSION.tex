@@ -2,7 +2,7 @@
 
 \subsection{Main findings}
 
-The seven parameter and ansatz sweeps, the $p=1$ landscape map with restart endpoints, and the classical baselines on the canonical $n=16$, $K=4$ instance support six observations.
+The eight experiments on the canonical $n=16$, $K=4$ instance (single-run benchmark, $p=1$ landscape map, four parameter sweeps, warm-start ablation, XY-mixer head-to-head) and the classical baselines support six observations.
 
 \begin{enumerate}
     \item All five classical baselines (brute-force enumeration, greedy-Sharpe, rounded Markowitz, the simulated-annealing median, and the CBC mixed-integer programme) recover the same four-asset basket $\{\text{GOOGL}, \text{IBM}, \text{NVDA}, \text{JPM}\}$ at Sharpe $0.136$ and $C(\boldsymbol x^\star)=-1.40\times 10^{-3}$ (\cref{tab:classical-baselines}). CBC certifies the optimum in $175$~ms with a $0\%$ MIP gap, roughly $750\times$ faster than QAOA at $p=3$. The cardinality-constrained portfolio is NP-hard in general, but at $n=16$ it is not a hard \emph{instance}.
