@@ -5,7 +5,7 @@
 
 Symbols are used consistently throughout the report, in line with \textcite{iso80000_2}. Vectors are typeset bold lower case ($\boldsymbol{x}$, $\boldsymbol\mu$), matrices bold upper case ($\boldsymbol\Sigma$, $Q$), and components carry an index ($x_i$, $\mu_i$, $\Sigma_{ij}$). Operators acting on the qubit Hilbert space carry a hat ($\hat{Z}_i$, $\hat{X}_i$); the cost and mixer Hamiltonians $H_C, H_M$ are written without hats because they are sums of hatted single-qubit operators and the typographical distinction is unambiguous in context. \Cref{tab:notation} collects every recurring symbol with its definition and the equation or section in which it is introduced.
 
-\begin{table*}[!t]
+\begin{table}[H]
     \centering
     \small
     \caption{Recurring symbols. The right-hand column points to the equation or section where the symbol is introduced.}
@@ -45,178 +45,260 @@ Symbols are used consistently throughout the report, in line with \textcite{iso8
         $p_{\text{feas}}$         & total mass on budget-feasible bitstrings                    & \eqref{eq:pfeas} \\
         \bottomrule
     \end{tabular}
-\end{table*}
+\end{table}
 
 Unless a caption says otherwise, every numerical experiment in \cref{section:result} uses the \emph{canonical instance}: $n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, $p=3$, ten random COBYLA multi-starts, master seed $42$. Qubit $0$ is taken to be the most significant bit of the computational-basis index, matching the order in which the QUBO matrix is built and the Ising spins are addressed. Log axes are used in figures where the underlying quantity spans more than a single decade (runtime, $1-r$, $p_{\text{opt}}$); linear axes are used otherwise.
 
 
+\clearpage
 \subsection*{B. Exploratory data}
 
-\begin{table}[!t]
-    \centering
-    \small
-    \caption{Annualised returns, volatilities, and Sharpe ratios for each of the sixteen tickers in the universe (2023-01-03 to 2025-12-30, 751 daily observations), sorted by Sharpe ratio (descending). NVDA has the highest single-asset Sharpe (1.742), and the brute-force optimum portfolio of \cref{tab:classical-baselines} picks the four highest-Sharpe names from across baskets (GOOGL, IBM, NVDA, JPM).}
-    \label{tab:app_asset_summary}
-    \begin{tabular}{@{}lrrrl@{}}
-        \toprule
-        Ticker & Ann.\ return & Ann.\ vol & Sharpe & Basket \\
-        \midrule
-        NVDA  &  86.48\% &  49.64\% & \textbf{1.742} & quantum\_big \\
-        GOOGL &  42.55\% &  30.24\% & 1.407          & mag7 \\
-        JPM   &  31.81\% &  23.07\% & \textbf{1.379} & anti \\
-        IBM   &  29.15\% &  23.70\% & 1.230          & quantum\_big \\
-        MSFT  &  24.66\% &  23.13\% & 1.066          & mag7 \\
-        AMZN  &  33.49\% &  31.86\% & 1.051          & mag7 \\
-        AAPL  &  26.74\% &  25.46\% & 1.050          & mag7 \\
-        IONQ  &  86.43\% & 100.05\% & 0.864          & quantum \\
-        RGTI  & 115.15\% & 143.41\% & 0.803          & quantum \\
-        NEM   &  26.92\% &  37.06\% & 0.726          & anti \\
-        DAL   &  26.27\% &  38.45\% & 0.683          & anti \\
-        QBTS  &  97.54\% & 146.41\% & 0.666          & quantum \\
-        QUBT  &  64.62\% & 139.01\% & 0.465          & quantum \\
-        XOM   &   7.75\% &  22.66\% & 0.342          & anti \\
-        ACN   &   1.51\% &  25.14\% & 0.060          & quantum\_big \\
-        HON   &   1.22\% &  20.59\% & 0.059          & quantum\_big \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/eda/all_returns.pdf}
-    \caption{Daily log-returns $r_i(t)=\ln P_i(t)/P_i(t-1)$ per asset, overlaid on a shared vertical axis (751 trading days, 2023-01-03 to 2025-12-30). The clustered spikes at $\pm 0.3$ in the quantum basket panels (IONQ, RGTI, QBTS, QUBT) reflect the high idiosyncratic volatility that drives those names' Sharpe ratios below the mega-cap tickers despite higher mean returns.}
-    \label{fig:app_all_returns}
+    \captionsetup{font=scriptsize}
+    \captionsetup[subfigure]{font=scriptsize,skip=1pt}
+    \setlength{\abovecaptionskip}{2pt}
+    \setlength{\belowcaptionskip}{0pt}
+
+    \begin{subfigure}[t]{0.82\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.255\textheight,keepaspectratio]{plots/eda/all_returns.pdf}
+        \caption{Daily log-returns $r_i(t)=\ln P_i(t)/P_i(t-1)$ per asset. The clustered spikes in the quantum basket panels reflect the high idiosyncratic volatility of IONQ, RGTI, QBTS and QUBT.}
+        \label{fig:app_all_returns}
+    \end{subfigure}
+
+    \vspace{0.35em}
+
+    \begin{subfigure}[t]{0.82\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.255\textheight,keepaspectratio]{plots/eda/all_rolling_vol.pdf}
+        \caption{Thirty-day rolling annualised volatility $\sqrt{252}\,\sigma_{30}(r_i)$. The small-cap quantum names sit persistently above the mag7 and quantum-adjacent baskets.}
+        \label{fig:app_all_rolling_vol}
+    \end{subfigure}
+
+    \vspace{0.35em}
+
+    \begin{subfigure}[t]{0.82\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.255\textheight,keepaspectratio]{plots/eda/all_histogram.pdf}
+        \caption{Empirical distribution of daily log-returns. The mag7 panels are sharply peaked near zero, while the quantum-basket histograms are visibly broader and fatter-tailed.}
+        \label{fig:app_all_histogram}
+    \end{subfigure}
+
+    \caption{\textbf{Exploratory return diagnostics for the sixteen-equity universe.}
+    Panels use 751 daily observations from 2023-01-03 to 2025-12-30. The three diagnostics show the same core structure: the small-cap quantum basket has materially higher idiosyncratic volatility and fatter return tails than the mega-cap and quantum-adjacent assets.}
+    \label{fig:app_eda_three_rows}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\linewidth]{plots/eda/all_rolling_vol.pdf}
-    \caption{Thirty-day rolling annualised volatility $\sqrt{252}\,\sigma_{30}(r_i)$ for each ticker (751 trading days, 2023-01-03 to 2025-12-30, vertical axis in fractional units). The four small-cap quantum names sit persistently above the 1.0 line (i.e.\ 100\% annualised), whereas the mag7 and quantum\_big baskets remain below 0.5 throughout the sample.}
-    \label{fig:app_all_rolling_vol}
-\end{figure}
+\clearpage
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/eda/all_histogram.pdf}
-    \caption{Empirical distribution of daily log-returns per asset (751 observations, 2023-01-03 to 2025-12-30). Horizontal axis: $r_i(t)$; vertical axis: frequency count per bin. The mag7 panels are sharply peaked near zero with light tails, while the quantum-basket histograms are visibly fatter and broader, consistent with the elevated annualised volatilities reported in \cref{tab:app_asset_summary}.}
-    \label{fig:app_all_histogram}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\linewidth]{plots/eda/all_correlation.pdf}
-    \caption{Pearson return-correlation matrix $\boldsymbol\Sigma_{ij}/\sqrt{\boldsymbol\Sigma_{ii}\boldsymbol\Sigma_{jj}}$ across all sixteen tickers (751 trading days, 2023-01-03 to 2025-12-30), reordered by the leading eigenvector to expose block structure. The dense bright block in the top-left corresponds to the mega-cap tech cluster (mag7 + IBM + NVDA), which co-moves at correlations of $0.5$--$0.7$; the anti basket (XOM, DAL, NEM, JPM) and the small-cap quantum basket sit in less coherent blocks toward the bottom-right.}
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.72\linewidth,
+        height=0.245\textheight,
+        keepaspectratio
+    ]{plots/eda/all_correlation.pdf}
+    \caption{Pearson return-correlation matrix $\boldsymbol\Sigma_{ij}/\sqrt{\boldsymbol\Sigma_{ii}\boldsymbol\Sigma_{jj}}$ across all sixteen tickers, reordered by the leading eigenvector. The dense block corresponds to the mega-cap technology cluster, while the anti and small-cap quantum baskets form weaker co-movement blocks.}
     \label{fig:app_all_correlation}
 \end{figure}
 
+\vspace{-0.5em}
 
 \subsection*{C. Motivational figures}
 
+\vspace{-0.5em}
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/visuals/markowitz_frontier.pdf}
-    \caption{Continuous Markowitz efficient frontier on the mag7 sub-basket ($n=4$: AAPL, MSFT, GOOGL, AMZN). Horizontal axis: annualised volatility; vertical axis: annualised return. Random simplex-sampled portfolios are the grey cloud, the analytical efficient frontier is the red curve, the ochre dotted line is the capital allocation line through the tangency portfolio, and the four labelled markers give per-asset annualised risk/return.}
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.72\linewidth,
+        height=0.245\textheight,
+        keepaspectratio
+    ]{plots/visuals/markowitz_frontier.pdf}
+    \caption{Continuous Markowitz efficient frontier on the mag7 sub-basket ($n=4$: AAPL, MSFT, GOOGL, AMZN). Random simplex-sampled portfolios form the cloud, the analytical efficient frontier traces the feasible upper envelope, and the labelled markers give per-asset annualised risk and return.}
     \label{fig:app_markowitz}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\linewidth]{plots/visuals/cardinality_constrained.pdf}
-    \caption{The cardinality constraint discretises the mag7 frontier ($n=4$). Binary equal-weighted selections form a finite set of $2^n-1=15$ points coloured by selection size $K \in \{1,2,3,4\}$, overlaid on the continuous frontier of \cref{fig:app_markowitz}. Only the $\binom{n}{K}$ points at the prescribed budget are admissible solutions to the cardinality-constrained problem.}
-    \label{fig:app_cardinality}
-\end{figure}
+\vspace{-0.5em}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/visuals/combinatorial_wall.pdf}
-    \caption{The combinatorial wall on the canonical mag7-extended instance: $2^n$ bitstrings on a log vertical axis as $n$ grows, with annotated wall-clock budgets at one microsecond per evaluation (one second, one minute, one hour, one day, one year, age of the universe). At $n=16$ the brute force is still tractable ($2^{16}=65\,536$ evaluations), motivating the use of a heuristic such as QAOA for the regime beyond.}
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.72\linewidth,
+        height=0.245\textheight,
+        keepaspectratio
+    ]{plots/visuals/cardinality_constrained.pdf}
+    \caption{The cardinality constraint discretises the mag7 frontier ($n=4$). Binary equal-weighted selections form a finite set of $2^n-1=15$ points, with only the $\binom{n}{K}$ points at the prescribed budget admissible for the cardinality-constrained problem.}
+    \label{fig:app_cardinality}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.78\textwidth,
+        height=0.255\textheight,
+        keepaspectratio
+    ]{plots/visuals/combinatorial_wall.pdf}
+    \caption{The combinatorial wall on the canonical mag7-extended instance: $2^n$ bitstrings on a log vertical axis as $n$ grows, with annotated wall-clock budgets at one microsecond per evaluation. At $n=16$ the brute force is still tractable, motivating the use of a heuristic such as QAOA for larger regimes.}
     \label{fig:app_combinatorial}
 \end{figure}
 
- 
+\vspace{-0.4em}
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/visuals/cost_landscape.pdf}
-    \caption{Cost landscape on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$): all $2^{16}=65\,536$ bitstring costs $C(\boldsymbol{x})$ sorted in increasing order (horizontal axis: rank, vertical axis: cost). Budget-feasible states with $\sum_i x_i = K=4$ are highlighted in red; the $\binom{16}{4}=1820$ feasible bitstrings are sprinkled throughout the sorted spectrum rather than clustered, which is why a soft penalty $A$ rather than a hard projection is needed during the QAOA search.}
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.78\textwidth,
+        height=0.255\textheight,
+        keepaspectratio
+    ]{plots/visuals/cost_landscape.pdf}
+    \caption{Cost landscape on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$): all $2^{16}=65\,536$ bitstring costs sorted in increasing order. Budget-feasible states with $\sum_i x_i = K$ are highlighted in red; the feasible bitstrings are scattered through the spectrum rather than clustered.}
     \label{fig:app_cost_landscape}
 \end{figure}
 
+\vspace{-0.4em}
 
 \subsection*{D. QAOA diagnostics on the canonical instance}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\linewidth]{plots/qaoa/single_run_universe_p3.pdf}
-    \caption{Single QAOA run on the canonical universe ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, $10$ COBYLA multi-starts). Left: converged energy per restart; the spread illustrates the non-convex variational landscape and how often the optimiser gets stuck above the brute-force optimum $C(\boldsymbol{x}^\star)$. Right: probability mass on the top-40 of $1820$ budget-feasible bitstrings, against a uniform baseline of $1/2^{16}$. Headline numbers at this restart budget: $r=0.945$, $\mathrm{gap}=2847$, $p_{\text{opt}}=1.6\times 10^{-4}$, $p_{\text{feas}}=0.31$.}
-    \label{fig:app_qaoa_single}
-\end{figure}
+\vspace{-0.4em}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/analysis/cost_spectrum.pdf}
-    \caption{Cost spectrum over all $2^{16}=65{,}536$ bitstrings of the canonical instance, colour-coded by feasibility ($\sum_i x_i = K = 4$ in red, infeasible in grey, log-scale count). Vertical lines mark the brute-force optimum $C(\boldsymbol x^\star) = -1.40\times 10^{-3}$, the converged QAOA expectation $E = 3.997$, and the all-ones-state cost $C=72.21$. The narrow feasible band near zero and the lonely all-ones tail at $C=72.21$ explain why the scaled ratio $r = 0.945$ ``looks good'' even though the absolute QAOA energy sits at $2847\times$ the optimum.}
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.78\textwidth,
+        height=0.255\textheight,
+        keepaspectratio
+    ]{plots/qaoa/single_run_universe_p3.pdf}
+    \caption{Single QAOA run on the canonical universe ($n=16$, $K=4$, $p=3$, $\lambda=2.0$, $A=0.5$, $10$ COBYLA multi-starts). Left: converged energy per restart. Right: probability mass on the top budget-feasible bitstrings against a uniform baseline. At this restart budget: $r=0.945$, $\mathrm{gap}=2847$, $p_{\text{opt}}=1.6\times 10^{-4}$, $p_{\text{feas}}=0.31$.}
+    \label{fig:app_qaoa_single}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.78\textwidth,
+        height=0.255\textheight,
+        keepaspectratio
+    ]{plots/analysis/cost_spectrum.pdf}
+    \caption{Cost spectrum over all $2^{16}=65{,}536$ bitstrings of the canonical instance, colour-coded by feasibility. Vertical lines mark the brute-force optimum, the converged QAOA expectation, and the all-ones-state cost.}
     \label{fig:app_cost_spectrum}
 \end{figure}
 
+\vspace{-0.4em}
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/analysis/hamming_weight_mass.pdf}
-    \caption{QAOA probability mass by Hamming weight $|\boldsymbol x| = \sum_i x_i$ on the canonical instance ($n=16$, $K=4$, $p=3$). Red bars: converged QAOA mass per weight bin. Blue dashed line: the uniform-mixer baseline $\binom{n}{k}/2^n$. The QAOA distribution tracks the binomial baseline at every weight with a mild enhancement at the target $k=K=4$ and excess mass at the extremes $k\in\{0,16\}$, confirming that the $A=0.5$ penalty does not concentrate the variational state on the feasible subspace.}
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.78\textwidth,
+        height=0.255\textheight,
+        keepaspectratio
+    ]{plots/analysis/hamming_weight_mass.pdf}
+    \caption{QAOA probability mass by Hamming weight on the canonical instance ($n=16$, $K=4$, $p=3$). The QAOA distribution roughly tracks the binomial baseline, with only mild enhancement at the target weight $K=4$.}
     \label{fig:app_hamming_mass}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\linewidth]{plots/analysis/universe_p1_landscape.pdf}
-    \caption{QAOA energy landscape $E(\gamma,\beta)$ at $p=1$ on the canonical universe ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$). Bright contours mark high-energy basins; dark corners are low-energy minima; the red star marks the best of ten COBYLA multi-starts at $E = 0.6456$.}
-    \label{fig:app_landscape}
-\end{figure}
+\vspace{-0.4em}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/analysis/universe_p1_landscape_with_restarts.pdf}
-    \caption{Same $p=1$ energy landscape as \cref{fig:app_landscape}, with every one of the ten COBYLA restart endpoints overlaid (red dots, restart index labelled). The endpoints cluster tightly inside the lower-right basin, confirming visually what the tight restart-energy spread of \cref{fig:app_qaoa_single} suggests: at $p=1$ the multi-start budget is already saturated and the angle space contains essentially one usable basin.}
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.78\textwidth,
+        height=0.255\textheight,
+        keepaspectratio
+    ]{plots/analysis/universe_p1_landscape.pdf}
+    \caption{QAOA energy landscape $E(\gamma,\beta)$ at $p=1$ on the canonical universe. The red star marks the best of ten COBYLA multi-starts.}
+    \label{fig:app_landscape}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.78\textwidth,
+        height=0.255\textheight,
+        keepaspectratio
+    ]{plots/analysis/universe_p1_landscape_with_restarts.pdf}
+    \caption{Same $p=1$ energy landscape as \cref{fig:app_landscape}, with all ten COBYLA restart endpoints overlaid. The endpoints cluster tightly inside the same lower-right basin, indicating that the multi-start budget is effectively saturated already at $p=1$.}
     \label{fig:app_landscape_restarts}
 \end{figure}
 
+\vspace{-0.4em}
 
 \subsection*{E. Sweep results}
 
+\vspace{-0.4em}
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/compare/depth_sweep.pdf}
-    \caption{Sweep 1: QAOA circuit depth, random multi-start. Canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, $50$ multi-starts) with $p \in \{1,\dots,5\}$. Left: scaled approximation ratio $r=(E_{\text{worst}}-E)/(E_{\text{worst}}-E_{\text{opt}})$; the dashed red line marks the brute-force optimum at $r=1$. Right: top-1 success probability and feasibility probability, against the uniform-sampling baseline at $1/2^{16}$. The non-monotonic dip at $p=3,4,5$ is the angle-space/restart-budget mismatch that the warm-start variant of \cref{fig:app_depth_warm} repairs.}
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.78\textwidth,
+        height=0.255\textheight,
+        keepaspectratio
+    ]{plots/compare/depth_sweep.pdf}
+    \caption{Sweep 1: QAOA circuit depth under random multi-start on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$, $50$ restarts) for $p \in \{1,\dots,5\}$. The non-monotonic dip at higher depths reflects the angle-space/restart-budget mismatch.}
     \label{fig:app_depth_sweep}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\linewidth]{plots/compare/depth_warm_vs_random.pdf}
-    \caption{Sweep 1 extension: warm-start versus random multi-start QAOA on the canonical instance ($n=16$, $K=4$, $\lambda=2.0$, $A=0.5$). Blue circles: fifty random restarts per depth. Ochre squares: the warm-start protocol of \cref{eq:warmstart} (one freshly-sampled extra layer appended to the depth-$(p-1)$ optimum, plus ten random refinements). Left: scaled ratio versus $p$; warm starts restore monotone scaling ($r$ climbs from $0.991$ to $0.997$). Right: feasibility mass climbs from $p_{\text{feas}}=0.38$ to $0.62$ under warm starts and dips repeatedly under random.}
-    \label{fig:app_depth_warm}
-\end{figure}
+\vspace{-0.4em}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/compare/penalty_sweep.pdf}
-    \caption{Sweep 4: budget-penalty calibration. Canonical instance with $p=3$ and $A \in \{0.01, 0.032, 0.1, 0.32, 1, 3.16, 10, 31.6\}$ (eight log-spaced points), fifty multi-starts per $A$. Left: scaled ratio vs $A$ (log axis). Right: top-1 and feasibility probabilities; feasibility peaks at $p_{\text{feas}}=0.91$ near $A=0.32$ then decays as the penalty term begins to flatten the feasible-subspace cost surface.}
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.78\textwidth,
+        height=0.255\textheight,
+        keepaspectratio
+    ]{plots/compare/depth_warm_vs_random.pdf}
+    \caption{Sweep 1 extension: warm-start versus random multi-start QAOA on the canonical instance. Warm starts restore roughly monotone depth scaling and substantially improve feasibility mass relative to random restarts.}
+    \label{fig:app_depth_warm}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.78\textwidth,
+        height=0.255\textheight,
+        keepaspectratio
+    ]{plots/compare/penalty_sweep.pdf}
+    \caption{Sweep 4: budget-penalty calibration on the canonical instance at $p=3$. Feasibility peaks near $A=0.32$ and then decays as the penalty begins to flatten the feasible-subspace cost surface.}
     \label{fig:app_penalty_sweep}
 \end{figure}
 
+\vspace{-0.4em}
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/compare/risk.pdf}
-    \caption{Sweep 3: risk aversion. Scaled ratio vs $\lambda \in [10^{-1}, 10^2]$ (seven log-spaced values) at $p=3$, fifty multi-starts per $\lambda$. Brute force, greedy-Sharpe, Markowitz-round and simulated annealing all sit at $r\approx 1$ and are visually overlaid; QAOA (red) stays in the $r \approx 0.97$--$0.99$ band across the full sweep, with a modest improvement at high $\lambda$.}
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.78\textwidth,
+        height=0.255\textheight,
+        keepaspectratio
+    ]{plots/compare/risk.pdf}
+    \caption{Sweep 3: risk aversion. Scaled ratio versus $\lambda$ at $p=3$. The classical baselines remain essentially optimal throughout, while QAOA stays in a narrow $r\approx 0.97$--$0.99$ band.}
     \label{fig:app_risk_sweep}
 \end{figure}
 
+\vspace{-0.4em}
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{plots/compare/scaling.pdf}
-    \caption{Sweep 2: size scaling. Median over random size-$n$ subsets of the canonical universe ($M=20$ at $n\!\leq\!10$, $M=8$ at $n=12$, $M=10$ at $n=14$, $M=1$ at $n=16$); shaded bands show interquartile range across subsets. Left: scaled ratio per solver vs $n$. Right: median wall-clock runtime on a log scale; QAOA grows roughly as $2^n$ while the classical baselines stay essentially flat.}
+    \captionsetup{font=scriptsize}
+    \includegraphics[
+        width=0.78\textwidth,
+        height=0.255\textheight,
+        keepaspectratio
+    ]{plots/compare/scaling.pdf}
+    \caption{Sweep 2: size scaling. Left: scaled ratio per solver versus $n$. Right: median wall-clock runtime on a log scale; QAOA grows roughly as $2^n$ while the classical baselines remain nearly flat.}
     \label{fig:app_scaling}
 \end{figure}
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{plots/compare/scaling_zoom.pdf}

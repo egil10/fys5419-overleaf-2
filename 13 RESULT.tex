@@ -216,8 +216,9 @@ The combined picture from \cref{subsec:warmstart-results,subsec:xymixer-results}
 
 The eight experiments converge on a consistent picture, summarised in \cref{tab:results-summary}: the standard penalty/X-mixer pipeline trails the classical baselines on every axis, warm starts restore monotone depth scaling, and the XY-Dicke variant lands near-optimal scaled ratio with feasibility mass at unity by construction.
 
-\begin{table}[!t]
+\begin{table}[!b]
     \centering
+    \small 
     \caption{Headline numbers across the three QAOA variants benchmarked in this report. ``Standard'' is the penalty/X-mixer pipeline at the canonical $n=16$, $p=3$, $K=4$, $\lambda=2.0$, $A=0.5$ with fifty COBYLA multi-starts. ``Warm'' is the same instance with the warm-start protocol of \cref{eq:warmstart} at $p=5$ (the deepest converged warm-start point). ``XY-Dicke'' is the constraint-preserving variant at $n=8$, $K=2$, $p=3$, twenty multi-starts. Runtimes are wall-clock seconds for the full multi-start solve.}
     \label{tab:results-summary}
     \begin{tabular}{@{}lrrr@{}}
