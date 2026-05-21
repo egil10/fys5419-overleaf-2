@@ -1,14 +1,14 @@
 \section{Methods}\label{section:methods}
 
-The QAOA pipeline turns a financial dataset into a quantum circuit through a sequence of well-defined steps,
-\begin{align}
+The QAOA pipeline turns a financial dataset into a quantum circuit through a sequence of well-defined steps \parencite{hjorthjensen2026quantumcomputingmachinelearning},
+\begin{align*}
     & \text{Financial data} \\ 
     & \rightarrow (\boldsymbol\mu,\boldsymbol\Sigma) \\
     & \rightarrow \text{QUBO} \\
     & \rightarrow \text{Ising} \\
     & \rightarrow \text{Pauli operators} \\
     & \rightarrow \text{QAOA}.
-\end{align}
+\end{align*}
 In plain words: we start from daily stock prices, summarise them as an expected-return vector $\boldsymbol\mu$ and a covariance matrix $\boldsymbol\Sigma$, write the portfolio objective as a quadratic cost over binary ``in or out'' decisions (a QUBO), rewrite the same cost in $\pm 1$-spin variables so it becomes a classical magnet (an Ising Hamiltonian), promote each spin to a Pauli-$Z$ operator on a qubit, and finally drive a short tunable quantum circuit (QAOA) whose measurement statistics concentrate on low-cost portfolios. Subsections~\ref{subsec:meanvar}--\ref{subsec:qaoa} develop each arrow in turn. \Cref{subsec:xymixer} develops the constraint-preserving XY-ring mixer that we later benchmark in \cref{subsec:xymixer-results}, \cref{subsec:warmstart} formalises the warm-start initialisation prescription benchmarked in \cref{subsec:warmstart-results}, and \cref{subsec:metrics} fixes the metrics used throughout \cref{section:result}.
 
 
