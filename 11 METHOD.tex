@@ -159,7 +159,7 @@ with $2p$ variational parameters $(\gamma_1,\dots,\gamma_p,\beta_1,\dots,\beta_p
 
 \begin{figure*}[!t]
     \centering
-    \includegraphics[width=0.92\textwidth]{plots/qaoa/qaoa_ansatz.pdf}
+    \includegraphics[width=0.75\textwidth]{plots/qaoa/qaoa_ansatz.pdf}
     \caption{Schematic of the QAOA ansatz of \eqref{eq:multilayer}. The circuit prepares the uniform superposition $|+\rangle^{\otimes n}$ via a layer of Hadamards on $|0\rangle^{\otimes n}$, then alternates $p$ cost-phase unitaries $U_C(\gamma_k) = e^{-i\gamma_k H_C}$ with mixer unitaries $U_M(\beta_k) = e^{-i\beta_k H_M}$. The $2p$ angles $(\boldsymbol\gamma, \boldsymbol\beta)$ are updated by a classical outer loop (here COBYLA) that minimises $E(\boldsymbol\gamma,\boldsymbol\beta) = \langle\psi|H_C|\psi\rangle$. Diagram replicated from \textcite{falla2024graph}.}
     \label{fig:qaoa_ansatz}
 \end{figure*}
